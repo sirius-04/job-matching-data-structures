@@ -1,5 +1,5 @@
 #include <iostream>
-#include "JobLinkedList/JobLinkedList.h"
+#include "LinkedList/JobLinkedList/JobLinkedList.h"
 using namespace std;
 
 void runArray() {
