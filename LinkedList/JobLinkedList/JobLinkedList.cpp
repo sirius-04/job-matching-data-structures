@@ -6,6 +6,7 @@ JobNode::JobNode(string id, string position, string* skills, int skillCount) {
     this->position = position;
     this->skillCount = skillCount;
     this->skills = new string[skillCount];
+    
     for (int i = 0; i < skillCount; i++) {
         this->skills[i] = skills[i];
     }

@@ -22,9 +22,11 @@ class JobLinkedList {
         int length;
 
     public:
+        // constructor & destructor
         JobLinkedList(string id, string position, string* skills, int skillCount);
         JobLinkedList();
         ~JobLinkedList();
+
         void printList();
         void append(string id, string position, string* skills, int skillCount);
         void prepend(string id, string position, string* skills, int skillCount);
@@ -35,6 +37,28 @@ class JobLinkedList {
         bool insert(int index, string id, string position, string* skills, int skillCount);
         void deleteNode(int index);
         void reverse();
+
+        // linear search
+        JobNode* linearSearchJobByKeyword(string positionKeyword);
+        JobNode* linearSearchJobBySkill(string skill);
+        JobNode* linearSearchBySkillSet(string* skills, int skillCount);
+
+        // binary search
+        JobNode* binarySearchJobByKeyword(string positionKeyword);
+        JobNode* binarySearchJobBySkill(string skill);
+        JobNode* binarySearchJobBySkillSet(string* skills, int skillCount);
+
+        // merge sort
+        void mergeSortJobsByPosition();
+        void mergeSortJobsBySkillCount();
+        void mergeSortJobsById();
+        void mergeSortJobsBySkill();
+
+        // quick sort
+        void quickSortJobsByPosition();
+        void quickSortJobsByPosition();
+        void quickSortJobsById();
+        void quickSortJobsBySkill();
 };
 
 #endif
