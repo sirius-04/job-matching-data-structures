@@ -39,12 +39,12 @@ class JobLinkedList {
         void reverse();
 
         // linear search
-        JobNode* linearSearchJobByKeyword(string positionKeyword);
+        JobLinkedList* linearSearchJobByPosition(const string& position);
         JobNode* linearSearchJobBySkill(string skill);
         JobNode* linearSearchBySkillSet(string* skills, int skillCount);
-
+        
         // binary search
-        JobNode* binarySearchJobByKeyword(string positionKeyword);
+        JobNode* binarySearchJobByPosition(string position);
         JobNode* binarySearchJobBySkill(string skill);
         JobNode* binarySearchJobBySkillSet(string* skills, int skillCount);
 
@@ -52,11 +52,11 @@ class JobLinkedList {
         void mergeSortJobsByPosition();
         void mergeSortJobsBySkillCount();
         void mergeSortJobsById();
-        void mergeSortJobsBySkill();
+        void mergeSortJobsBySkill();    
 
         // quick sort
         void quickSortJobsByPosition();
-        void quickSortJobsByPosition();
+        void quickSortJobsBySkillCount();
         void quickSortJobsById();
         void quickSortJobsBySkill();
 };

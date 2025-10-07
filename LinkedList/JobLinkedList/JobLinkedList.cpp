@@ -214,3 +214,25 @@ void JobLinkedList::reverse() {
         temp = after;
     }
 }
+
+JobLinkedList* JobLinkedList::linearSearchJobByPosition(const string& position) {
+    if (position.empty()) return nullptr;
+    
+    JobLinkedList* jobListByPosition = new JobLinkedList();
+    JobNode* current = head;
+
+    while (current != nullptr) {
+        if (position == current->position) {
+            string jobId = current->id;
+            string jobPosition = current->position;
+            string* jobSkills = current->skills;
+            int jobSkillCount = current->skillCount;
+
+            jobListByPosition->append(jobId, jobPosition, jobSkills, jobSkillCount);
+        }
+        
+        current = current->next;
+    }
+
+    return jobListByPosition;
+}
