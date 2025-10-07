@@ -37,16 +37,16 @@ class JobLinkedList {
         bool insert(int index, string id, string position, string* skills, int skillCount);
         void deleteNode(int index);
         void reverse();
+        bool hasSkill(JobNode* node, const string& skill) const;
 
         // linear search
         JobLinkedList* linearSearchJobByPosition(const string& position);
-        JobNode* linearSearchJobBySkill(string skill);
-        JobNode* linearSearchBySkillSet(string* skills, int skillCount);
+        JobLinkedList* linearSearchJobBySkills(const string* skillSet, int skillCount, bool matchAll);
+
         
         // binary search
-        JobNode* binarySearchJobByPosition(string position);
-        JobNode* binarySearchJobBySkill(string skill);
-        JobNode* binarySearchJobBySkillSet(string* skills, int skillCount);
+        JobLinkedList* binarySearchJobByPosition(const string& position);
+        JobLinkedList* binarySearchJobBySkills(const string* skillSet, int skillCount, bool matchAll);
 
         // merge sort
         void mergeSortJobsByPosition();

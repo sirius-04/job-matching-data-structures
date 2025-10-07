@@ -230,9 +230,50 @@ JobLinkedList* JobLinkedList::linearSearchJobByPosition(const string& position) 
 
             jobListByPosition->append(jobId, jobPosition, jobSkills, jobSkillCount);
         }
-        
+
         current = current->next;
     }
 
     return jobListByPosition;
+}
+
+JobLinkedList* JobLinkedList::linearSearchJobBySkills(const string* skillSet, int skillCount, bool matchAll) {
+    if (skillSet == nullptr || skillCount <= 0) return nullptr;
+    
+    JobLinkedList* jobListBySkills = new JobLinkedList();
+    JobNode* current = head;
+
+    while (current != nullptr) {
+        int matchCount = 0;
+
+        for (int i = 0; i < skillCount; i++) {
+            for (int j = 0; j < current->skillCount; j++) {
+                if (skillSet[i] == current->skills[j]) {
+                    matchCount++;
+                    break;
+                }
+            }
+        }
+
+        bool isMatch = false;
+
+        if (matchAll) {
+            if (matchCount == skillCount) isMatch = true;
+        } else {
+            if (matchCount > 0) isMatch = true;
+        }
+
+        if (isMatch) {
+            jobListBySkills->append(
+                current->id,
+                current->position,
+                current->skills,
+                current->skillCount
+            );
+        }
+
+        current = current->next;
+    }
+
+    return jobListBySkills;
 }
