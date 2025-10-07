@@ -1,5 +1,5 @@
-#ifndef JOB_LINKED_LIST_H
-#define JOB_LINKED_LIST_H
+#ifndef JOB_LINKED_LIST_HPP
+#define JOB_LINKED_LIST_HPP
 
 #include <iostream>
 using namespace std;
