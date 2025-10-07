@@ -38,8 +38,6 @@ class JobLinkedList {
         bool insert(int index, int id, string position, string* skills, int skillCount);
         void deleteNode(int index);
         void reverse();
-        JobNode* splitList(JobNode* head);
-        JobNode* merge(JobNode* first, JobNode* second);
 
         // linear search
         JobLinkedList* linearSearchJobByPosition(const string& position);
@@ -50,16 +48,22 @@ class JobLinkedList {
         JobLinkedList* binarySearchJobBySkills(const string* skillSet, int skillCount, bool matchAll);
 
         // merge sort
-        JobLinkedList* mergeSortJobsById(JobNode* head);
-        JobLinkedList* mergeSortJobsByPosition(JobNode* head);
-        JobLinkedList* mergeSortJobsBySkill(JobNode* head);
-        JobLinkedList* mergeSortJobsBySkillCount(JobNode* head);
+        typedef bool (*CompareFn)(JobNode*, JobNode*);
+        static bool compareById(JobNode* a, JobNode* b);
+        static bool compareByPosition(JobNode* a, JobNode* b);
+        static bool compareBySkillCount(JobNode* a, JobNode* b);
+        static bool compareBySkill(JobNode* a, JobNode* b);
+
+        JobNode* split(JobNode* head);
+        JobNode* merge(JobNode* first, JobNode* second, CompareFn compare);
+        JobNode* mergeSort(JobNode* head, CompareFn compare);
+        void mergeSortBy(string criterion);
 
         // quick sort
-        JobLinkedList* quickSortJobsById(JobNode* head);
-        JobLinkedList* quickSortJobsByPosition(JobNode* head);
-        JobLinkedList* quickSortJobsBySkill(JobNode* head);
-        JobLinkedList* quickSortJobsBySkillCount(JobNode* head);
+        void quickSortById();
+        void quickSortByPosition();
+        void quickSortBySkill();
+        void quickSortBySkillCount();
 };
 
 #endif

@@ -1,4 +1,4 @@
-#include "JobLinkedList.h"
+#include "JobLinkedList.hpp"
 
 
 JobNode::JobNode(int id, string position, string* skills, int skillCount) {
@@ -278,29 +278,85 @@ JobLinkedList* JobLinkedList::linearSearchJobBySkills(const string* skillSet, in
     return jobListBySkills;
 }
 
-JobNode* JobLinkedList::splitList(JobNode* head) {
-    JobNode* fast = head;
-    JobNode* slow = head;
+JobNode *JobLinkedList::split(JobNode *head)
+{
+  JobNode *fast = head;
+  JobNode *slow = head;
 
-    while (fast != nullptr && fast->next != nullptr) {
-        fast = fast->next->next;
-        if (fast != nullptr) {
-            slow = slow->next;
-        }
+  while (fast->next != nullptr && fast->next->next != nullptr)
+  {
+    fast = fast->next->next;
+    slow = slow->next;
+  }
+
+  JobNode *second = slow->next;
+  slow->next = nullptr;
+  return second;
+}
+
+JobNode* JobLinkedList::merge(JobNode* first, JobNode* second, CompareFn compare) {
+    if (!first) return second;
+    if (!second) return first;
+
+    if (compare(first, second)) {
+        first->next = merge(first->next, second, compare);
+        return first;
+    } else {
+        second->next = merge(first, second->next, compare);
+        return second;
+    }
+}
+
+JobNode* JobLinkedList::mergeSort(JobNode* head, CompareFn compare) {
+    if (!head || !head->next) return head;
+
+    JobNode* second = split(head);
+
+    head = mergeSort(head, compare);
+    second = mergeSort(second, compare);
+
+    return merge(head, second, compare);
+}
+
+bool JobLinkedList::compareById(JobNode* a, JobNode* b) {
+    return a->id < b->id;
+}
+
+bool JobLinkedList::compareByPosition(JobNode* a, JobNode* b) {
+    return a->position < b->position;
+}
+
+bool JobLinkedList::compareBySkillCount(JobNode* a, JobNode* b) {
+    return a->skillCount < b->skillCount;
+}
+
+bool JobLinkedList::compareBySkill(JobNode* a, JobNode* b) {
+    if (a->skillCount == 0 || b->skillCount == 0) {
+        return a->skillCount < b->skillCount;
     }
 
-    JobNode* temp = slow->next;
-    slow->next = nullptr;
+    int minCount = std::min(a->skillCount, b->skillCount);
 
-    return temp;
+    for (int i = 0; i < minCount; ++i) {
+        if (a->skills[i] != b->skills[i])
+            return a->skills[i] < b->skills[i];
+    }
+
+    return a->skillCount < b->skillCount;
 }
 
-JobNode* JobLinkedList::merge(JobNode* first, JobNode* second) {
-    if (first == nullptr) return second;
-    if (second == nullptr) return first;
 
-}
-
-JobLinkedList* JobLinkedList::mergeSortJobsById(JobNode* head) {
-
+void JobLinkedList::mergeSortBy(string criterion) {
+    if (criterion == "id") {
+        head = mergeSort(head, compareById);
+    }
+    else if (criterion == "position") {
+        head = mergeSort(head, compareByPosition);
+    }
+    else if (criterion == "skillCount") {
+        head = mergeSort(head, compareBySkillCount);
+    }
+    else if (criterion == "skill") {
+        head = mergeSort(head, compareBySkill);
+    }
 }
