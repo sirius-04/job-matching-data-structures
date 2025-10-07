@@ -6,13 +6,13 @@ using namespace std;
 
 class JobNode {
     public:
-        string id;
+        int id;
         string position;
         string* skills;
         int skillCount;
         JobNode* next;
 
-        JobNode(string id, string position, string* skills, int skillCount);
+        JobNode(int id, string position, string* skills, int skillCount);
 };
 
 class JobLinkedList {
@@ -23,42 +23,43 @@ class JobLinkedList {
 
     public:
         // constructor & destructor
-        JobLinkedList(string id, string position, string* skills, int skillCount);
+        JobLinkedList(int id, string position, string* skills, int skillCount);
         JobLinkedList();
         ~JobLinkedList();
 
+        // general functions or utilities
         void printList();
-        void append(string id, string position, string* skills, int skillCount);
-        void prepend(string id, string position, string* skills, int skillCount);
+        void append(int id, string position, string* skills, int skillCount);
+        void prepend(int id, string position, string* skills, int skillCount);
         void deleteFirst();
         void deleteLast();
         JobNode* get(int index);
         bool set(int index, string position, string* skills, int skillCount);
-        bool insert(int index, string id, string position, string* skills, int skillCount);
+        bool insert(int index, int id, string position, string* skills, int skillCount);
         void deleteNode(int index);
         void reverse();
-        bool hasSkill(JobNode* node, const string& skill) const;
+        JobNode* splitList(JobNode* head);
+        JobNode* merge(JobNode* first, JobNode* second);
 
         // linear search
         JobLinkedList* linearSearchJobByPosition(const string& position);
         JobLinkedList* linearSearchJobBySkills(const string* skillSet, int skillCount, bool matchAll);
-
         
         // binary search
         JobLinkedList* binarySearchJobByPosition(const string& position);
         JobLinkedList* binarySearchJobBySkills(const string* skillSet, int skillCount, bool matchAll);
 
         // merge sort
-        void mergeSortJobsByPosition();
-        void mergeSortJobsBySkillCount();
-        void mergeSortJobsById();
-        void mergeSortJobsBySkill();    
+        JobLinkedList* mergeSortJobsById(JobNode* head);
+        JobLinkedList* mergeSortJobsByPosition(JobNode* head);
+        JobLinkedList* mergeSortJobsBySkill(JobNode* head);
+        JobLinkedList* mergeSortJobsBySkillCount(JobNode* head);
 
         // quick sort
-        void quickSortJobsByPosition();
-        void quickSortJobsBySkillCount();
-        void quickSortJobsById();
-        void quickSortJobsBySkill();
+        JobLinkedList* quickSortJobsById(JobNode* head);
+        JobLinkedList* quickSortJobsByPosition(JobNode* head);
+        JobLinkedList* quickSortJobsBySkill(JobNode* head);
+        JobLinkedList* quickSortJobsBySkillCount(JobNode* head);
 };
 
 #endif

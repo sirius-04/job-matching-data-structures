@@ -1,7 +1,7 @@
 #include "JobLinkedList.h"
 
 
-JobNode::JobNode(string id, string position, string* skills, int skillCount) {
+JobNode::JobNode(int id, string position, string* skills, int skillCount) {
     this->id = id;
     this->position = position;
     this->skillCount = skillCount;
@@ -14,7 +14,7 @@ JobNode::JobNode(string id, string position, string* skills, int skillCount) {
 }
 
 
-JobLinkedList::JobLinkedList(string id, string position, string* skills, int skillCount) {
+JobLinkedList::JobLinkedList(int id, string position, string* skills, int skillCount) {
     JobNode* newNode = new JobNode(id, position, skills, skillCount);
 
     head = newNode;
@@ -55,7 +55,7 @@ void JobLinkedList::printList() {
     cout << endl;
 }
 
-void JobLinkedList::append(string id, string position, string* skills, int skillCount) {
+void JobLinkedList::append(int id, string position, string* skills, int skillCount) {
     JobNode* newNode = new JobNode(id, position, skills, skillCount);
 
     if (length == 0) {
@@ -69,7 +69,7 @@ void JobLinkedList::append(string id, string position, string* skills, int skill
     length++;
 }
 
-void JobLinkedList::prepend(string id, string position, string* skills, int skillCount) {
+void JobLinkedList::prepend(int id, string position, string* skills, int skillCount) {
     JobNode* newNode = new JobNode(id, position, skills, skillCount);
 
     if (length == 0) {
@@ -161,7 +161,7 @@ bool JobLinkedList::set(int index, string position, string* skills, int skillCou
     return false;
 }
 
-bool JobLinkedList::insert(int index, string id, string position, string* skills, int skillCount) {
+bool JobLinkedList::insert(int index, int id, string position, string* skills, int skillCount) {
     if (index < 0 || index > length) return false;
 
     if (index == 0) {
@@ -223,7 +223,7 @@ JobLinkedList* JobLinkedList::linearSearchJobByPosition(const string& position) 
 
     while (current != nullptr) {
         if (position == current->position) {
-            string jobId = current->id;
+            int jobId = current->id;
             string jobPosition = current->position;
             string* jobSkills = current->skills;
             int jobSkillCount = current->skillCount;
@@ -276,4 +276,31 @@ JobLinkedList* JobLinkedList::linearSearchJobBySkills(const string* skillSet, in
     }
 
     return jobListBySkills;
+}
+
+JobNode* JobLinkedList::splitList(JobNode* head) {
+    JobNode* fast = head;
+    JobNode* slow = head;
+
+    while (fast != nullptr && fast->next != nullptr) {
+        fast = fast->next->next;
+        if (fast != nullptr) {
+            slow = slow->next;
+        }
+    }
+
+    JobNode* temp = slow->next;
+    slow->next = nullptr;
+
+    return temp;
+}
+
+JobNode* JobLinkedList::merge(JobNode* first, JobNode* second) {
+    if (first == nullptr) return second;
+    if (second == nullptr) return first;
+
+}
+
+JobLinkedList* JobLinkedList::mergeSortJobsById(JobNode* head) {
+
 }
