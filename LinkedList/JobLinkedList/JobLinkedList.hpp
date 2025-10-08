@@ -67,12 +67,7 @@ public:
     // binary search
     JobNode *findMiddle(JobNode *start, JobNode *end);
     JobLinkedList *binarySearchJobByPosition(const string &position);
-    // JobLinkedList *binarySearchJobBySkills(const string *skillSet, int skillCount, bool matchAll);
     JobLinkedList *binarySearchJobBySkills(const string *skillSet, int skillCount);
-    // void binarySearchJobByKeyword(const string &positionKeyword);
-    // void binarySearchJobBySkill(const string &skill);
-    // void binarySearchJobBySkillSet(string *skills, int skillCount);
-    // JobLinkedList *binarySearchJobBySkillSet(const string *skills, int skillCount);
 
     // merge sort
     typedef bool (*CompareFn)(JobNode *, JobNode *);
