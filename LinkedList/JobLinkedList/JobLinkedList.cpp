@@ -265,20 +265,20 @@ void JobLinkedList::reverse()
     }
 }
 
-int JobLinkedList::getLength() {
+int JobLinkedList::getLength()
+{
     return length;
 }
 
-JobLinkedList* JobLinkedList::linearSearchJobByPosition(const string& position) {
-    if (position.empty()) return nullptr;
-    
-    JobLinkedList* jobListByPosition = new JobLinkedList();
-    JobNode* current = head;
+JobLinkedList *JobLinkedList::linearSearchJobByPosition(const string &position)
+{
+    if (position.empty())
+        return nullptr;
 
     JobLinkedList *jobListByPosition = new JobLinkedList();
     JobNode *current = head;
 
-    while (current != nullptr)
+        while (current != nullptr)
     {
         if (position == current->position)
         {
