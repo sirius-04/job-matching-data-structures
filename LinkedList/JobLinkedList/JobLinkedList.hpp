@@ -42,15 +42,13 @@ public:
     void reverse();
 
     static string cleanString(string str);
-    void displaySlice();
-    void insertLast(int id, string position, string *skills, int skillCount);
+    void printSlice();
 
     // linear search
     JobLinkedList *linearSearchJobByPosition(const string &position);
     JobLinkedList *linearSearchJobBySkills(const string *skillSet, int skillCount, bool matchAll);
 
     // binary search
-    JobNode *findMiddle(JobNode *start, JobNode *end);
     JobLinkedList *binarySearchJobByPosition(const string &position);
     JobLinkedList *binarySearchJobBySkills(const string *skillSet, int skillCount);
 

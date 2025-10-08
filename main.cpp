@@ -65,7 +65,7 @@ void displayMenu()
 
 void createJobLinkedList(JobLinkedList &jobLinkedList)
 {
-    ifstream file("/Users/dede/Documents/APU/Degree Y1 S2/DSTR/job-matching-data-structures/dataset/cleaned_jobDescription.csv");
+    ifstream file("./dataset/cleaned_jobDescription.csv");
 
     if (!file.is_open())
     {
@@ -116,7 +116,7 @@ void createJobLinkedList(JobLinkedList &jobLinkedList)
         for (int i = 0; i < count; i++)
             skills[i] = tempSkills[i];
 
-        jobLinkedList.insertLast(id, position, skills, count);
+        jobLinkedList.append(id, position, skills, count);
 
         delete[] skills;
     }
@@ -126,7 +126,7 @@ void createJobLinkedList(JobLinkedList &jobLinkedList)
 
 void createResumeLinkedList(ResumeLinkedList &resumeLinkedList)
 {
-    ifstream file("/Users/dede/Documents/APU/Degree Y1 S2/DSTR/job-matching-data-structures/dataset/cleaned_resume.csv");
+    ifstream file("./dataset/cleaned_resume.csv");
 
     if (!file.is_open())
     {
@@ -176,7 +176,7 @@ void createResumeLinkedList(ResumeLinkedList &resumeLinkedList)
         for (int i = 0; i < count; i++)
             skills[i] = tempSkills[i];
 
-        resumeLinkedList.insertLast(id, skills, count);
+        resumeLinkedList.append(id, skills, count);
 
         delete[] skills;
     }
@@ -190,8 +190,8 @@ int main()
     ResumeLinkedList resumelinkedList;
 
     createResumeLinkedList(resumelinkedList);
-    createJobLinkedList(jobLinkedList);
+    // createJobLinkedList(jobLinkedList);
 
-    jobLinkedList.printList();
-    // resumelinkedList.printList();
+    // jobLinkedList.printSlice();
+    resumelinkedList.printSlice();
 }

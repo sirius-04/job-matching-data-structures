@@ -444,19 +444,6 @@ void JobLinkedList::mergeSortBy(string criterion)
     }
 }
 
-// ======= InsertAtLast =======
-void JobLinkedList::insertLast(int id, string position, string *skills, int skillCount)
-{
-    JobNode *t = new JobNode(id, position, skills, skillCount);
-    if (head == NULL)
-        head = tail = t;
-    else
-    {
-        tail->next = t;
-        tail = t;
-    }
-}
-
 // ======= Clean String (remove quotes and trim spaces) =======
 string JobLinkedList::cleanString(string s)
 {
@@ -469,7 +456,7 @@ string JobLinkedList::cleanString(string s)
 }
 
 // ======= Display First 10 + Last 10 =======
-void JobLinkedList::displaySlice()
+void JobLinkedList::printSlice()
 {
     int total = 0;
     JobNode *p = head;
@@ -482,29 +469,30 @@ void JobLinkedList::displaySlice()
     p = head;
     int index = 0;
     cout << "\n===== Job Linked List (Showing first 10 and last 10) =====\n";
-    while (p != NULL)
+
+    while (p != nullptr)
     {
-        if (index < 10 || index >= total - 10)
+        if (index < 5 || index >= total - 5)
         {
-            cout << "ID: " << p->id << endl;
-            cout << "Position: " << p->position << endl;
-            cout << "Skill Count: " << p->skillCount << endl;
-            cout << "Skills: ";
+            cout << "|" << p->id << "| " << p->position << " | Skills: ";
             for (int i = 0; i < p->skillCount; i++)
             {
                 cout << p->skills[i];
                 if (i < p->skillCount - 1)
                     cout << ", ";
             }
-            cout << "\n----------------------\n";
+            cout << " | Total Skills: " << p->skillCount << endl;
         }
         else if (index == 10)
         {
-            cout << "...\n...\n...(skipping " << total - 20 << " jobs)...\n...\n...\n";
+            cout << "...\n...\n...(skipping " << total - 10 << " jobs)...\n...\n...\n";
         }
+
         p = p->next;
         index++;
     }
+
+    cout << endl;
 }
 
 // ======= Swap Utility =======
@@ -618,28 +606,6 @@ void JobLinkedList::quickSortByPosition()
     quickSort(head, lastNode, "position");
 }
 
-// ======= Helper: find middle node between start and end =======
-JobNode *JobLinkedList::findMiddle(JobNode *start, JobNode *end)
-{
-    if (!start)
-        return nullptr;
-
-    JobNode *slow = start;
-    JobNode *fast = start->next;
-
-    while (fast != end)
-    {
-        fast = fast->next;
-        if (fast != end)
-        {
-            slow = slow->next;
-            fast = fast->next;
-        }
-    }
-
-    return slow;
-}
-
 // ======= Search by Position Keyword =======
 JobLinkedList *JobLinkedList::binarySearchJobByPosition(const string &positionKeyword)
 {
@@ -654,7 +620,7 @@ JobLinkedList *JobLinkedList::binarySearchJobByPosition(const string &positionKe
     {
         if (p->position.find(positionKeyword) != string::npos)
         {
-            matches->insertLast(p->id, p->position, p->skills, p->skillCount);
+            matches->append(p->id, p->position, p->skills, p->skillCount);
         }
         p = p->next;
     }
@@ -691,7 +657,7 @@ JobLinkedList *JobLinkedList::binarySearchJobBySkills(const string *skills, int 
 
         // only include job if all required skills are matched
         if (matched == skillCount)
-            matches->insertLast(p->id, p->position, p->skills, p->skillCount);
+            matches->append(p->id, p->position, p->skills, p->skillCount);
 
         p = p->next;
     }

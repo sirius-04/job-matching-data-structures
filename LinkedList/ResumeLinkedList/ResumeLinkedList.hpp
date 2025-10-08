@@ -41,8 +41,7 @@ public:
     void reverse();
 
     static string cleanString(string s);
-    void displaySlice();
-    void insertLast(int id, string *skills, int skillCount);
+    void printSlice();
 
     // linear search
     ResumeLinkedList *linearSearchResumeBySkills(const string *skillSet, int skillCount, bool matchAll);

@@ -405,19 +405,6 @@ void ResumeLinkedList::mergeSortBy(const string &criterion)
     }
 }
 
-// ======= Insert Last =======
-void ResumeLinkedList::insertLast(int id, string *skills, int skillCount)
-{
-    ResumeNode *t = new ResumeNode(id, skills, skillCount);
-    if (head == nullptr)
-        head = tail = t;
-    else
-    {
-        tail->next = t;
-        tail = t;
-    }
-}
-
 // ======= Clean String =======
 string ResumeLinkedList::cleanString(string s)
 {
@@ -430,10 +417,12 @@ string ResumeLinkedList::cleanString(string s)
 }
 
 // ======= Display Slice =======
-void ResumeLinkedList::displaySlice()
+void ResumeLinkedList::printSlice()
 {
     int total = 0;
     ResumeNode *p = head;
+
+    // Count total nodes
     while (p != nullptr)
     {
         total++;
@@ -442,29 +431,32 @@ void ResumeLinkedList::displaySlice()
 
     p = head;
     int index = 0;
+
     cout << "\n===== Resume Linked List (Showing first 10 and last 10) =====\n";
+
     while (p != nullptr)
     {
-        if (index < 10 || index >= total - 10)
+        if (index < 5 || index >= total - 5)
         {
-            cout << "ID: " << p->id << endl;
-            cout << "Skill Count: " << p->skillCount << endl;
-            cout << "Skills: ";
+            cout << "|" << p->id << " | Skills: ";
             for (int i = 0; i < p->skillCount; i++)
             {
                 cout << p->skills[i];
                 if (i < p->skillCount - 1)
                     cout << ", ";
             }
-            cout << "\n----------------------\n";
+            cout << " | Total Skills: " << p->skillCount << endl;
         }
         else if (index == 10)
         {
-            cout << "...\n...(skipping " << total - 20 << " resumes)...\n...\n";
+            cout << "...\n...\n...(skipping " << total - 10 << " resumes)...\n...\n...\n";
         }
+
         p = p->next;
         index++;
     }
+
+    cout << endl;
 }
 
 // ======= Swap =======
@@ -581,7 +573,7 @@ ResumeLinkedList *ResumeLinkedList::binarySearchResumeBySkills(const string *ski
         }
 
         if (matched == skillCount)
-            matches->insertLast(p->id, p->skills, p->skillCount);
+            matches->append(p->id, p->skills, p->skillCount);
 
         p = p->next;
     }
