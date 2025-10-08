@@ -1,63 +1,54 @@
-#ifndef JOBARRAY_HPP
-#define JOBARRAY_HPP
+#ifndef JOB_ARRAY_HPP
+#define JOB_ARRAY_HPP
 
+#include <iostream>
 #include <string>
-#include <vector>
-#include <functional>
 using namespace std;
 
-struct Job {
+class Job {
+public:
     int id;
     string title;
-    vector<string> skills;
+    string* skills;
+    int skillCount;
 
-    Job() = default;
-    Job(int id, const string& title, const vector<string>& skills);
+    Job();
+    Job(int id, string title, string* skills, int skillCount);
+    Job(const Job& other);             
+    Job& operator=(const Job& other);  
+    ~Job();
 };
 
 class JobArray {
 private:
-    vector<Job> jobs;
+    Job* jobs;
+    int size;
+    int capacity;
 
-    // Merge sort helper functions
-    void merge(vector<Job>& arr, int left, int mid, int right, function<bool(const Job&, const Job&)> compare);
-    void mergeSortHelper(vector<Job>& arr, int left, int right, function<bool(const Job&, const Job&)> compare);
+    void resize();
 
 public:
-    using CompareFn = function<bool(const Job&, const Job&)>;
+    JobArray();
+    ~JobArray();
 
-    // ArrayList
-    void add(const Job& job);
-    Job& get(int index);
-    const Job& get(int index) const;
-    void remove(int index);
-    int size() const;
-    bool containsJob(int id) const;
-
-    Job& operator[](int index);
-    const Job& operator[](int index) const;
-
-    // CSV operations
+    // Core
+    void addJob(int id, string title, string* skills, int skillCount);
     bool loadFromCSV(const string& filename);
-    void printJobs() const;
+    void printJobs();
 
-    // Search
-    JobArray linearSearchBySkill(const string& skill) const;
+    // Linear search
+    JobArray linearSearchBySkill(const string& skill);
 
-    // Sorting
-    void mergeSort(CompareFn compare);
-
-    // Comparison functions
+    // Merge sort
+    typedef bool (*CompareFn)(const Job&, const Job&);
     static bool compareById(const Job& a, const Job& b);
-    static bool compareByTitle(const Job& a, const Job& b);
     static bool compareBySkillCount(const Job& a, const Job& b);
+    static bool compareByTitle(const Job& a, const Job& b);
     static bool compareByFirstSkill(const Job& a, const Job& b);
 
-    // Iterators
-    auto begin() { return jobs.begin(); }
-    auto end() { return jobs.end(); }
-    auto begin() const { return jobs.begin(); }
-    auto end() const { return jobs.end(); }
+    void mergeSort(CompareFn compare);
+    void mergeSortHelper(Job* arr, int left, int right, CompareFn compare);
+    void merge(Job* arr, int left, int mid, int right, CompareFn compare);
 };
 
 #endif
