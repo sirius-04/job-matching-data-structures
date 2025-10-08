@@ -1,49 +1,58 @@
 #include "ResumeLinkedList.hpp"
 
-ResumeNode::ResumeNode(int id, string* skills, int skillCount) {
+ResumeNode::ResumeNode(int id, string *skills, int skillCount)
+{
     this->id = id;
     this->skillCount = skillCount;
     this->skills = new string[skillCount];
-    
-    for (int i = 0; i < skillCount; i++) {
+
+    for (int i = 0; i < skillCount; i++)
+    {
         this->skills[i] = skills[i];
     }
     this->next = nullptr;
 }
 
-
-ResumeLinkedList::ResumeLinkedList(int id, string* skills, int skillCount) {
-    ResumeNode* newNode = new ResumeNode(id, skills, skillCount);
+ResumeLinkedList::ResumeLinkedList(int id, string *skills, int skillCount)
+{
+    ResumeNode *newNode = new ResumeNode(id, skills, skillCount);
 
     head = newNode;
     tail = newNode;
     length = 1;
 }
 
-ResumeLinkedList::ResumeLinkedList() {
+ResumeLinkedList::ResumeLinkedList()
+{
     head = nullptr;
     tail = nullptr;
     length = 0;
 }
 
-ResumeLinkedList::~ResumeLinkedList() {
-    ResumeNode* temp = head;
-    while (temp != nullptr) {
-        ResumeNode* next = temp->next;
+ResumeLinkedList::~ResumeLinkedList()
+{
+    ResumeNode *temp = head;
+    while (temp != nullptr)
+    {
+        ResumeNode *next = temp->next;
         delete[] temp->skills;
         delete temp;
         temp = next;
     }
 }
 
-void ResumeLinkedList::printList() {
-    ResumeNode* temp = head;
+void ResumeLinkedList::printList()
+{
+    ResumeNode *temp = head;
 
-    while (temp != nullptr) {
+    while (temp != nullptr)
+    {
         cout << "|" << temp->id << " | Skills: ";
-        for (int i = 0; i < temp->skillCount; i++) {
+        for (int i = 0; i < temp->skillCount; i++)
+        {
             cout << temp->skills[i];
-            if (i < temp->skillCount - 1) cout << ", ";
+            if (i < temp->skillCount - 1)
+                cout << ", ";
         }
         cout << " | Total Skills: " << temp->skillCount << endl;
         temp = temp->next;
@@ -52,27 +61,35 @@ void ResumeLinkedList::printList() {
     cout << endl;
 }
 
-void ResumeLinkedList::append(int id, string* skills, int skillCount) {
-    ResumeNode* newNode = new ResumeNode(id, skills, skillCount);
+void ResumeLinkedList::append(int id, string *skills, int skillCount)
+{
+    ResumeNode *newNode = new ResumeNode(id, skills, skillCount);
 
-    if (length == 0) {
+    if (length == 0)
+    {
         head = newNode;
         tail = newNode;
-    } else {
+    }
+    else
+    {
         tail->next = newNode;
         tail = newNode;
     }
-    
+
     length++;
 }
 
-void ResumeLinkedList::prepend(int id, string* skills, int skillCount) {
-    ResumeNode* newNode = new ResumeNode(id, skills, skillCount);
+void ResumeLinkedList::prepend(int id, string *skills, int skillCount)
+{
+    ResumeNode *newNode = new ResumeNode(id, skills, skillCount);
 
-    if (length == 0) {
+    if (length == 0)
+    {
         head = newNode;
         tail = newNode;
-    } else {
+    }
+    else
+    {
         newNode->next = head;
         head = newNode;
     }
@@ -80,15 +97,20 @@ void ResumeLinkedList::prepend(int id, string* skills, int skillCount) {
     length++;
 }
 
-void ResumeLinkedList::deleteFirst() {
-    if (length == 0) return;
+void ResumeLinkedList::deleteFirst()
+{
+    if (length == 0)
+        return;
 
-    ResumeNode* temp = head;
+    ResumeNode *temp = head;
 
-    if (length == 1) {
+    if (length == 1)
+    {
         head = nullptr;
         tail = nullptr;
-    } else {
+    }
+    else
+    {
         head = head->next;
     }
 
@@ -97,21 +119,27 @@ void ResumeLinkedList::deleteFirst() {
     length--;
 }
 
-void ResumeLinkedList::deleteLast() {
-    if (length == 0) return;
+void ResumeLinkedList::deleteLast()
+{
+    if (length == 0)
+        return;
 
-    ResumeNode* temp = head;
+    ResumeNode *temp = head;
 
-    if (length == 1) {
+    if (length == 1)
+    {
         delete[] head->skills;
         delete head;
 
         head = nullptr;
         tail = nullptr;
-    } else {
-        ResumeNode* pre = head;
+    }
+    else
+    {
+        ResumeNode *pre = head;
 
-        while (temp->next != nullptr) {
+        while (temp->next != nullptr)
+        {
             pre = temp;
             temp = temp->next;
         }
@@ -125,48 +153,61 @@ void ResumeLinkedList::deleteLast() {
     length--;
 }
 
-ResumeNode* ResumeLinkedList::get(int index) {
-    if (index < 0 || index >= length) {
+ResumeNode *ResumeLinkedList::get(int index)
+{
+    if (index < 0 || index >= length)
+    {
         return nullptr;
     }
 
-    ResumeNode* temp = head;
+    ResumeNode *temp = head;
 
-    for (int i = 0; i < index; i++) {
+    for (int i = 0; i < index; i++)
+    {
         temp = temp->next;
     }
 
     return temp;
 }
 
-bool ResumeLinkedList::set(int index, int id, string* skills, int skillCount) {
-    ResumeNode* temp = get(index);
+bool ResumeLinkedList::set(int index, int id, string *skills, int skillCount)
+{
+    ResumeNode *temp = get(index);
 
-    if (temp) {
+    if (temp)
+    {
         delete[] temp->skills;
 
         temp->skills = new string[skillCount];
-        for (int i = 0; i < skillCount; i++) {
+        for (int i = 0; i < skillCount; i++)
+        {
             temp->skills[i] = skills[i];
         }
-        
-        temp-> skillCount = skillCount;
+
+        temp->skillCount = skillCount;
         return true;
     }
 
     return false;
 }
 
-bool ResumeLinkedList::insert(int index, int id, string* skills, int skillCount) {
-    if (index < 0 || index > length) return false;
+bool ResumeLinkedList::insert(int index, int id, string *skills, int skillCount)
+{
+    if (index < 0 || index > length)
+        return false;
 
-    if (index == 0) {
+    if (index == 0)
+    {
         prepend(id, skills, skillCount);
-    } else if (index == length) {
+    }
+    else if (index == length)
+    {
         append(id, skills, skillCount);
-    } else {
-        ResumeNode* newNode = new ResumeNode(id, skills, skillCount);
-        ResumeNode* temp = get(index - 1);
+    }
+    else
+    {
+        ResumeNode *newNode = new ResumeNode(id, skills, skillCount);
+        ResumeNode *temp = get(index - 1);
 
         newNode->next = temp->next;
         temp->next = newNode;
@@ -175,16 +216,23 @@ bool ResumeLinkedList::insert(int index, int id, string* skills, int skillCount)
     return true;
 }
 
-void ResumeLinkedList::deleteNode(int index) {
-    if (index < 0 || index >= length) return;
+void ResumeLinkedList::deleteNode(int index)
+{
+    if (index < 0 || index >= length)
+        return;
 
-    if (index == 0) {
+    if (index == 0)
+    {
         deleteFirst();
-    } else if (index == length - 1) {
+    }
+    else if (index == length - 1)
+    {
         deleteLast();
-    } else {
-        ResumeNode* prev = get(index - 1);
-        ResumeNode* temp = prev->next;
+    }
+    else
+    {
+        ResumeNode *prev = get(index - 1);
+        ResumeNode *temp = prev->next;
 
         prev->next = temp->next;
 
@@ -194,16 +242,19 @@ void ResumeLinkedList::deleteNode(int index) {
     }
 }
 
-void ResumeLinkedList::reverse() {
-    if (length <= 1) return;
+void ResumeLinkedList::reverse()
+{
+    if (length <= 1)
+        return;
 
-    ResumeNode* temp = head;
+    ResumeNode *temp = head;
     head = tail;
     tail = temp;
-    ResumeNode* after = temp->next;
-    ResumeNode* before = nullptr;
+    ResumeNode *after = temp->next;
+    ResumeNode *before = nullptr;
 
-    for (int i = 0; i < length; i++) {
+    for (int i = 0; i < length; i++)
+    {
         after = temp->next;
         temp->next = before;
         before = temp;
@@ -211,18 +262,24 @@ void ResumeLinkedList::reverse() {
     }
 }
 
-ResumeLinkedList* ResumeLinkedList::linearSearchResumeBySkills(const string* skillSet, int skillCount, bool matchAll) {
-    if (skillSet == nullptr || skillCount <= 0) return nullptr;
-    
-    ResumeLinkedList* jobListBySkills = new ResumeLinkedList();
-    ResumeNode* current = head;
+ResumeLinkedList *ResumeLinkedList::linearSearchResumeBySkills(const string *skillSet, int skillCount, bool matchAll)
+{
+    if (skillSet == nullptr || skillCount <= 0)
+        return nullptr;
 
-    while (current != nullptr) {
+    ResumeLinkedList *jobListBySkills = new ResumeLinkedList();
+    ResumeNode *current = head;
+
+    while (current != nullptr)
+    {
         int matchCount = 0;
 
-        for (int i = 0; i < skillCount; i++) {
-            for (int j = 0; j < current->skillCount; j++) {
-                if (skillSet[i] == current->skills[j]) {
+        for (int i = 0; i < skillCount; i++)
+        {
+            for (int j = 0; j < current->skillCount; j++)
+            {
+                if (skillSet[i] == current->skills[j])
+                {
                     matchCount++;
                     break;
                 }
@@ -231,18 +288,23 @@ ResumeLinkedList* ResumeLinkedList::linearSearchResumeBySkills(const string* ski
 
         bool isMatch = false;
 
-        if (matchAll) {
-            if (matchCount == skillCount) isMatch = true;
-        } else {
-            if (matchCount > 0) isMatch = true;
+        if (matchAll)
+        {
+            if (matchCount == skillCount)
+                isMatch = true;
+        }
+        else
+        {
+            if (matchCount > 0)
+                isMatch = true;
         }
 
-        if (isMatch) {
+        if (isMatch)
+        {
             jobListBySkills->append(
                 current->id,
                 current->skills,
-                current->skillCount
-            );
+                current->skillCount);
         }
 
         current = current->next;
@@ -253,37 +315,45 @@ ResumeLinkedList* ResumeLinkedList::linearSearchResumeBySkills(const string* ski
 
 ResumeNode *ResumeLinkedList::split(ResumeNode *head)
 {
-  ResumeNode *fast = head;
-  ResumeNode *slow = head;
+    ResumeNode *fast = head;
+    ResumeNode *slow = head;
 
-  while (fast->next != nullptr && fast->next->next != nullptr)
-  {
-    fast = fast->next->next;
-    slow = slow->next;
-  }
+    while (fast->next != nullptr && fast->next->next != nullptr)
+    {
+        fast = fast->next->next;
+        slow = slow->next;
+    }
 
-  ResumeNode *second = slow->next;
-  slow->next = nullptr;
-  return second;
+    ResumeNode *second = slow->next;
+    slow->next = nullptr;
+    return second;
 }
 
-ResumeNode* ResumeLinkedList::merge(ResumeNode* first, ResumeNode* second, CompareFn compare) {
-    if (!first) return second;
-    if (!second) return first;
+ResumeNode *ResumeLinkedList::merge(ResumeNode *first, ResumeNode *second, CompareFn compare)
+{
+    if (!first)
+        return second;
+    if (!second)
+        return first;
 
-    if (compare(first, second)) {
+    if (compare(first, second))
+    {
         first->next = merge(first->next, second, compare);
         return first;
-    } else {
+    }
+    else
+    {
         second->next = merge(first, second->next, compare);
         return second;
     }
 }
 
-ResumeNode* ResumeLinkedList::mergeSort(ResumeNode* head, CompareFn compare) {
-    if (!head || !head->next) return head;
+ResumeNode *ResumeLinkedList::mergeSort(ResumeNode *head, CompareFn compare)
+{
+    if (!head || !head->next)
+        return head;
 
-    ResumeNode* second = split(head);
+    ResumeNode *second = split(head);
 
     head = mergeSort(head, compare);
     second = mergeSort(second, compare);
@@ -291,22 +361,27 @@ ResumeNode* ResumeLinkedList::mergeSort(ResumeNode* head, CompareFn compare) {
     return merge(head, second, compare);
 }
 
-bool ResumeLinkedList::compareById(ResumeNode* a, ResumeNode* b) {
+bool ResumeLinkedList::compareById(ResumeNode *a, ResumeNode *b)
+{
     return a->id < b->id;
 }
 
-bool ResumeLinkedList::compareBySkillCount(ResumeNode* a, ResumeNode* b) {
+bool ResumeLinkedList::compareBySkillCount(ResumeNode *a, ResumeNode *b)
+{
     return a->skillCount < b->skillCount;
 }
 
-bool ResumeLinkedList::compareBySkill(ResumeNode* a, ResumeNode* b) {
-    if (a->skillCount == 0 || b->skillCount == 0) {
+bool ResumeLinkedList::compareBySkill(ResumeNode *a, ResumeNode *b)
+{
+    if (a->skillCount == 0 || b->skillCount == 0)
+    {
         return a->skillCount < b->skillCount;
     }
 
     int minCount = min(a->skillCount, b->skillCount);
 
-    for (int i = 0; i < minCount; ++i) {
+    for (int i = 0; i < minCount; ++i)
+    {
         if (a->skills[i] != b->skills[i])
             return a->skills[i] < b->skills[i];
     }
@@ -314,14 +389,194 @@ bool ResumeLinkedList::compareBySkill(ResumeNode* a, ResumeNode* b) {
     return a->skillCount < b->skillCount;
 }
 
-void ResumeLinkedList::mergeSortBy(const string& criterion) {
-    if (criterion == "id") {
+void ResumeLinkedList::mergeSortBy(const string &criterion)
+{
+    if (criterion == "id")
+    {
         head = mergeSort(head, compareById);
     }
-    else if (criterion == "skillCount") {
+    else if (criterion == "skillCount")
+    {
         head = mergeSort(head, compareBySkillCount);
     }
-    else if (criterion == "skill") {
+    else if (criterion == "skill")
+    {
         head = mergeSort(head, compareBySkill);
     }
+}
+
+// ======= Clean String =======
+string ResumeLinkedList::cleanString(string s)
+{
+    s.erase(remove(s.begin(), s.end(), '"'), s.end());
+    while (!s.empty() && isspace(s.front()))
+        s.erase(s.begin());
+    while (!s.empty() && isspace(s.back()))
+        s.pop_back();
+    return s;
+}
+
+// ======= Display Slice =======
+void ResumeLinkedList::printSlice()
+{
+    int total = 0;
+    ResumeNode *p = head;
+
+    // Count total nodes
+    while (p != nullptr)
+    {
+        total++;
+        p = p->next;
+    }
+
+    p = head;
+    int index = 0;
+
+    cout << "\n===== Resume Linked List (Showing first 10 and last 10) =====\n";
+
+    while (p != nullptr)
+    {
+        if (index < 5 || index >= total - 5)
+        {
+            cout << "|" << p->id << " | Skills: ";
+            for (int i = 0; i < p->skillCount; i++)
+            {
+                cout << p->skills[i];
+                if (i < p->skillCount - 1)
+                    cout << ", ";
+            }
+            cout << " | Total Skills: " << p->skillCount << endl;
+        }
+        else if (index == 10)
+        {
+            cout << "...\n...\n...(skipping " << total - 10 << " resumes)...\n...\n...\n";
+        }
+
+        p = p->next;
+        index++;
+    }
+
+    cout << endl;
+}
+
+// ======= Swap =======
+void ResumeLinkedList::swap(ResumeNode *a, ResumeNode *b)
+{
+    std::swap(a->id, b->id);
+    std::swap(a->skills, b->skills);
+    std::swap(a->skillCount, b->skillCount);
+}
+
+// ======= Partition =======
+ResumeNode *ResumeLinkedList::partitionBySkillCount(ResumeNode *low, ResumeNode *high)
+{
+    int pivot = high->skillCount;
+    ResumeNode *i = low;
+    for (ResumeNode *j = low; j != high; j = j->next)
+    {
+        if (j->skillCount < pivot)
+        {
+            swap(i, j);
+            i = i->next;
+        }
+    }
+    swap(i, high);
+    return i;
+}
+
+ResumeNode *ResumeLinkedList::partitionBySkill(ResumeNode *low, ResumeNode *high)
+{
+    string pivot = (high->skillCount > 0) ? high->skills[0] : "";
+    ResumeNode *i = low;
+    for (ResumeNode *j = low; j != high; j = j->next)
+    {
+        string firstSkillJ = (j->skillCount > 0) ? j->skills[0] : "";
+        if (firstSkillJ < pivot)
+        {
+            swap(i, j);
+            i = i->next;
+        }
+    }
+    swap(i, high);
+    return i;
+}
+
+// ======= QuickSort Core =======
+void ResumeLinkedList::quickSort(ResumeNode *low, ResumeNode *high, const string &type)
+{
+    if (!low || !high || low == high)
+        return;
+
+    ResumeNode *pivot = nullptr;
+    if (type == "skillCount")
+        pivot = partitionBySkillCount(low, high);
+    else if (type == "skill")
+        pivot = partitionBySkill(low, high);
+
+    ResumeNode *beforePivot = low;
+    while (beforePivot && beforePivot->next != pivot)
+        beforePivot = beforePivot->next;
+
+    if (beforePivot != nullptr && low != pivot)
+        quickSort(low, beforePivot, type);
+
+    if (pivot != nullptr && pivot->next != nullptr)
+        quickSort(pivot->next, high, type);
+}
+
+ResumeNode *ResumeLinkedList::sortTail()
+{
+    ResumeNode *temp = head;
+    while (temp && temp->next)
+        temp = temp->next;
+    return temp;
+}
+
+// ======= Sort Wrappers =======
+void ResumeLinkedList::quickSortBySkillCount()
+{
+    ResumeNode *lastNode = sortTail();
+    quickSort(head, lastNode, "skillCount");
+}
+
+void ResumeLinkedList::quickSortBySkill()
+{
+    ResumeNode *lastNode = sortTail();
+    quickSort(head, lastNode, "skill");
+}
+
+// ======= Search by Skills =======
+ResumeLinkedList *ResumeLinkedList::binarySearchResumeBySkills(const string *skillSet, int skillCount)
+{
+    if (head == nullptr || skillSet == nullptr || skillCount <= 0)
+        return nullptr;
+
+    quickSortBySkill(); // optional sorting by first skill
+
+    ResumeLinkedList *matches = new ResumeLinkedList();
+    ResumeNode *p = head;
+
+    while (p != nullptr)
+    {
+        int matched = 0;
+
+        for (int s = 0; s < skillCount; s++)
+        {
+            for (int j = 0; j < p->skillCount; j++)
+            {
+                if (p->skills[j] == skillSet[s])
+                {
+                    matched++;
+                    break;
+                }
+            }
+        }
+
+        if (matched == skillCount)
+            matches->append(p->id, p->skills, p->skillCount);
+
+        p = p->next;
+    }
+
+    return (matches->head == nullptr) ? nullptr : matches;
 }
