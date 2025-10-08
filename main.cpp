@@ -63,7 +63,7 @@ void displayMenu()
     }
 }
 
-void createLinkedList(JobLinkedList &jobLinkedList)
+void createJobLinkedList(JobLinkedList &jobLinkedList)
 {
     ifstream file("/Users/dede/Documents/APU/Degree Y1 S2/DSTR/job-matching-data-structures/dataset/cleaned_jobDescription.csv");
 
@@ -122,38 +122,6 @@ void createLinkedList(JobLinkedList &jobLinkedList)
     }
 
     file.close();
-}
-
-void phTest()
-{
-    JobLinkedList jobLinkedList;
-    // cout << "\n===== Sorted by Skill Count =====\n";
-    // jobLinkedList.quickSortBySkillCount();
-
-    // cout << "\n===== Sorted by Position =====\n";
-    // jobLinkedList.quickSortByPosition();
-
-    // cout << "\n===== Sorted by First Skill (Alphabetical) =====\n";
-    // jobLinkedList.quickSortBySkill();
-
-    cout << "\n=== Binary Search by Position Position ===\n";
-    JobLinkedList *result = jobLinkedList.binarySearchJobByPosition("software engineer");
-
-    // cout << "\n=== Binary Search by Skill Set ===\n";
-    // string skillSet[] = {"python", "mlops"};
-    // // string skillSet[] = {"keras", "python", "mlops", "computer vision"};
-    // JobLinkedList *result = jobLinkedList.binarySearchJobBySkills(skillSet, 2);
-
-    if (result)
-    {
-        cout << "\nJobs matching all skills:\n";
-        result->displaySlice();
-        delete result; // free memory
-    }
-    else
-    {
-        cout << "\nNo jobs found with all given skills.\n";
-    }
 }
 
 void createResumeLinkedList(ResumeLinkedList &resumeLinkedList)
@@ -222,7 +190,7 @@ int main()
     ResumeLinkedList resumelinkedList;
 
     createResumeLinkedList(resumelinkedList);
-    createLinkedList(jobLinkedList);
+    createJobLinkedList(jobLinkedList);
 
     jobLinkedList.printList();
     // resumelinkedList.printList();
