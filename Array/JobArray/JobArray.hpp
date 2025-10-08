@@ -38,6 +38,8 @@ public:
 
     // Linear search
     JobArray linearSearchBySkill(const string& skill);
+    JobArray linearSearchByTitle(const string& title);
+
 
     // Merge sort
     typedef bool (*CompareFn)(const Job&, const Job&);

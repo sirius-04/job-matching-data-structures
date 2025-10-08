@@ -173,6 +173,16 @@ JobArray JobArray::linearSearchBySkill(const string& skill) {
     return result;
 }
 
+JobArray JobArray::linearSearchByTitle(const string& title) {
+    JobArray result;
+    for (int i = 0; i < size; i++) {
+        if (jobs[i].title == title) {
+            result.addJob(jobs[i].id, jobs[i].title, jobs[i].skills, jobs[i].skillCount);
+        }
+    }
+    return result;
+}
+
 // ======================= Merge Sort =======================
 bool JobArray::compareById(const Job& a, const Job& b) {
     return a.id < b.id;
