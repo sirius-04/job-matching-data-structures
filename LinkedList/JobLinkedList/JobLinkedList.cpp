@@ -1,4 +1,5 @@
 #include "JobLinkedList.hpp"
+#include <algorithm>
 
 JobNode::JobNode(int id, string position, string *skills, int skillCount)
 {
