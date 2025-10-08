@@ -31,15 +31,16 @@ public:
 
     // general functions or utilities
     void printList();
-    void append(int id, string position, string *skills, int skillCount);
-    void prepend(int id, string position, string *skills, int skillCount);
+    void append(int id, string position, string* skills, int skillCount);
+    void prepend(int id, string position, string* skills, int skillCount);
     void deleteFirst();
     void deleteLast();
-    JobNode *get(int index);
-    bool set(int index, string position, string *skills, int skillCount);
-    bool insert(int index, int id, string position, string *skills, int skillCount);
+    JobNode* get(int index);
+    bool set(int index, string position, string* skills, int skillCount);
+    bool insert(int index, int id, string position, string* skills, int skillCount);
     void deleteNode(int index);
     void reverse();
+    int getLength();
 
     static string cleanString(string str);
     void printSlice();

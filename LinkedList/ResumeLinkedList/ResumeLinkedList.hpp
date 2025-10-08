@@ -27,6 +27,19 @@ public:
     ResumeLinkedList(int id, string *skills, int skillCount);
     ResumeLinkedList();
     ~ResumeLinkedList();
+    
+    // general functions & utilities
+    void printList();
+    void append(int id, string* skills, int skillCount);
+    void prepend(int id, string* skills, int skillCount);
+    void deleteFirst();
+    void deleteLast();
+    ResumeNode* get(int index);
+    bool set(int index, int id, string* skills, int skillCount);
+    bool insert(int index, int id, string* skills, int skillCount);
+    void deleteNode(int index);
+    void reverse();
+    int getLength();
 
     // general functions & utilities
     void printList();

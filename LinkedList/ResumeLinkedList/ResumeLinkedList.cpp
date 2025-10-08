@@ -1,4 +1,5 @@
 #include "ResumeLinkedList.hpp"
+#include <algorithm>
 
 ResumeNode::ResumeNode(int id, string *skills, int skillCount)
 {
@@ -262,16 +263,17 @@ void ResumeLinkedList::reverse()
     }
 }
 
-ResumeLinkedList *ResumeLinkedList::linearSearchResumeBySkills(const string *skillSet, int skillCount, bool matchAll)
-{
-    if (skillSet == nullptr || skillCount <= 0)
-        return nullptr;
+int ResumeLinkedList::getLength() {
+    return length;
+}
 
-    ResumeLinkedList *jobListBySkills = new ResumeLinkedList();
-    ResumeNode *current = head;
+ResumeLinkedList* ResumeLinkedList::linearSearchResumeBySkills(const string* skillSet, int skillCount, bool matchAll) {
+    if (skillSet == nullptr || skillCount <= 0) return nullptr;
+    
+    ResumeLinkedList* jobListBySkills = new ResumeLinkedList();
+    ResumeNode* current = head;
 
-    while (current != nullptr)
-    {
+    while (current != nullptr) {
         int matchCount = 0;
 
         for (int i = 0; i < skillCount; i++)
