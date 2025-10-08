@@ -221,35 +221,9 @@ int main()
     JobLinkedList jobLinkedList;
     ResumeLinkedList resumelinkedList;
 
-    // Create a linked list
-    // createLinkedList(jobLinkedList);
     createResumeLinkedList(resumelinkedList);
-    // resumelinkedList.displaySlice();
+    createLinkedList(jobLinkedList);
 
-    // cout << "\n===== Sorted by Skill Count =====\n";
-    // resumelinkedList.quickSortBySkillCount();
-
-    // cout << "\n===== Sorted by First Skill (Alphabetical) =====\n";
-    // resumelinkedList.quickSortBySkill();
-
-    cout << "\n=== Binary Search by Skill Set ===\n";
-    // string skillSet[] = {"python", "mlops"};
-    // string skillSet[] = {"nlp"};
-    string skillSet[] = {"keras", "python", "mlops", "computer vision"};
-    ResumeLinkedList *result = resumelinkedList.binarySearchResumeBySkills(skillSet, 4);
-
-    if (result)
-    {
-        cout << "\nJobs matching all skills:\n";
-        result->displaySlice();
-        delete result; // free memory
-    }
-    else
-    {
-        cout << "\nNo jobs found with all given skills.\n";
-    }
-
-    // Print the data
-    // jobLinkedList.displaySlice();
-    // resumelinkedList.displaySlice();
+    jobLinkedList.printList();
+    // resumelinkedList.printList();
 }

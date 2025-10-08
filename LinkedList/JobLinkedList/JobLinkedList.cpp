@@ -468,28 +468,6 @@ string JobLinkedList::cleanString(string s)
     return s;
 }
 
-// ======= Display (Full) =======
-void JobLinkedList::display()
-{
-    JobNode *p = head;
-    cout << "\n===== Displaying All Jobs =====\n";
-    while (p != NULL)
-    {
-        cout << "ID: " << p->id << endl;
-        cout << "Position: " << p->position << endl;
-        cout << "Skill Count: " << p->skillCount << endl;
-        cout << "Skills: ";
-        for (int i = 0; i < p->skillCount; i++)
-        {
-            cout << p->skills[i];
-            if (i < p->skillCount - 1)
-                cout << ", ";
-        }
-        cout << "\n----------------------\n";
-        p = p->next;
-    }
-}
-
 // ======= Display First 10 + Last 10 =======
 void JobLinkedList::displaySlice()
 {
@@ -613,7 +591,7 @@ void JobLinkedList::quickSort(JobNode *low, JobNode *high, const string &type)
         quickSort(pivot->next, high, type);
 }
 
-JobNode *JobLinkedList::getLast()
+JobNode *JobLinkedList::sortTail()
 {
     JobNode *temp = head;
     while (temp && temp->next)
@@ -624,19 +602,19 @@ JobNode *JobLinkedList::getLast()
 // ======= Sort Wrappers =======
 void JobLinkedList::quickSortBySkillCount()
 {
-    JobNode *lastNode = getLast();
+    JobNode *lastNode = sortTail();
     quickSort(head, lastNode, "skillCount");
 }
 
 void JobLinkedList::quickSortBySkill()
 {
-    JobNode *lastNode = getLast();
+    JobNode *lastNode = sortTail();
     quickSort(head, lastNode, "skill");
 }
 
 void JobLinkedList::quickSortByPosition()
 {
-    JobNode *lastNode = getLast();
+    JobNode *lastNode = sortTail();
     quickSort(head, lastNode, "position");
 }
 

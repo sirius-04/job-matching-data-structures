@@ -429,27 +429,6 @@ string ResumeLinkedList::cleanString(string s)
     return s;
 }
 
-// ======= Display =======
-void ResumeLinkedList::display()
-{
-    ResumeNode *p = head;
-    cout << "\n===== Displaying All Resumes =====\n";
-    while (p != nullptr)
-    {
-        cout << "ID: " << p->id << endl;
-        cout << "Skill Count: " << p->skillCount << endl;
-        cout << "Skills: ";
-        for (int i = 0; i < p->skillCount; i++)
-        {
-            cout << p->skills[i];
-            if (i < p->skillCount - 1)
-                cout << ", ";
-        }
-        cout << "\n----------------------\n";
-        p = p->next;
-    }
-}
-
 // ======= Display Slice =======
 void ResumeLinkedList::displaySlice()
 {
@@ -553,7 +532,7 @@ void ResumeLinkedList::quickSort(ResumeNode *low, ResumeNode *high, const string
         quickSort(pivot->next, high, type);
 }
 
-ResumeNode *ResumeLinkedList::getLast()
+ResumeNode *ResumeLinkedList::sortTail()
 {
     ResumeNode *temp = head;
     while (temp && temp->next)
@@ -564,13 +543,13 @@ ResumeNode *ResumeLinkedList::getLast()
 // ======= Sort Wrappers =======
 void ResumeLinkedList::quickSortBySkillCount()
 {
-    ResumeNode *lastNode = getLast();
+    ResumeNode *lastNode = sortTail();
     quickSort(head, lastNode, "skillCount");
 }
 
 void ResumeLinkedList::quickSortBySkill()
 {
-    ResumeNode *lastNode = getLast();
+    ResumeNode *lastNode = sortTail();
     quickSort(head, lastNode, "skill");
 }
 

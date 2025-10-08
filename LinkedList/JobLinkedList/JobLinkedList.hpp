@@ -42,22 +42,7 @@ public:
     void reverse();
 
     static string cleanString(string str);
-    void display();
     void displaySlice();
-
-    // ======= Swap Utility =======
-    void swap(JobNode *a, JobNode *b);
-
-    // ======= Partition =======
-    JobNode *partitionBySkillCount(JobNode *low, JobNode *high);
-    JobNode *partitionBySkill(JobNode *low, JobNode *high);
-    JobNode *partitionByPosition(JobNode *low, JobNode *high);
-
-    // ======= QuickSort Core =======
-    void quickSort(JobNode *low, JobNode *high, const string &type);
-    JobNode *getLast();
-
-    // Insert to last
     void insertLast(int id, string position, string *skills, int skillCount);
 
     // linear search
@@ -82,10 +67,20 @@ public:
     void mergeSortBy(string criterion);
 
     // quick sort
+    JobNode *sortTail();
+    void quickSort(JobNode *low, JobNode *high, const string &type);
+
     void quickSortById();
     void quickSortByPosition();
     void quickSortBySkill();
     void quickSortBySkillCount();
+
+    JobNode *partitionBySkillCount(JobNode *low, JobNode *high);
+    JobNode *partitionBySkill(JobNode *low, JobNode *high);
+    JobNode *partitionByPosition(JobNode *low, JobNode *high);
+
+    // swap Utility
+    void swap(JobNode *a, JobNode *b);
 };
 
 #endif
