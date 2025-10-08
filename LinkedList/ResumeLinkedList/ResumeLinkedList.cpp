@@ -211,6 +211,10 @@ void ResumeLinkedList::reverse() {
     }
 }
 
+int ResumeLinkedList::getLength() {
+    return length;
+}
+
 ResumeLinkedList* ResumeLinkedList::linearSearchResumeBySkills(const string* skillSet, int skillCount, bool matchAll) {
     if (skillSet == nullptr || skillCount <= 0) return nullptr;
     

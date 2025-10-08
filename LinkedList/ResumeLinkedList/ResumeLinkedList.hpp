@@ -37,6 +37,7 @@ class ResumeLinkedList {
         bool insert(int index, int id, string* skills, int skillCount);
         void deleteNode(int index);
         void reverse();
+        int getLength();
 
         // linear search
         ResumeLinkedList* linearSearchResumeBySkills(const string* skillSet, int skillCount, bool matchAll);

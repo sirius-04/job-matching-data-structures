@@ -38,6 +38,7 @@ class JobLinkedList {
         bool insert(int index, int id, string position, string* skills, int skillCount);
         void deleteNode(int index);
         void reverse();
+        int getLength();
 
         // linear search
         JobLinkedList* linearSearchJobByPosition(const string& position);

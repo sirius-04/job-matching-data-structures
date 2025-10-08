@@ -214,6 +214,10 @@ void JobLinkedList::reverse() {
     }
 }
 
+int JobLinkedList::getLength() {
+    return length;
+}
+
 JobLinkedList* JobLinkedList::linearSearchJobByPosition(const string& position) {
     if (position.empty()) return nullptr;
     
