@@ -1,77 +1,77 @@
-#include "JobMatching.hpp"
+// #include "JobMatching.hpp"
 
-MatchResult::MatchResult(int jobId, int resumeId, double score) {
-    this->jobId = jobId;
-    this->resumeId = resumeId;
-    this->score = score;
-}
+// MatchResult::MatchResult(int jobId, int resumeId, double score) {
+//     this->jobId = jobId;
+//     this->resumeId = resumeId;
+//     this->score = score;
+// }
 
-MatchResultNode::MatchResultNode(MatchResult data) {
-    this->data = data;
-    this->next = nullptr;
-}
+// MatchResultNode::MatchResultNode(MatchResult data) {
+//     this->data = data;
+//     this->next = nullptr;
+// }
 
-MatchResultList::MatchResultList() {
-    this->head = nullptr;
-    this->tail = nullptr;
-    this->length = 0;
-}
+// MatchResultList::MatchResultList() {
+//     this->head = nullptr;
+//     this->tail = nullptr;
+//     this->length = 0;
+// }
 
-MatchResultList::~MatchResultList() {
-    MatchResultNode* current = head;
+// MatchResultList::~MatchResultList() {
+//     MatchResultNode* current = head;
 
-    while (current != nullptr) {
-        MatchResultNode* temp = current;
-        current = current->next;
+//     while (current != nullptr) {
+//         MatchResultNode* temp = current;
+//         current = current->next;
 
-        delete temp;
-    }
-}
+//         delete temp;
+//     }
+// }
 
-void MatchResultList::printList() {
-    MatchResultNode* temp = head;
-    int count = 0;
+// void MatchResultList::printList() {
+//     MatchResultNode* temp = head;
+//     int count = 0;
 
-    cout << "===== Match Results =====" << endl;
-    while (temp != nullptr) {
-        cout << "Job ID: " << temp->data.jobId
-             << " | Resume ID: " << temp->data.resumeId
-             << " | Score: " << temp->data.score << "%" << endl;
+//     cout << "===== Match Results =====" << endl;
+//     while (temp != nullptr) {
+//         cout << "Job ID: " << temp->data.jobId
+//              << " | Resume ID: " << temp->data.resumeId
+//              << " | Score: " << temp->data.score << "%" << endl;
 
-        temp = temp->next;
-    }
-}
+//         temp = temp->next;
+//     }
+// }
 
-void MatchResultList::append(int jobId, int resumeId, double score) {
-    MatchResult newResult(jobId, resumeId, score);
-    MatchResultNode* node = new MatchResultNode(newResult);
+// void MatchResultList::append(int jobId, int resumeId, double score) {
+//     MatchResult newResult(jobId, resumeId, score);
+//     MatchResultNode* node = new MatchResultNode(newResult);
 
-    if (!head) head = node;
-    else {
-        MatchResultNode* temp = head;
+//     if (!head) head = node;
+//     else {
+//         MatchResultNode* temp = head;
 
-        while (temp->next !=nullptr) {
-            temp = temp->next;
-        }
+//         while (temp->next !=nullptr) {
+//             temp = temp->next;
+//         }
 
-        temp->next = node;
-    }
+//         temp->next = node;
+//     }
 
-    length++;
-}
+//     length++;
+// }
 
-int MatchResultList::getLength() {
-     return length;
-}
+// int MatchResultList::getLength() {
+//      return length;
+// }
 
-JobMatching::JobMatching(JobLinkedList* jobs, ResumeLinkedList* resumes) {
-    this->jobs = jobs;
-    this->resumes = resumes;
-    this->results = new MatchResultList();
-    this->matchTime = 0;
-}
+// JobMatching::JobMatching(JobLinkedList* jobs, ResumeLinkedList* resumes) {
+//     this->jobs = jobs;
+//     this->resumes = resumes;
+//     this->results = new MatchResultList();
+//     this->matchTime = 0;
+// }
 
-JobMatching::~JobMatching() {
-    delete results;
-    results = nullptr;
-}
+// JobMatching::~JobMatching() {
+//     delete results;
+//     results = nullptr;
+// }
