@@ -55,7 +55,6 @@ public:
 
     // merge sort
     typedef bool (*CompareFn)(JobNode *, JobNode *);
-    static bool compareById(JobNode *a, JobNode *b);
     static bool compareByPosition(JobNode *a, JobNode *b);
     static bool compareBySkillCount(JobNode *a, JobNode *b);
     static bool compareBySkill(JobNode *a, JobNode *b);
@@ -69,7 +68,6 @@ public:
     JobNode *sortTail();
     void quickSort(JobNode *low, JobNode *high, const string &type);
 
-    void quickSortById();
     void quickSortByPosition();
     void quickSortBySkill();
     void quickSortBySkillCount();

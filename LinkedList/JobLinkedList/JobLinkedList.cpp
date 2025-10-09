@@ -396,11 +396,6 @@ JobNode *JobLinkedList::mergeSort(JobNode *head, CompareFn compare)
     return merge(head, second, compare);
 }
 
-bool JobLinkedList::compareById(JobNode *a, JobNode *b)
-{
-    return a->id < b->id;
-}
-
 bool JobLinkedList::compareByPosition(JobNode *a, JobNode *b)
 {
     return a->position < b->position;
@@ -431,11 +426,7 @@ bool JobLinkedList::compareBySkill(JobNode *a, JobNode *b)
 
 void JobLinkedList::mergeSortBy(string criterion)
 {
-    if (criterion == "id")
-    {
-        head = mergeSort(head, compareById);
-    }
-    else if (criterion == "position")
+    if (criterion == "position")
     {
         head = mergeSort(head, compareByPosition);
     }

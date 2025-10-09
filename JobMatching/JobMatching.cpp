@@ -64,18 +64,14 @@ int MatchResultList::getLength() {
      return length;
 }
 
-JobMatching::JobMatching(JobLinkedList* jobs, ResumeLinkedList* resumes, SearchAlgorithm selectedAlgorithm) {
+JobMatching::JobMatching(JobLinkedList* jobs, ResumeLinkedList* resumes) {
     this->jobs = jobs;
     this->resumes = resumes;
     this->results = new MatchResultList();
-    this->selectedAlgorithm = selectedAlgorithm;
     this->matchTime = 0;
 }
 
 JobMatching::~JobMatching() {
     delete results;
     results = nullptr;
-}
-
-double JobMatching::calculateSkillMatch(JobNode* job, ResumeNode* resume) {
 }

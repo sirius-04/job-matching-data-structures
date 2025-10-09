@@ -8,9 +8,24 @@
 using namespace std;
 using namespace std::chrono;
 
+enum MatchMode {
+    FIND_JOB,
+    FIND_RESUME
+};
+
+enum MatchStrategy {
+    RULE_BASED,
+    WEIGHTED
+};
+
 enum SearchAlgorithm {
     LINEAR,
     BINARY
+};
+
+enum SortAlgorithm {
+    MERGE,
+    QUICK
 };
 
 class MatchResult {
@@ -51,23 +66,26 @@ private:
     JobLinkedList* jobs;
     ResumeLinkedList* resumes;
     MatchResultList* results;
-    SearchAlgorithm selectedAlgorithm;
+
+    MatchMode mode;
+    MatchStrategy matchStrategy;
+    SearchAlgorithm searchAlgo;
+    SortAlgorithm sortAlgo;
+
     double matchTime;
 
-    double calculateSkillMatch(JobNode* job, ResumeNode* resume);
-    double calculateFinalScore(JobNode* job, ResumeNode* resume);
-
-    void matchResumesUsingLinear(JobNode* job);
-    void matchResumesUsingBinary(JobNode* job);
-
-    void matchJobsUsingLinear(ResumeNode* resume);
-    void matchJobsUsingBinary(ResumeNode* resume);
-
 public:
-    JobMatching(JobLinkedList* jobs, ResumeLinkedList* resumes, SearchAlgorithm selectedAlgorithm);
+    JobMatching(JobLinkedList* jobs, ResumeLinkedList* resumes);
     ~JobMatching();
 
-    void setAlgorithm(SearchAlgorithm selectedAlgorithm);
+    void setMatchMode(MatchMode mode);
+    void setMatchingStrategy(MatchStrategy strategy);
+    void setSearchAlgorithm(SearchAlgorithm searchAlgo);
+    void setSortAlgorithm(SortAlgorithm sortAlgo);
+
+    double ruleBasedMatch(JobNode* job, ResumeNode* resume);
+    double weightedMatch(JobNode* job, ResumeNode* resume);
+
     void runMatching();
     void printPerformance();
     void printMatches();
