@@ -3,56 +3,6 @@
 #include <sstream>
 #include <vector>
 
-// ======================= Job Implementation =======================
-
-Job::Job()
-{
-    skills = new string[50];
-    skillCount = 0;
-}
-
-Job::Job(int id, string title, string *skills, int skillCount)
-{
-    this->id = id;
-    this->title = title;
-    this->skillCount = skillCount;
-    this->skills = new string[skillCount];
-    for (int i = 0; i < skillCount; i++)
-        this->skills[i] = skills[i];
-}
-
-// Copy constructor
-Job::Job(const Job &other)
-{
-    id = other.id;
-    title = other.title;
-    skillCount = other.skillCount;
-    skills = new string[skillCount];
-    for (int i = 0; i < skillCount; i++)
-        skills[i] = other.skills[i];
-}
-
-// Copy assignment
-Job &Job::operator=(const Job &other)
-{
-    if (this != &other)
-    {
-        delete[] skills;
-        id = other.id;
-        title = other.title;
-        skillCount = other.skillCount;
-        skills = new string[skillCount];
-        for (int i = 0; i < skillCount; i++)
-            skills[i] = other.skills[i];
-    }
-    return *this;
-}
-
-Job::~Job()
-{
-    delete[] skills;
-}
-
 // ======================= JobArray Implementation =======================
 
 JobArray::JobArray()
@@ -77,13 +27,13 @@ void JobArray::resize()
     jobs = newJobs;
 }
 
-void JobArray::addJob(int id, string title, string *skills, int skillCount)
+void JobArray::addJob(int id, string position, string *skills, int skillCount)
 {
     if (size >= capacity)
         resize();
 
     jobs[size].id = id;
-    jobs[size].title = title;
+    jobs[size].position = position;
     jobs[size].skillCount = skillCount;
     jobs[size].skills = new string[skillCount];
     for (int i = 0; i < skillCount; i++)
@@ -127,10 +77,10 @@ bool JobArray::loadFromCSV(const string &filename)
         lineCount++;
 
         stringstream ss(line);
-        string idStr, title, skillsStr;
+        string idStr, position, skillsStr;
 
         getline(ss, idStr, ',');
-        getline(ss, title, ',');
+        getline(ss, position, ',');
         getline(ss, skillsStr);
 
         int id = 0;
@@ -163,7 +113,7 @@ bool JobArray::loadFromCSV(const string &filename)
         for (int i = 0; i < skillCount; i++)
             skillsArr[i] = skillVec[i];
 
-        addJob(id, title, skillsArr, skillCount);
+        addJob(id, position, skillsArr, skillCount);
         delete[] skillsArr;
     }
 
@@ -177,7 +127,7 @@ void JobArray::printJobs()
     cout << "\n--- Job Descriptions ---\n";
     for (int i = 0; i < size; i++)
     {
-        cout << jobs[i].id << " | " << jobs[i].title << " | ";
+        cout << jobs[i].id << " | " << jobs[i].position << " | ";
         for (int j = 0; j < jobs[i].skillCount; j++)
         {
             cout << jobs[i].skills[j];
@@ -198,7 +148,7 @@ JobArray JobArray::linearSearchBySkill(const string &skill)
         {
             if (jobs[i].skills[j] == skill)
             {
-                result.addJob(jobs[i].id, jobs[i].title, jobs[i].skills, jobs[i].skillCount);
+                result.addJob(jobs[i].id, jobs[i].position, jobs[i].skills, jobs[i].skillCount);
                 break;
             }
         }
@@ -206,14 +156,14 @@ JobArray JobArray::linearSearchBySkill(const string &skill)
     return result;
 }
 
-JobArray JobArray::linearSearchByTitle(const string &title)
+JobArray JobArray::linearSearchByPosition(const string &position)
 {
     JobArray result;
     for (int i = 0; i < size; i++)
     {
-        if (jobs[i].title == title)
+        if (jobs[i].position == position)
         {
-            result.addJob(jobs[i].id, jobs[i].title, jobs[i].skills, jobs[i].skillCount);
+            result.addJob(jobs[i].id, jobs[i].position, jobs[i].skills, jobs[i].skillCount);
         }
     }
     return result;
@@ -238,9 +188,9 @@ bool JobArray::compareBySkillCount(const Job &a, const Job &b)
     return a.skillCount < b.skillCount;
 }
 
-bool JobArray::compareByTitle(const Job &a, const Job &b)
+bool JobArray::compareByPosition(const Job &a, const Job &b)
 {
-    return a.title < b.title;
+    return a.position < b.position;
 }
 
 void JobArray::merge(Job *arr, int left, int mid, int right, CompareFn compare)
@@ -332,7 +282,7 @@ void JobArray::quickSortById()
 void JobArray::quickSortByPosition()
 {
     auto cmp = [](const Job &a, const Job &b)
-    { return a.title < b.title; };
+    { return a.position < b.position; };
     if (size > 1)
         quickSortHelper(0, size - 1, cmp);
 }
@@ -358,7 +308,7 @@ void JobArray::quickSortBySkillCount()
 }
 
 // binary search
-JobArray JobArray::binarySearchByPosition(const string &title)
+JobArray JobArray::binarySearchByPosition(const string &position)
 {
     JobArray result;
 
@@ -369,12 +319,12 @@ JobArray JobArray::binarySearchByPosition(const string &title)
     {
         int mid = (left + right) / 2;
 
-        if (jobs[mid].title == title)
+        if (jobs[mid].position == position)
         {
             foundIndex = mid;
             break;
         }
-        else if (jobs[mid].title < title)
+        else if (jobs[mid].position < position)
             left = mid + 1;
         else
             right = mid - 1;
@@ -384,16 +334,16 @@ JobArray JobArray::binarySearchByPosition(const string &title)
         return result;
 
     int i = foundIndex;
-    while (i >= 0 && jobs[i].title == title)
+    while (i >= 0 && jobs[i].position == position)
     {
-        result.addJob(jobs[i].id, jobs[i].title, jobs[i].skills, jobs[i].skillCount);
+        result.addJob(jobs[i].id, jobs[i].position, jobs[i].skills, jobs[i].skillCount);
         i--;
     }
 
     i = foundIndex + 1;
-    while (i < size && jobs[i].title == title)
+    while (i < size && jobs[i].position == position)
     {
-        result.addJob(jobs[i].id, jobs[i].title, jobs[i].skills, jobs[i].skillCount);
+        result.addJob(jobs[i].id, jobs[i].position, jobs[i].skills, jobs[i].skillCount);
         i++;
     }
 
@@ -436,14 +386,14 @@ JobArray JobArray::binarySearchBySkills(const string &skill)
     int i = foundIndex;
     while (i >= 0 && jobs[i].skillCount > 0 && jobs[i].skills[0] == skill)
     {
-        result.addJob(jobs[i].id, jobs[i].title, jobs[i].skills, jobs[i].skillCount);
+        result.addJob(jobs[i].id, jobs[i].position, jobs[i].skills, jobs[i].skillCount);
         i--;
     }
 
     i = foundIndex + 1;
     while (i < size && jobs[i].skillCount > 0 && jobs[i].skills[0] == skill)
     {
-        result.addJob(jobs[i].id, jobs[i].title, jobs[i].skills, jobs[i].skillCount);
+        result.addJob(jobs[i].id, jobs[i].position, jobs[i].skills, jobs[i].skillCount);
         i++;
     }
 

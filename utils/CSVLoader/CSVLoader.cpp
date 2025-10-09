@@ -1,17 +1,15 @@
+#include "CSVLoader.hpp"
 #include <iostream>
 #include <fstream>
 #include <sstream>
 #include <string>
 #include <algorithm>
-#include "../../LinkedList/JobLinkedList/JobLinkedList.hpp"
-#include "../../LinkedList/ResumeLinkedList/ResumeLinkedList.hpp"
 using namespace std;
 
 // Export functions with extern linkage
 void createJobLinkedList(JobLinkedList &jobLinkedList)
 {
     ifstream file("dataset/cleaned_jobDescription.csv");
-
     if (!file.is_open())
     {
         cerr << "Error: Could not open file.\n";
@@ -19,7 +17,7 @@ void createJobLinkedList(JobLinkedList &jobLinkedList)
     }
 
     string line;
-    getline(file, line); // skip header
+    getline(file, line); // Skip header
 
     while (getline(file, line))
     {
@@ -34,36 +32,39 @@ void createJobLinkedList(JobLinkedList &jobLinkedList)
         position = JobLinkedList::cleanString(position);
         skillStr = JobLinkedList::cleanString(skillStr);
 
-        int id = 0;
+        int id;
         try
         {
             id = stoi(idStr);
         }
         catch (...)
         {
-            cerr << "Warning: invalid ID \"" << idStr << "\", skipping.\n";
+            cerr << "Warning: Invalid ID \"" << idStr << "\", skipping.\n";
             continue;
         }
 
-        stringstream sk(skillStr);
-        string skill;
         string tempSkills[100];
         int count = 0;
 
+        stringstream sk(skillStr);
+        string skill;
         while (getline(sk, skill, ','))
         {
             skill = JobLinkedList::cleanString(skill);
-            if (!skill.empty())
+            if (!skill.empty() && count < 100)
                 tempSkills[count++] = skill;
         }
 
+        // Create dynamic array of skills
         string *skills = new string[count];
         for (int i = 0; i < count; i++)
             skills[i] = tempSkills[i];
 
-        jobLinkedList.append(id, position, skills, count);
+        // Construct Job object and append
+        Job job(id, position, skills, count);
+        jobLinkedList.append(job);
 
-        delete[] skills;
+        delete[] skills; // cleanup temporary array
     }
 
     file.close();
@@ -72,7 +73,6 @@ void createJobLinkedList(JobLinkedList &jobLinkedList)
 void createResumeLinkedList(ResumeLinkedList &resumeLinkedList)
 {
     ifstream file("dataset/cleaned_resume.csv");
-
     if (!file.is_open())
     {
         cerr << "Error: Could not open file.\n";
@@ -80,7 +80,7 @@ void createResumeLinkedList(ResumeLinkedList &resumeLinkedList)
     }
 
     string line;
-    getline(file, line); // skip header line
+    getline(file, line); // Skip header
 
     while (getline(file, line))
     {
@@ -93,26 +93,26 @@ void createResumeLinkedList(ResumeLinkedList &resumeLinkedList)
         idStr = ResumeLinkedList::cleanString(idStr);
         skillStr = ResumeLinkedList::cleanString(skillStr);
 
-        int id = 0;
+        int id;
         try
         {
             id = stoi(idStr);
         }
         catch (...)
         {
-            cerr << "Warning: invalid ID \"" << idStr << "\", skipping.\n";
+            cerr << "Warning: Invalid ID \"" << idStr << "\", skipping.\n";
             continue;
         }
 
-        stringstream sk(skillStr);
-        string skill;
         string tempSkills[100];
         int count = 0;
 
+        stringstream sk(skillStr);
+        string skill;
         while (getline(sk, skill, ','))
         {
             skill = ResumeLinkedList::cleanString(skill);
-            if (!skill.empty())
+            if (!skill.empty() && count < 100)
                 tempSkills[count++] = skill;
         }
 
@@ -120,7 +120,8 @@ void createResumeLinkedList(ResumeLinkedList &resumeLinkedList)
         for (int i = 0; i < count; i++)
             skills[i] = tempSkills[i];
 
-        resumeLinkedList.append(id, skills, count);
+        Resume resume(id, skills, count);
+        resumeLinkedList.append(resume);
 
         delete[] skills;
     }

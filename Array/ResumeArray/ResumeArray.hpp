@@ -3,22 +3,8 @@
 
 #include <iostream>
 #include <string>
+#include "../../models/Resume/Resume.hpp"
 using namespace std;
-
-class Resume
-{
-public:
-    int id;
-    string *skills;
-    int skillCount;
-
-    Resume();
-    Resume(int id, string *skills, int skillCount);
-    ~Resume();
-
-    Resume(const Resume &other);
-    Resume &operator=(const Resume &other);
-};
 
 class ResumeArray
 {

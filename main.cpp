@@ -73,6 +73,7 @@ int main()
     // createResumeLinkedList(resumelinkedList);
     createJobLinkedList(jobLinkedList);
 
+    jobLinkedList.mergeSortBy("position");
     jobLinkedList.printSlice();
     // resumelinkedList.printSlice();
 }
