@@ -46,8 +46,8 @@ public:
     JobLinkedList linearSearchJobBySkills(const string *skillSet, int skillCount, bool matchAll);
 
     // binary search
-    JobLinkedList *binarySearchJobByPosition(const string &position);
-    JobLinkedList *binarySearchJobBySkills(const string *skillSet, int skillCount);
+    JobLinkedList binarySearchJobByPosition(const string &position);
+    JobLinkedList binarySearchJobBySkills(const string *skillSet, int skillCount);
 
     // merge sort
     typedef bool (*CompareFn)(JobNode *, JobNode *);

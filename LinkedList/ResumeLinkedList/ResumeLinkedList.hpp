@@ -45,8 +45,7 @@ public:
     ResumeLinkedList linearSearchResumeBySkills(const string *skillSet, int skillCount, bool matchAll);
 
     // binary search
-    ResumeLinkedList *binarySearchResumeBySkills(const string *skillSet, int skillCount);
-    // ResumeLinkedList *binarySearchResumeBySkills(const string *skillSet, int skillCount, bool matchAll);
+    ResumeLinkedList binarySearchResumeBySkills(const string *skillSet, int skillCount);
 
     // merge sort
     typedef bool (*CompareFn)(ResumeNode *, ResumeNode *);
