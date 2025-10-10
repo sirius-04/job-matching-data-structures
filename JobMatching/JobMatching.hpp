@@ -3,6 +3,8 @@
 
 #include "../LinkedList/JobLinkedList/JobLinkedList.hpp"
 #include "../LinkedList/ResumeLinkedList/ResumeLinkedList.hpp"
+#include "../Array/JobArray/JobArray.hpp"
+#include "../Array/ResumeArray/ResumeArray.hpp"
 #include "../models/MatchResult/MatchResult.hpp"
 #include <iostream>
 #include <chrono>
@@ -22,17 +24,12 @@ enum DataStruct {
 
 enum MatchStrategy {
     RULE_BASED,
-    WEIGHTED
+    WEIGHTED_SCORING
 };
 
 enum SearchAlgorithm {
     LINEAR,
     BINARY
-};
-
-enum SortAlgorithm {
-    MERGE,
-    QUICK
 };
 
 class JobMatching {
@@ -41,10 +38,10 @@ private:
     ResumeLinkedList* resumes;
     MatchResultList* results;
 
-    MatchMode mode;
+    MatchMode matchMode;
+    DataStruct dataStruct;
     MatchStrategy matchStrategy;
     SearchAlgorithm searchAlgo;
-    SortAlgorithm sortAlgo;
 
     double matchTime;
 
@@ -52,14 +49,15 @@ public:
     JobMatching(JobLinkedList* jobs, ResumeLinkedList* resumes);
     ~JobMatching();
 
-    void setMatchMode(MatchMode mode);
+    void setMatchMode(MatchMode matchMode);
     void setDataStruct(DataStruct dataStruct);
-    void setMatchingStrategy(MatchStrategy strategy);
+    void setMatchStrategy(MatchStrategy strategy);
     void setSearchAlgorithm(SearchAlgorithm searchAlgo);
-    void setSortAlgorithm(SortAlgorithm sortAlgo);
 
-    double ruleBasedMatch(JobNode* job, ResumeNode* resume);
-    double weightedMatch(JobNode* job, ResumeNode* resume);
+    auto search(const string* skillSet, int skillCount, bool matchAll);
+
+    double ruleBasedMatch(Job job, Resume resume);
+    double weightedScoringMatch(Job job, Resume resume);
 
     void runMatching();
     void printPerformance();
