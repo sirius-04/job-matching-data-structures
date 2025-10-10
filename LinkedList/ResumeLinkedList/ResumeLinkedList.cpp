@@ -501,17 +501,16 @@ void ResumeLinkedList::quickSortBySkill()
 }
 
 // ======= Search by Skills =======
-ResumeLinkedList *ResumeLinkedList::binarySearchResumeBySkills(const string *skillSet, int skillCount)
+ResumeLinkedList ResumeLinkedList::binarySearchResumeBySkills(const string *skills, int skillCount)
 {
-    if (head == nullptr || skillSet == nullptr || skillCount <= 0)
-        return nullptr;
+    ResumeLinkedList matches;
 
-    quickSortBySkill(); // optional sorting by first skill
+    if (head == nullptr || skills == nullptr || skillCount <= 0)
+        return matches; // return empty list
 
-    ResumeLinkedList *matches = new ResumeLinkedList();
-    ResumeNode *p = head;
+    quickSortBySkill(); // sort by first skill (for potential binary search use)
 
-    while (p != nullptr)
+    for (ResumeNode *p = head; p != nullptr; p = p->next)
     {
         int matched = 0;
 
@@ -519,19 +518,17 @@ ResumeLinkedList *ResumeLinkedList::binarySearchResumeBySkills(const string *ski
         {
             for (int j = 0; j < p->data.skillCount; j++)
             {
-                if (p->data.skills[j] == skillSet[s])
+                if (p->data.skills[j] == skills[s])
                 {
                     matched++;
-                    break;
+                    break; // go to next skill in input list
                 }
             }
         }
 
-        if (matched == skillCount)
-            matches->append(p->data);
-
-        p = p->next;
+        if (matched == skillCount) // all required skills matched
+            matches.append(p->data);
     }
 
-    return (matches->head == nullptr) ? nullptr : matches;
+    return matches;
 }

@@ -1,77 +1,132 @@
-// #include "JobMatching.hpp"
+#include "JobMatching.hpp"
 
-// MatchResult::MatchResult(int jobId, int resumeId, double score) {
-//     this->jobId = jobId;
-//     this->resumeId = resumeId;
-//     this->score = score;
-// }
+JobMatching::JobMatching(JobLinkedList* jobs, ResumeLinkedList* resumes) {
+    this->jobs = jobs;
+    this->resumes = resumes;
+    this->results = new MatchResultList();
+    this->matchTime = 0;
+}
 
-// MatchResultNode::MatchResultNode(MatchResult data) {
-//     this->data = data;
-//     this->next = nullptr;
-// }
+JobMatching::~JobMatching() {
+    delete results;
+    results = nullptr;
+}
 
-// MatchResultList::MatchResultList() {
-//     this->head = nullptr;
-//     this->tail = nullptr;
-//     this->length = 0;
-// }
+void JobMatching::setMatchMode(MatchMode matchMode) {
+    this->matchMode = matchMode;
+}
 
-// MatchResultList::~MatchResultList() {
-//     MatchResultNode* current = head;
+void JobMatching::setDataStruct(DataStruct dataStruct) {
+    this->dataStruct = dataStruct;
+}
 
-//     while (current != nullptr) {
-//         MatchResultNode* temp = current;
-//         current = current->next;
+void JobMatching::setMatchStrategy(MatchStrategy matchStrategy) {
+    this->matchStrategy = matchStrategy;
+}
 
-//         delete temp;
-//     }
-// }
+void JobMatching::setSearchAlgorithm(SearchAlgorithm searchAlgo) {
+    this->searchAlgo = searchAlgo;
+}
 
-// void MatchResultList::printList() {
-//     MatchResultNode* temp = head;
-//     int count = 0;
+MatchResultList JobMatching::search(const string* skillSet, int skillCount, bool matchAll) {
+    if (matchMode == FIND_RESUME) {
+        switch (dataStruct) {
+            case ARRAY:
+                if (searchAlgo == LINEAR)
+                    return resumes->linearSearchBySkills(skillSet, skillCount, matchAll);
+                else if (searchAlgo == BINARY)
+                    return resumes->binarySearchBySkills(skillSet, skillCount, matchAll);
+                break;
 
-//     cout << "===== Match Results =====" << endl;
-//     while (temp != nullptr) {
-//         cout << "Job ID: " << temp->data.jobId
-//              << " | Resume ID: " << temp->data.resumeId
-//              << " | Score: " << temp->data.score << "%" << endl;
+            case SINGLY_LINKED_LIST:
+                if (searchAlgo == LINEAR)
+                    return resumes->linearSearchResumeBySkills(skillSet, skillCount, matchAll);
+                else if (searchAlgo == BINARY)
+                    return resumes->binarySearchResumeBySkills(skillSet, skillCount, matchAll);
+                break;
 
-//         temp = temp->next;
-//     }
-// }
+            case CIRCULAR_LINKED_LIST:
+                if (searchAlgo == LINEAR)
+                    return resumes->linearSearchResumeBySkills(skillSet, skillCount, matchAll);
+                else if (searchAlgo == BINARY)
+                    return resumes->binarySearchResumeBySkills(skillSet, skillCount, matchAll);
+                break;
 
-// void MatchResultList::append(int jobId, int resumeId, double score) {
-//     MatchResult newResult(jobId, resumeId, score);
-//     MatchResultNode* node = new MatchResultNode(newResult);
+            default:
+                cerr << "Unknown data structure for resume search!" << endl;
+                break;
+        }
+    }
+    else if (matchMode == FIND_JOB) {
+        switch (dataStruct) {
+            case ARRAY:
+                if (searchAlgo == LINEAR)
+                    return jobs->linearSearchBySkills(skillSet, skillCount, matchAll);
+                else if (searchAlgo == BINARY)
+                    return jobs->binarySearchBySkills(skillSet, skillCount, matchAll);
+                break;
 
-//     if (!head) head = node;
-//     else {
-//         MatchResultNode* temp = head;
+            case SINGLY_LINKED_LIST:
+                if (searchAlgo == LINEAR)
+                    return jobs->linearSearchJobBySkills(skillSet, skillCount, matchAll);
+                else if (searchAlgo == BINARY)
+                    return jobs->binarySearchJobBySkills(skillSet, skillCount, matchAll);
+                break;
 
-//         while (temp->next !=nullptr) {
-//             temp = temp->next;
-//         }
+            case CIRCULAR_LINKED_LIST:
+                if (searchAlgo == LINEAR)
+                    return jobs->linearSearchJobBySkills(skillSet, skillCount, matchAll);
+                else if (searchAlgo == BINARY)
+                    return jobs->binarySearchJobBySkills(skillSet, skillCount, matchAll);
+                break;
 
-//         temp->next = node;
-//     }
+            default:
+                cerr << "Unknown data structure for job search!" << endl;
+                break;
+        }
+    }
 
-//     length++;
-// }
+    cerr << "Search configuration invalid!" << endl;
+    return MatchResultList(); // return empty
+}
 
-// int MatchResultList::getLength() {
-//      return length;
-// }
+double JobMatching::ruleBasedMatch(Job job, Resume resume) {
+    // 1. Search for matching skills (using selected DataStruct + SearchAlgorithm)
+    auto searchResults = search(job.skills, job.skillCount, /*matchAll=*/false);
 
-// JobMatching::JobMatching(JobLinkedList* jobs, ResumeLinkedList* resumes) {
-//     this->jobs = jobs;
-//     this->resumes = resumes;
-//     this->results = new MatchResultList();
-//     this->matchTime = 0;
-// }
+    // 2. Use results count to determine overlap
+    int overlapCount = searchResults.size(); // or length, depending on your class
 
-// JobMatching::~JobMatching() {
-//     delete results;
-//     results = nullptr;
-// }
+    if (job.skillCount == 0) return 0.0;
+
+    // 3. Calculate match percentage
+    double score = (static_cast<double>(overlapCount) / job.skillCount) * 100.0;
+
+    return score;
+}
+
+double JobMatching::weightedScoringMatch(Job job, Resume resume) {
+    if (job.skillCount == 0) return 0.0;
+
+    double totalWeight = 0.0;
+    double matchedWeight = 0.0;
+
+    // Generate weight for each skill
+    for (int i = 0; i < job.skillCount; i++) {
+        double weight = 1.0 - (i * 0.1);
+        if (weight < 0.1) weight = 0.1;
+        totalWeight += weight;
+    }
+
+    // Use search() function to find overlapping skills
+    auto searchResults = search(job.skills, job.skillCount, /*matchAll=*/false);
+    int overlapCount = searchResults.size(); // adjust based on your structure
+
+    // Estimate matched weight proportionally
+    matchedWeight = (overlapCount / static_cast<double>(job.skillCount)) * totalWeight;
+
+    double score = (matchedWeight / totalWeight) * 100.0;
+    return score;
+}
+
+// how to determine weight
