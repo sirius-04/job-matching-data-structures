@@ -546,42 +546,40 @@ void JobLinkedList::quickSortByPosition()
 }
 
 // ======= Search by Position Keyword =======
-JobLinkedList *JobLinkedList::binarySearchJobByPosition(const string &positionKeyword)
+JobLinkedList JobLinkedList::binarySearchJobByPosition(const string &positionKeyword)
 {
-    if (head == nullptr) // check empty list
-        return nullptr;
+    JobLinkedList matches;
 
-    quickSortByPosition(); // sort by position
-    JobNode *p = head;
-    JobLinkedList *matches = new JobLinkedList();
+    if (head == nullptr || positionKeyword.empty())
+        return matches; // return empty list
 
-    while (p != nullptr)
+    quickSortByPosition(); // sort by position alphabetically
+
+    for (JobNode *p = head; p != nullptr; p = p->next)
     {
         if (p->data.position.find(positionKeyword) != string::npos)
         {
-            matches->append(p->data);
+            matches.append(p->data);
         }
-        p = p->next;
     }
 
-    return (matches->head == nullptr) ? nullptr : matches; // return nullptr if empty
+    return matches; // copy returned (RVO or move semantics)
 }
 
 // ======= Search by Skill Set (All Skills Must Match) =======
-JobLinkedList *JobLinkedList::binarySearchJobBySkills(const string *skills, int skillCount)
+JobLinkedList JobLinkedList::binarySearchJobBySkills(const string *skills, int skillCount)
 {
+    JobLinkedList matches;
+
     if (head == nullptr || skills == nullptr || skillCount <= 0)
-        return nullptr;
+        return matches; // return empty list
 
-    quickSortBySkill(); // sort by first skill
-    JobNode *p = head;
-    JobLinkedList *matches = new JobLinkedList();
+    quickSortBySkill(); // sort by first skill (for potential binary search use)
 
-    while (p != nullptr)
+    for (JobNode *p = head; p != nullptr; p = p->next)
     {
         int matched = 0;
 
-        // count how many of the required skills are present in the current job
         for (int s = 0; s < skillCount; s++)
         {
             for (int j = 0; j < p->data.skillCount; j++)
@@ -589,17 +587,14 @@ JobLinkedList *JobLinkedList::binarySearchJobBySkills(const string *skills, int 
                 if (p->data.skills[j] == skills[s])
                 {
                     matched++;
-                    break; // move to next skill in skillSet
+                    break; // go to next skill in input list
                 }
             }
         }
 
-        // only include job if all required skills are matched
-        if (matched == skillCount)
-            matches->append(p->data);
-
-        p = p->next;
+        if (matched == skillCount) // all required skills matched
+            matches.append(p->data);
     }
 
-    return (matches->head == nullptr) ? nullptr : matches; // return nullptr if no matches
+    return matches;
 }
