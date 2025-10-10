@@ -2,18 +2,16 @@
 #define JOB_LINKED_LIST_HPP
 
 #include <iostream>
+#include "../../models/Job/Job.hpp"
 using namespace std;
 
 class JobNode
 {
 public:
-    int id;
-    string position;
-    string *skills;
-    int skillCount;
+    Job data;
     JobNode *next;
 
-    JobNode(int id, string position, string *skills, int skillCount);
+    JobNode(Job data);
 };
 
 class JobLinkedList
@@ -25,19 +23,17 @@ private:
 
 public:
     // constructor & destructor
-    JobLinkedList(int id, string position, string *skills, int skillCount);
     JobLinkedList();
     ~JobLinkedList();
 
     // general functions or utilities
-    void printList();
-    void append(int id, string position, string* skills, int skillCount);
-    void prepend(int id, string position, string* skills, int skillCount);
+    void append(Job data);
+    void prepend(Job data);
     void deleteFirst();
     void deleteLast();
     JobNode* get(int index);
-    bool set(int index, string position, string* skills, int skillCount);
-    bool insert(int index, int id, string position, string* skills, int skillCount);
+    bool set(int index, const string &position, const string *skills, int skillCount);
+    bool insert(int index, Job data);
     void deleteNode(int index);
     void reverse();
     int getLength();
@@ -46,16 +42,15 @@ public:
     void printSlice();
 
     // linear search
-    JobLinkedList *linearSearchJobByPosition(const string &position);
-    JobLinkedList *linearSearchJobBySkills(const string *skillSet, int skillCount, bool matchAll);
+    JobLinkedList linearSearchJobByPosition(const string &position);
+    JobLinkedList linearSearchJobBySkills(const string *skillSet, int skillCount, bool matchAll);
 
     // binary search
-    JobLinkedList *binarySearchJobByPosition(const string &position);
-    JobLinkedList *binarySearchJobBySkills(const string *skillSet, int skillCount);
+    JobLinkedList binarySearchJobByPosition(const string &position);
+    JobLinkedList binarySearchJobBySkills(const string *skillSet, int skillCount);
 
     // merge sort
     typedef bool (*CompareFn)(JobNode *, JobNode *);
-    static bool compareById(JobNode *a, JobNode *b);
     static bool compareByPosition(JobNode *a, JobNode *b);
     static bool compareBySkillCount(JobNode *a, JobNode *b);
     static bool compareBySkill(JobNode *a, JobNode *b);
@@ -69,7 +64,6 @@ public:
     JobNode *sortTail();
     void quickSort(JobNode *low, JobNode *high, const string &type);
 
-    void quickSortById();
     void quickSortByPosition();
     void quickSortBySkill();
     void quickSortBySkillCount();

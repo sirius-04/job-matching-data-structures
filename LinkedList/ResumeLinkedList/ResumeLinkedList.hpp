@@ -2,17 +2,16 @@
 #define RESUME_LINKED_LIST_HPP
 
 #include <iostream>
+#include "../../models/Resume/Resume.hpp"
 using namespace std;
 
 class ResumeNode
 {
 public:
-    int id;
-    string *skills;
-    int skillCount;
+    Resume data;
     ResumeNode *next;
 
-    ResumeNode(int id, string *skills, int skillCount);
+    ResumeNode(Resume data);
 };
 
 class ResumeLinkedList
@@ -24,19 +23,17 @@ private:
 
 public:
     // constructor & destructor
-    ResumeLinkedList(int id, string *skills, int skillCount);
     ResumeLinkedList();
     ~ResumeLinkedList();
 
     // general functions & utilities
-    void printList();
-    void append(int id, string *skills, int skillCount);
-    void prepend(int id, string *skills, int skillCount);
+    void append(Resume data);
+    void prepend(Resume data);
     void deleteFirst();
     void deleteLast();
     ResumeNode *get(int index);
-    bool set(int index, int id, string *skills, int skillCount);
-    bool insert(int index, int id, string *skills, int skillCount);
+    bool set(int index, const string *skills, int skillCount);
+    bool insert(int index, Resume data);
     void deleteNode(int index);
     void reverse();
     int getLength();
@@ -45,11 +42,10 @@ public:
     void printSlice();
 
     // linear search
-    ResumeLinkedList *linearSearchResumeBySkills(const string *skillSet, int skillCount, bool matchAll);
+    ResumeLinkedList linearSearchResumeBySkills(const string *skillSet, int skillCount, bool matchAll);
 
     // binary search
-    ResumeLinkedList *binarySearchResumeBySkills(const string *skillSet, int skillCount);
-    // ResumeLinkedList *binarySearchResumeBySkills(const string *skillSet, int skillCount, bool matchAll);
+    ResumeLinkedList binarySearchResumeBySkills(const string *skillSet, int skillCount);
 
     // merge sort
     typedef bool (*CompareFn)(ResumeNode *, ResumeNode *);

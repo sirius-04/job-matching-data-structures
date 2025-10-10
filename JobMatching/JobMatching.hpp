@@ -3,47 +3,36 @@
 
 #include "../LinkedList/JobLinkedList/JobLinkedList.hpp"
 #include "../LinkedList/ResumeLinkedList/ResumeLinkedList.hpp"
+#include "../models/MatchResult/MatchResult.hpp"
 #include <iostream>
 #include <chrono>
 using namespace std;
 using namespace std::chrono;
+
+enum MatchMode {
+    FIND_JOB,
+    FIND_RESUME
+};
+
+enum DataStruct {
+    ARRAY,
+    SINGLY_LINKED_LIST,
+    CIRCULAR_LINKED_LIST
+};
+
+enum MatchStrategy {
+    RULE_BASED,
+    WEIGHTED
+};
 
 enum SearchAlgorithm {
     LINEAR,
     BINARY
 };
 
-class MatchResult {
-public:
-    int jobId;
-    int resumeId;
-    double score;
-
-    MatchResult();
-    MatchResult(int jobId, int resumeId, double score);
-};
-
-class MatchResultNode {
-public:
-    MatchResult data;
-    MatchResultNode* next;
-
-    MatchResultNode(MatchResult data);
-};
-
-class MatchResultList {
-private:
-    MatchResultNode* head;
-    MatchResultNode* tail;
-    int length;
-
-public:
-    MatchResultList();
-    ~MatchResultList();
-
-    void printList();
-    void append(int jobId, int resumeId, double score);
-    int getLength();
+enum SortAlgorithm {
+    MERGE,
+    QUICK
 };
 
 class JobMatching {
@@ -51,23 +40,27 @@ private:
     JobLinkedList* jobs;
     ResumeLinkedList* resumes;
     MatchResultList* results;
-    SearchAlgorithm selectedAlgorithm;
+
+    MatchMode mode;
+    MatchStrategy matchStrategy;
+    SearchAlgorithm searchAlgo;
+    SortAlgorithm sortAlgo;
+
     double matchTime;
 
-    double calculateSkillMatch(JobNode* job, ResumeNode* resume);
-    double calculateFinalScore(JobNode* job, ResumeNode* resume);
-
-    void matchResumesUsingLinear(JobNode* job);
-    void matchResumesUsingBinary(JobNode* job);
-
-    void matchJobsUsingLinear(ResumeNode* resume);
-    void matchJobsUsingBinary(ResumeNode* resume);
-
 public:
-    JobMatching(JobLinkedList* jobs, ResumeLinkedList* resumes, SearchAlgorithm selectedAlgorithm);
+    JobMatching(JobLinkedList* jobs, ResumeLinkedList* resumes);
     ~JobMatching();
 
-    void setAlgorithm(SearchAlgorithm selectedAlgorithm);
+    void setMatchMode(MatchMode mode);
+    void setDataStruct(DataStruct dataStruct);
+    void setMatchingStrategy(MatchStrategy strategy);
+    void setSearchAlgorithm(SearchAlgorithm searchAlgo);
+    void setSortAlgorithm(SortAlgorithm sortAlgo);
+
+    double ruleBasedMatch(JobNode* job, ResumeNode* resume);
+    double weightedMatch(JobNode* job, ResumeNode* resume);
+
     void runMatching();
     void printPerformance();
     void printMatches();
