@@ -14,7 +14,7 @@ enum MatchMode {
     FIND_RESUME
 };
 
-enum OutputStruct {
+enum DataStruct {
     ARRAY,
     SINGLY_LINKED_LIST,
     CIRCULAR_LINKED_LIST
@@ -53,7 +53,7 @@ public:
     ~JobMatching();
 
     void setMatchMode(MatchMode mode);
-    void setOutputStruct(OutputStruct outputStruct);
+    void setDataStruct(DataStruct dataStruct);
     void setMatchingStrategy(MatchStrategy strategy);
     void setSearchAlgorithm(SearchAlgorithm searchAlgo);
     void setSortAlgorithm(SortAlgorithm sortAlgo);
