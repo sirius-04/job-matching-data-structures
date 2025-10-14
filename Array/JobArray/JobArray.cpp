@@ -139,7 +139,7 @@ void JobArray::printJobs()
 }
 
 // ======================= Linear Search =======================
-JobArray JobArray::linearSearchBySkill(const string &skill)
+JobArray JobArray::linearSearchBySkills(const string &skill)
 {
     JobArray result;
     for (int i = 0; i < size; i++)
