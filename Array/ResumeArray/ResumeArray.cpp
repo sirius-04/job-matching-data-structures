@@ -146,20 +146,33 @@ void ResumeArray::printResumes()
 
 // ======================= Linear Search =======================
 
-ResumeArray ResumeArray::linearSearchBySkill(const string &skill)
+ResumeArray ResumeArray::linearSearchResumeBySkills(const string *skillSet, int skillCount, bool matchAll)
 {
     ResumeArray result;
+
     for (int i = 0; i < size; i++)
     {
+        int matchCount = 0;
+
+        // check each skill in resume against each search skill
         for (int j = 0; j < resumes[i].skillCount; j++)
         {
-            if (resumes[i].skills[j] == skill)
+            for (int k = 0; k < skillCount; k++)
             {
-                result.addResume(resumes[i].id, resumes[i].skills, resumes[i].skillCount);
-                break;
+                if (resumes[i].skills[j] == skillSet[k])
+                {
+                    matchCount++;
+                    break; // avoid counting same resume skill twice
+                }
             }
         }
+
+        if ((matchAll && matchCount == skillCount) || (!matchAll && matchCount > 0))
+        {
+            result.addResume(resumes[i].id, resumes[i].skills, resumes[i].skillCount);
+        }
     }
+
     return result;
 }
 
@@ -292,51 +305,55 @@ void ResumeArray::quickSortBySkillCount()
 }
 
 // binary search
-ResumeArray ResumeArray::binarySearchBySkills(const string &skill)
+ResumeArray ResumeArray::binarySearchResumeBySkills(const string *skillSet, int skillCount)
 {
     ResumeArray result;
 
-    int left = 0, right = size - 1;
-    int foundIndex = -1;
-
-    while (left <= right)
+    for (int k = 0; k < skillCount; k++)
     {
-        int mid = (left + right) / 2;
+        string skill = skillSet[k];
+        int left = 0, right = size - 1;
+        int foundIndex = -1;
 
-        if (resumes[mid].skillCount == 0)
+        while (left <= right)
         {
-            left = mid + 1;
-            continue;
+            int mid = (left + right) / 2;
+
+            if (resumes[mid].skillCount == 0)
+            {
+                left = mid + 1;
+                continue;
+            }
+
+            string firstSkill = resumes[mid].skills[0];
+
+            if (firstSkill == skill)
+            {
+                foundIndex = mid;
+                break;
+            }
+            else if (firstSkill < skill)
+                left = mid + 1;
+            else
+                right = mid - 1;
         }
 
-        string firstSkill = resumes[mid].skills[0];
+        if (foundIndex == -1)
+            continue; 
 
-        if (firstSkill == skill)
+        int i = foundIndex;
+        while (i >= 0 && resumes[i].skillCount > 0 && resumes[i].skills[0] == skill)
         {
-            foundIndex = mid;
-            break;
+            result.addResume(resumes[i].id, resumes[i].skills, resumes[i].skillCount);
+            i--;
         }
-        else if (firstSkill < skill)
-            left = mid + 1;
-        else
-            right = mid - 1;
-    }
 
-    if (foundIndex == -1)
-        return result;
-
-    int i = foundIndex;
-    while (i >= 0 && resumes[i].skillCount > 0 && resumes[i].skills[0] == skill)
-    {
-        result.addResume(resumes[i].id, resumes[i].skills, resumes[i].skillCount);
-        i--;
-    }
-
-    i = foundIndex + 1;
-    while (i < size && resumes[i].skillCount > 0 && resumes[i].skills[0] == skill)
-    {
-        result.addResume(resumes[i].id, resumes[i].skills, resumes[i].skillCount);
-        i++;
+        i = foundIndex + 1;
+        while (i < size && resumes[i].skillCount > 0 && resumes[i].skills[0] == skill)
+        {
+            result.addResume(resumes[i].id, resumes[i].skills, resumes[i].skillCount);
+            i++;
+        }
     }
 
     return result;

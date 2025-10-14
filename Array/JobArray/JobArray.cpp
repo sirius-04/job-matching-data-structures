@@ -139,20 +139,36 @@ void JobArray::printJobs()
 }
 
 // ======================= Linear Search =======================
-JobArray JobArray::linearSearchBySkills(const string &skill)
+JobArray JobArray::linearSearchJobBySkills(const string *skillSet, int skillCount, bool matchAll)
 {
     JobArray result;
+
     for (int i = 0; i < size; i++)
     {
-        for (int j = 0; j < jobs[i].skillCount; j++)
+        int matchedSkills = 0;
+
+        for (int j = 0; j < skillCount; j++)
         {
-            if (jobs[i].skills[j] == skill)
+            for (int k = 0; k < jobs[i].skillCount; k++)
             {
-                result.addJob(jobs[i].id, jobs[i].position, jobs[i].skills, jobs[i].skillCount);
-                break;
+                if (jobs[i].skills[k] == skillSet[j])
+                {
+                    matchedSkills++;
+                    break;
+                }
             }
         }
+
+        // ✅ if matchAll = true, all skills must match
+        // ✅ if matchAll = false, at least one must match
+        bool addThis = matchAll ? (matchedSkills == skillCount) : (matchedSkills > 0);
+
+        if (addThis)
+        {
+            result.addJob(jobs[i].id, jobs[i].position, jobs[i].skills, jobs[i].skillCount);
+        }
     }
+
     return result;
 }
 
@@ -350,51 +366,55 @@ JobArray JobArray::binarySearchByPosition(const string &position)
     return result;
 }
 
-JobArray JobArray::binarySearchBySkills(const string &skill)
+JobArray JobArray::binarySearchJobBySkills(const string *skillSet, int skillCount)
 {
     JobArray result;
 
-    int left = 0, right = size - 1;
-    int foundIndex = -1;
-
-    while (left <= right)
+    for (int k = 0; k < skillCount; k++)
     {
-        int mid = (left + right) / 2;
+        string skill = skillSet[k];
+        int left = 0, right = size - 1;
+        int foundIndex = -1;
 
-        if (jobs[mid].skillCount == 0)
+        while (left <= right)
         {
-            left = mid + 1;
+            int mid = (left + right) / 2;
+
+            if (jobs[mid].skillCount == 0)
+            {
+                left = mid + 1;
+                continue;
+            }
+
+            string firstSkill = jobs[mid].skills[0];
+
+            if (firstSkill == skill)
+            {
+                foundIndex = mid;
+                break;
+            }
+            else if (firstSkill < skill)
+                left = mid + 1;
+            else
+                right = mid - 1;
+        }
+
+        if (foundIndex == -1)
             continue;
-        }
 
-        string firstSkill = jobs[mid].skills[0];
-
-        if (firstSkill == skill)
+        int i = foundIndex;
+        while (i >= 0 && jobs[i].skillCount > 0 && jobs[i].skills[0] == skill)
         {
-            foundIndex = mid;
-            break;
+            result.addJob(jobs[i].id, jobs[i].position, jobs[i].skills, jobs[i].skillCount);
+            i--;
         }
-        else if (firstSkill < skill)
-            left = mid + 1;
-        else
-            right = mid - 1;
-    }
 
-    if (foundIndex == -1)
-        return result;
-
-    int i = foundIndex;
-    while (i >= 0 && jobs[i].skillCount > 0 && jobs[i].skills[0] == skill)
-    {
-        result.addJob(jobs[i].id, jobs[i].position, jobs[i].skills, jobs[i].skillCount);
-        i--;
-    }
-
-    i = foundIndex + 1;
-    while (i < size && jobs[i].skillCount > 0 && jobs[i].skills[0] == skill)
-    {
-        result.addJob(jobs[i].id, jobs[i].position, jobs[i].skills, jobs[i].skillCount);
-        i++;
+        i = foundIndex + 1;
+        while (i < size && jobs[i].skillCount > 0 && jobs[i].skills[0] == skill)
+        {
+            result.addJob(jobs[i].id, jobs[i].position, jobs[i].skills, jobs[i].skillCount);
+            i++;
+        }
     }
 
     return result;
