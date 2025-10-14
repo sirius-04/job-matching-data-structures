@@ -9,7 +9,7 @@ using namespace std;
 // Export functions with extern linkage
 void createJobLinkedList(JobLinkedList &jobLinkedList)
 {
-    ifstream file("dataset/cleaned_jobDescription.csv");
+    ifstream file("dataset/cleaned_jobDescription_v2.csv");
     if (!file.is_open())
     {
         cerr << "Error: Could not open file.\n";
@@ -72,7 +72,7 @@ void createJobLinkedList(JobLinkedList &jobLinkedList)
 
 void createResumeLinkedList(ResumeLinkedList &resumeLinkedList)
 {
-    ifstream file("dataset/cleaned_resume.csv");
+    ifstream file("dataset/cleaned_resume_v2.csv");
     if (!file.is_open())
     {
         cerr << "Error: Could not open file.\n";
