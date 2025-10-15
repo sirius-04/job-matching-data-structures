@@ -1,15 +1,57 @@
 #include "JobMatching.hpp"
 
-JobMatching::JobMatching(JobLinkedList* jobs, ResumeLinkedList* resumes) {
-    this->jobs = jobs;
-    this->resumes = resumes;
+#include "JobMatching.hpp"
+
+JobMatching::JobMatching(JobArray* jobArray, ResumeArray* resumeArray) {
+    this->jobArray = jobArray;
+    this->resumeArray = resumeArray;
+    this->jobLinkedList = nullptr;
+    this->resumeLinkedList = nullptr;
+    this->jobCircular = nullptr;
+    this->resumeCircular = nullptr;
+
     this->results = new MatchResultList();
     this->matchTime = 0;
+    this->matchMode = FIND_RESUME;
+    this->dataStruct = ARRAY;
+    this->matchStrategy = RULE_BASED;
+    this->searchAlgo = LINEAR;
+}
+
+JobMatching::JobMatching(JobLinkedList* jobLinkedList, ResumeLinkedList* resumeLinkedList) {
+    this->jobArray = nullptr;
+    this->resumeArray = nullptr;
+    this->jobLinkedList = jobLinkedList;
+    this->resumeLinkedList = resumeLinkedList;
+    this->jobCircular = nullptr;
+    this->resumeCircular = nullptr;
+
+    this->results = new MatchResultList();
+    this->matchTime = 0;
+    this->matchMode = FIND_RESUME;
+    this->dataStruct = SINGLY_LINKED_LIST;
+    this->matchStrategy = RULE_BASED;
+    this->searchAlgo = LINEAR;
+}
+
+JobMatching::JobMatching(JobCircular* jobCircular, ResumeCircular* resumeCircular) {
+    this->jobArray = nullptr;
+    this->resumeArray = nullptr;
+    this->jobLinkedList = nullptr;
+    this->resumeLinkedList = nullptr;
+    this->jobCircular = jobCircular;
+    this->resumeCircular = resumeCircular;
+
+    this->results = new MatchResultList();
+    this->matchTime = 0;
+    this->matchMode = FIND_RESUME;
+    this->dataStruct = CIRCULAR_LINKED_LIST;
+    this->matchStrategy = RULE_BASED;
+    this->searchAlgo = LINEAR;
 }
 
 JobMatching::~JobMatching() {
     delete results;
-    results = nullptr;
 }
 
 void JobMatching::setMatchMode(MatchMode matchMode) {
@@ -28,66 +70,55 @@ void JobMatching::setSearchAlgorithm(SearchAlgorithm searchAlgo) {
     this->searchAlgo = searchAlgo;
 }
 
-MatchResultList JobMatching::search(const string* skillSet, int skillCount, bool matchAll) {
+void* JobMatching::search(const string* skillSet, int skillCount, bool matchAll) {
     if (matchMode == FIND_RESUME) {
         switch (dataStruct) {
             case ARRAY:
-                if (searchAlgo == LINEAR)
-                    return resumes->linearSearchBySkills(skillSet, skillCount, matchAll);
-                else if (searchAlgo == BINARY)
-                    return resumes->binarySearchBySkills(skillSet, skillCount, matchAll);
-                break;
+                return (searchAlgo == LINEAR)
+                    ? (void*)resumeArray->linearSearchResumeBySkills(skillSet, skillCount, matchAll)
+                    : (void*)resumeArray->binarySearchResumeBySkills(skillSet, skillCount, matchAll);
 
             case SINGLY_LINKED_LIST:
-                if (searchAlgo == LINEAR)
-                    return resumes->linearSearchResumeBySkills(skillSet, skillCount, matchAll);
-                else if (searchAlgo == BINARY)
-                    return resumes->binarySearchResumeBySkills(skillSet, skillCount, matchAll);
-                break;
+                return (searchAlgo == LINEAR)
+                    ? (void*)resumeLinkedList->linearSearchResumeBySkills(skillSet, skillCount, matchAll)
+                    : (void*)resumeLinkedList->binarySearchResumeBySkills(skillSet, skillCount, matchAll);
 
             case CIRCULAR_LINKED_LIST:
-                if (searchAlgo == LINEAR)
-                    return resumes->linearSearchResumeBySkills(skillSet, skillCount, matchAll);
-                else if (searchAlgo == BINARY)
-                    return resumes->binarySearchResumeBySkills(skillSet, skillCount, matchAll);
-                break;
+                return (searchAlgo == LINEAR)
+                    ? (void*)resumeCircular->linearSearchResumeBySkills(skillSet, skillCount, matchAll)
+                    : (void*)resumeCircular->binarySearchResumeBySkills(skillSet, skillCount, matchAll);
 
             default:
-                cerr << "Unknown data structure for resume search!" << endl;
-                break;
+                cerr << "❌ Unknown data structure for resume search!" << endl;
+                return nullptr;
         }
     }
+
     else if (matchMode == FIND_JOB) {
         switch (dataStruct) {
             case ARRAY:
-                if (searchAlgo == LINEAR)
-                    return jobs->linearSearchBySkills(skillSet, skillCount, matchAll);
-                else if (searchAlgo == BINARY)
-                    return jobs->binarySearchBySkills(skillSet, skillCount, matchAll);
-                break;
+                return (searchAlgo == LINEAR)
+                    ? (void*)jobArray->linearSearchJobBySkills(skillSet, skillCount, matchAll)
+                    : (void*)jobArray->binarySearchJobBySkills(skillSet, skillCount, matchAll);
 
             case SINGLY_LINKED_LIST:
-                if (searchAlgo == LINEAR)
-                    return jobs->linearSearchJobBySkills(skillSet, skillCount, matchAll);
-                else if (searchAlgo == BINARY)
-                    return jobs->binarySearchJobBySkills(skillSet, skillCount, matchAll);
-                break;
+                return (searchAlgo == LINEAR)
+                    ? (void*)jobLinkedList->linearSearchJobBySkills(skillSet, skillCount, matchAll)
+                    : (void*)jobLinkedList->binarySearchJobBySkills(skillSet, skillCount, matchAll);
 
             case CIRCULAR_LINKED_LIST:
-                if (searchAlgo == LINEAR)
-                    return jobs->linearSearchJobBySkills(skillSet, skillCount, matchAll);
-                else if (searchAlgo == BINARY)
-                    return jobs->binarySearchJobBySkills(skillSet, skillCount, matchAll);
-                break;
+                return (searchAlgo == LINEAR)
+                    ? (void*)jobCircular->linearSearchJobBySkills(skillSet, skillCount, matchAll)
+                    : (void*)jobCircular->binarySearchJobBySkills(skillSet, skillCount, matchAll);
 
             default:
-                cerr << "Unknown data structure for job search!" << endl;
-                break;
+                cerr << "❌ Unknown data structure for job search!" << endl;
+                return nullptr;
         }
     }
 
-    cerr << "Search configuration invalid!" << endl;
-    return MatchResultList(); // return empty
+    cerr << "❌ Invalid search configuration!" << endl;
+    return nullptr;
 }
 
 double JobMatching::ruleBasedMatch(Job job, Resume resume) {

@@ -3,6 +3,8 @@
 
 #include "../LinkedList/JobLinkedList/JobLinkedList.hpp"
 #include "../LinkedList/ResumeLinkedList/ResumeLinkedList.hpp"
+#include "../LinkedList/JobCircular/JobCircular.hpp"
+#include "../LinkedList/ResumeCircular/ResumeCircular.hpp"
 #include "../Array/JobArray/JobArray.hpp"
 #include "../Array/ResumeArray/ResumeArray.hpp"
 #include "../models/MatchResult/MatchResult.hpp"
@@ -34,19 +36,26 @@ enum SearchAlgorithm {
 
 class JobMatching {
 private:
-    JobLinkedList* jobs;
-    ResumeLinkedList* resumes;
-    MatchResultList* results;
+    JobArray* jobArray;
+    JobLinkedList* jobLinkedList;
+    JobCircular* jobCircular;
+
+    ResumeArray* resumeArray;
+    ResumeLinkedList* resumeLinkedList;
+    ResumeCircular* resumeCircular;
 
     MatchMode matchMode;
     DataStruct dataStruct;
     MatchStrategy matchStrategy;
     SearchAlgorithm searchAlgo;
 
+    MatchResultList* results;
     double matchTime;
 
 public:
-    JobMatching(JobLinkedList* jobs, ResumeLinkedList* resumes);
+    JobMatching(JobArray* jobArray, ResumeArray* resumeArray);
+    JobMatching(JobLinkedList* jobLinkedList, ResumeLinkedList* resumeLinkedList);
+    JobMatching(JobCircular* jobCircular, ResumeCircular* resumeCircular);
     ~JobMatching();
 
     void setMatchMode(MatchMode matchMode);
