@@ -146,7 +146,7 @@ void ResumeArray::printResumes()
 
 // ======================= Linear Search =======================
 
-ResumeArray ResumeArray::linearSearchResumeBySkills(const string *skillSet, int skillCount, bool matchAll)
+ResumeArray ResumeArray::linearSearchBySkills(const string *skillSet, int skillCount, bool matchAll)
 {
     ResumeArray result;
 
@@ -305,7 +305,7 @@ void ResumeArray::quickSortBySkillCount()
 }
 
 // binary search
-ResumeArray ResumeArray::binarySearchResumeBySkills(const string *skillSet, int skillCount)
+ResumeArray ResumeArray::binarySearchBySkills(const string *skillSet, int skillCount)
 {
     ResumeArray result;
 

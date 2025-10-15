@@ -26,12 +26,12 @@ public:
     void printJobs();
 
     // Linear search
-    JobArray linearSearchJobBySkills(const string *skillSet, int skillCount, bool matchAll);
+    JobArray linearSearchBySkills(const string *skillSet, int skillCount, bool matchAll);
     JobArray linearSearchByPosition(const string &position);
 
     // binary search
     JobArray binarySearchByPosition(const string &position);
-    JobArray binarySearchJobBySkills(const string *skillSet, int skillCount);
+    JobArray binarySearchBySkills(const string *skillSet, int skillCount);
 
     // quick sort
     int partition(int low, int high, bool (*cmp)(const Job &, const Job &));

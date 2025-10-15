@@ -139,7 +139,7 @@ void JobArray::printJobs()
 }
 
 // ======================= Linear Search =======================
-JobArray JobArray::linearSearchJobBySkills(const string *skillSet, int skillCount, bool matchAll)
+JobArray JobArray::linearSearchBySkills(const string *skillSet, int skillCount, bool matchAll)
 {
     JobArray result;
 
@@ -366,7 +366,7 @@ JobArray JobArray::binarySearchByPosition(const string &position)
     return result;
 }
 
-JobArray JobArray::binarySearchJobBySkills(const string *skillSet, int skillCount)
+JobArray JobArray::binarySearchBySkills(const string *skillSet, int skillCount)
 {
     JobArray result;
 

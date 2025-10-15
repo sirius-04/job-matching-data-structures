@@ -23,8 +23,8 @@ public:
     bool loadFromCSV(const string &filename);
     void printResumes();
 
-    ResumeArray linearSearchResumeBySkills(const string *skillSet, int skillCount, bool matchAll);
-    ResumeArray binarySearchResumeBySkills(const string *skillSet, int skillCount);
+    ResumeArray linearSearchBySkills(const string *skillSet, int skillCount, bool matchAll);
+    ResumeArray binarySearchBySkills(const string *skillSet, int skillCount);
 
     int partition(int low, int high, bool (*cmp)(const Resume &, const Resume &));
     void quickSortHelper(int low, int high, bool (*cmp)(const Resume &, const Resume &));
