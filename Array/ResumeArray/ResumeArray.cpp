@@ -1,7 +1,6 @@
 #include "ResumeArray.hpp"
 #include <fstream>
 #include <sstream>
-#include <vector>
 #include <iostream>
 using namespace std;
 
@@ -39,75 +38,16 @@ void ResumeArray::resize()
     resumes = newResumes;
 }
 
-bool ResumeArray::loadFromCSV(const string &filename)
+int ResumeArray::getSize() const
 {
-    cout << "=== Running Array Mode ===" << endl;
-    cout << "Attempting to open: " << filename << endl;
+    return size;
+}
 
-    ifstream file(filename);
-    if (!file.is_open())
-    {
-        cerr << "❌ Failed to open " << filename << endl;
-        return false;
-    }
-
-    cout << "✅ File opened successfully!" << endl;
-
-    string line;
-    getline(file, line); // skip header
-
-    int lineCount = 0;
-
-    while (getline(file, line))
-    {
-        if (line.empty())
-            continue;
-        lineCount++;
-
-        size_t commaPos = line.find(',');
-        if (commaPos == string::npos)
-            continue;
-
-        string idStr = line.substr(0, commaPos);
-        string skillStr = line.substr(commaPos + 1);
-
-        if (!skillStr.empty() && skillStr.front() == '"')
-            skillStr.erase(0, 1);
-        if (!skillStr.empty() && skillStr.back() == '"')
-            skillStr.pop_back();
-
-        int id = 0;
-        try
-        {
-            id = stoi(idStr);
-        }
-        catch (...)
-        {
-            cerr << "⚠️ Invalid ID on line " << lineCount << ": " << idStr << endl;
-            continue;
-        }
-
-        vector<string> skillsVec;
-        stringstream skillSS(skillStr);
-        string skill;
-        while (getline(skillSS, skill, ','))
-        {
-            if (!skill.empty())
-                skillsVec.push_back(skill);
-        }
-
-        int count = skillsVec.size();
-        string *skillsArr = new string[count];
-        for (int i = 0; i < count; i++)
-            skillsArr[i] = skillsVec[i];
-
-        addResume(id, skillsArr, count);
-        delete[] skillsArr;
-    }
-
-    cout << "✅ Loaded total resumes: " << size << endl;
-    file.close();
-    return true;
+Resume ResumeArray::getResume(int index) const
+{
+    if (index >= 0 && index < size)
+        return resumes[index];
+    throw out_of_range("Index out of bounds in getResume()");
 }
 
 void ResumeArray::addResume(int id, string *skills, int skillCount)
@@ -141,7 +81,7 @@ void ResumeArray::printResumes()
         }
         cout << endl;
     }
-    cout << "\n✅ Total resumes printed: " << size << endl;
+    cout << "\n Total resumes printed: " << size << endl;
 }
 
 // ======================= Linear Search =======================
@@ -305,54 +245,42 @@ void ResumeArray::quickSortBySkillCount()
 }
 
 // binary search
-ResumeArray ResumeArray::binarySearchBySkills(const string *skillSet, int skillCount)
+ResumeArray ResumeArray::binarySearchBySkills(const string *skillSet, int skillCount, bool matchAll)
 {
     ResumeArray result;
 
-    for (int k = 0; k < skillCount; k++)
+    for (int i = 0; i < size; i++)
     {
-        string skill = skillSet[k];
-        int left = 0, right = size - 1;
-        int foundIndex = -1;
+        int matches = 0;
 
-        while (left <= right)
+        for (int k = 0; k < skillCount; k++)
         {
-            int mid = (left + right) / 2;
+            string skill = skillSet[k];
 
-            if (resumes[mid].skillCount == 0)
+            int left = 0, right = resumes[i].skillCount - 1;
+            bool found = false;
+
+            while (left <= right)
             {
-                left = mid + 1;
-                continue;
+                int mid = (left + right) / 2;
+                if (resumes[i].skills[mid] == skill)
+                {
+                    found = true;
+                    break;
+                }
+                else if (resumes[i].skills[mid] < skill)
+                    left = mid + 1;
+                else
+                    right = mid - 1;
             }
 
-            string firstSkill = resumes[mid].skills[0];
-
-            if (firstSkill == skill)
-            {
-                foundIndex = mid;
-                break;
-            }
-            else if (firstSkill < skill)
-                left = mid + 1;
-            else
-                right = mid - 1;
+            if (found)
+                matches++;
         }
 
-        if (foundIndex == -1)
-            continue; 
-
-        int i = foundIndex;
-        while (i >= 0 && resumes[i].skillCount > 0 && resumes[i].skills[0] == skill)
+        if ((matchAll && matches == skillCount) || (!matchAll && matches > 0))
         {
             result.addResume(resumes[i].id, resumes[i].skills, resumes[i].skillCount);
-            i--;
-        }
-
-        i = foundIndex + 1;
-        while (i < size && resumes[i].skillCount > 0 && resumes[i].skills[0] == skill)
-        {
-            result.addResume(resumes[i].id, resumes[i].skills, resumes[i].skillCount);
-            i++;
         }
     }
 

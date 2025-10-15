@@ -11,32 +11,39 @@
 using namespace std;
 using namespace std::chrono;
 
-enum MatchMode {
+enum MatchMode
+{
     FIND_JOB,
     FIND_RESUME
 };
 
-enum DataStruct {
+enum DataStruct
+{
     ARRAY,
     SINGLY_LINKED_LIST,
     CIRCULAR_LINKED_LIST
 };
 
-enum MatchStrategy {
+enum MatchStrategy
+{
     RULE_BASED,
     WEIGHTED_SCORING
 };
 
-enum SearchAlgorithm {
+enum SearchAlgorithm
+{
     LINEAR,
     BINARY
 };
 
-class JobMatching {
+class JobMatching
+{
 private:
-    JobLinkedList* jobs;
-    ResumeLinkedList* resumes;
-    MatchResultList* results;
+    JobArray *jobArray;
+    ResumeArray *resumeArray;
+    JobLinkedList *jobs;
+    ResumeLinkedList *resumes;
+    MatchResultList *results;
 
     MatchMode matchMode;
     DataStruct dataStruct;
@@ -46,7 +53,8 @@ private:
     double matchTime;
 
 public:
-    JobMatching(JobLinkedList* jobs, ResumeLinkedList* resumes);
+    JobMatching(JobArray *jobs, ResumeArray *resumes);
+    JobMatching(JobLinkedList *jobs, ResumeLinkedList *resumes);
     ~JobMatching();
 
     void setMatchMode(MatchMode matchMode);
@@ -54,7 +62,7 @@ public:
     void setMatchStrategy(MatchStrategy strategy);
     void setSearchAlgorithm(SearchAlgorithm searchAlgo);
 
-    auto search(const string* skillSet, int skillCount, bool matchAll);
+    auto search(const string *skillSet, int skillCount, bool matchAll) -> MatchResultList;
 
     double ruleBasedMatch(Job job, Resume resume);
     double weightedScoringMatch(Job job, Resume resume);

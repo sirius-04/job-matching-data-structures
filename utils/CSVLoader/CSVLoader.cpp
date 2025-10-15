@@ -128,3 +128,134 @@ void createResumeLinkedList(ResumeLinkedList &resumeLinkedList)
 
     file.close();
 }
+
+void createJobArray(JobArray &jobArray)
+{
+    ifstream file("dataset/cleaned_jobDescription.csv");
+    if (!file.is_open())
+    {
+        cerr << "Failed to open file!" << endl;
+        return;
+    }
+
+    cout << "File opened successfully!" << endl;
+
+    string line;
+    getline(file, line); // skip header
+
+    while (getline(file, line))
+    {
+        if (line.empty())
+            continue;
+
+        stringstream ss(line);
+        string idStr, position, skillsStr;
+
+        getline(ss, idStr, ',');
+        getline(ss, position, ',');
+        getline(ss, skillsStr, '\n');
+
+        int id;
+        try
+        {
+            id = stoi(idStr);
+        }
+        catch (...)
+        {
+            cerr << "Invalid ID: " << idStr << endl;
+            continue;
+        }
+
+        if (!skillsStr.empty() && skillsStr.front() == '"')
+            skillsStr.erase(0, 1);
+        if (!skillsStr.empty() && skillsStr.back() == '"')
+            skillsStr.pop_back();
+
+        int skillCount = 1;
+        for (char ch : skillsStr)
+            if (ch == ',')
+                skillCount++;
+
+        string *skillsArr = new string[skillCount];
+
+        int index = 0;
+        size_t start = 0, end;
+        while ((end = skillsStr.find(',', start)) != string::npos)
+        {
+            skillsArr[index++] = skillsStr.substr(start, end - start);
+            start = end + 1;
+        }
+        skillsArr[index++] = skillsStr.substr(start); // last skill
+
+        jobArray.addJob(id, position, skillsArr, skillCount);
+        delete[] skillsArr;
+    }
+
+    file.close();
+    return;
+}
+
+void createResumeArray(ResumeArray &resumeArray)
+{
+    ifstream file("dataset/cleaned_resume.csv");
+    if (!file.is_open())
+    {
+        cerr << "Failed to open file!" << endl;
+        return;
+    }
+
+    cout << "File opened successfully!" << endl;
+
+    string line;
+    getline(file, line); // skip header
+
+    while (getline(file, line))
+    {
+        if (line.empty())
+            continue;
+
+        stringstream ss(line);
+        string idStr, skillsStr;
+
+        getline(ss, idStr, ',');
+        getline(ss, skillsStr, '\n');
+
+        int id;
+        try
+        {
+            id = stoi(idStr);
+        }
+        catch (...)
+        {
+            cerr << "Invalid ID: " << idStr << endl;
+            continue;
+        }
+
+        if (!skillsStr.empty() && skillsStr.front() == '"')
+            skillsStr.erase(0, 1);
+        if (!skillsStr.empty() && skillsStr.back() == '"')
+            skillsStr.pop_back();
+
+        int skillCount = 1;
+        for (char ch : skillsStr)
+            if (ch == ',')
+                skillCount++;
+
+        string *skillsArr = new string[skillCount];
+
+        int index = 0;
+        size_t start = 0, end;
+        while ((end = skillsStr.find(',', start)) != string::npos)
+        {
+            skillsArr[index++] = skillsStr.substr(start, end - start);
+            start = end + 1;
+        }
+        skillsArr[index++] = skillsStr.substr(start); // last skill
+
+        resumeArray.addResume(id, skillsArr, skillCount);
+        delete[] skillsArr;
+    }
+
+    file.close();
+    return;
+}
