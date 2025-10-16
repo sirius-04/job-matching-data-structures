@@ -1,7 +1,6 @@
 #include "JobArray.hpp"
 #include <fstream>
 #include <sstream>
-#include <vector>
 
 // ======================= JobArray Implementation =======================
 
@@ -27,6 +26,21 @@ void JobArray::resize()
     jobs = newJobs;
 }
 
+int JobArray::getSize() const
+{
+    return size;
+}
+
+Job JobArray::getJob(int index) const
+{
+    if (index < 0 || index >= size)
+    {
+        cerr << "Error: Job index out of bounds: " << index << endl;
+        return Job(); // return a default Job object
+    }
+    return jobs[index];
+}
+
 void JobArray::addJob(int id, string position, string *skills, int skillCount)
 {
     if (size >= capacity)
@@ -40,86 +54,6 @@ void JobArray::addJob(int id, string position, string *skills, int skillCount)
         jobs[size].skills[i] = skills[i];
 
     size++;
-}
-
-bool JobArray::loadFromCSV(const string &filename)
-{
-    ifstream file(filename);
-    cout << "Attempting to open: " << filename << endl;
-
-    if (!file.is_open())
-    {
-        cerr << "❌ Failed to open file!" << endl;
-        return false;
-    }
-
-    file.rdbuf()->pubsetbuf(nullptr, 0);
-
-    // Handle UTF-8 BOM
-    char c1 = file.peek();
-    if (c1 == '\xEF')
-    {
-        file.get();
-        file.get();
-        file.get();
-    }
-
-    cout << "✅ File opened successfully!" << endl;
-
-    string line;
-    getline(file, line); // skip header
-
-    int lineCount = 0;
-    while (getline(file, line))
-    {
-        if (line.empty())
-            continue;
-        lineCount++;
-
-        stringstream ss(line);
-        string idStr, position, skillsStr;
-
-        getline(ss, idStr, ',');
-        getline(ss, position, ',');
-        getline(ss, skillsStr);
-
-        int id = 0;
-        try
-        {
-            id = stoi(idStr);
-        }
-        catch (...)
-        {
-            cerr << "Invalid ID on line " << lineCount << ": " << idStr << endl;
-            continue;
-        }
-
-        if (!skillsStr.empty() && skillsStr.front() == '"')
-            skillsStr.erase(0, 1);
-        if (!skillsStr.empty() && skillsStr.back() == '"')
-            skillsStr.pop_back();
-
-        vector<string> skillVec;
-        string skill;
-        stringstream skillSS(skillsStr);
-        while (getline(skillSS, skill, ','))
-        {
-            if (!skill.empty())
-                skillVec.push_back(skill);
-        }
-
-        int skillCount = skillVec.size();
-        string *skillsArr = new string[skillCount];
-        for (int i = 0; i < skillCount; i++)
-            skillsArr[i] = skillVec[i];
-
-        addJob(id, position, skillsArr, skillCount);
-        delete[] skillsArr;
-    }
-
-    cout << "✅ Loaded " << size << " jobs\n";
-    file.close();
-    return true;
 }
 
 void JobArray::printJobs()
@@ -136,10 +70,11 @@ void JobArray::printJobs()
         }
         cout << endl;
     }
+    cout << "\n Total jobs printed: " << size << endl;
 }
 
 // ======================= Linear Search =======================
-JobArray JobArray::linearSearchJobBySkills(const string *skillSet, int skillCount, bool matchAll)
+JobArray JobArray::linearSearchBySkills(const string *skillSet, int skillCount, bool matchAll)
 {
     JobArray result;
 
@@ -159,8 +94,6 @@ JobArray JobArray::linearSearchJobBySkills(const string *skillSet, int skillCoun
             }
         }
 
-        // ✅ if matchAll = true, all skills must match
-        // ✅ if matchAll = false, at least one must match
         bool addThis = matchAll ? (matchedSkills == skillCount) : (matchedSkills > 0);
 
         if (addThis)
@@ -366,54 +299,41 @@ JobArray JobArray::binarySearchByPosition(const string &position)
     return result;
 }
 
-JobArray JobArray::binarySearchJobBySkills(const string *skillSet, int skillCount)
+JobArray JobArray::binarySearchBySkills(const string *skillSet, int skillCount, bool matchAll)
 {
     JobArray result;
 
-    for (int k = 0; k < skillCount; k++)
+    for (int i = 0; i < size; i++)
     {
-        string skill = skillSet[k];
-        int left = 0, right = size - 1;
-        int foundIndex = -1;
+        int matches = 0;
 
-        while (left <= right)
+        for (int k = 0; k < skillCount; k++)
         {
-            int mid = (left + right) / 2;
+            string skill = skillSet[k];
 
-            if (jobs[mid].skillCount == 0)
+            int left = 0, right = jobs[i].skillCount - 1;
+            bool found = false;
+
+            while (left <= right)
             {
-                left = mid + 1;
-                continue;
+                int mid = (left + right) / 2;
+                if (jobs[i].skills[mid] == skill)
+                {
+                    found = true;
+                    break;
+                }
+                else if (jobs[i].skills[mid] < skill)
+                    left = mid + 1;
+                else
+                    right = mid - 1;
             }
 
-            string firstSkill = jobs[mid].skills[0];
-
-            if (firstSkill == skill)
-            {
-                foundIndex = mid;
-                break;
-            }
-            else if (firstSkill < skill)
-                left = mid + 1;
-            else
-                right = mid - 1;
+            if (found)
+                matches++;
         }
-
-        if (foundIndex == -1)
-            continue;
-
-        int i = foundIndex;
-        while (i >= 0 && jobs[i].skillCount > 0 && jobs[i].skills[0] == skill)
+        if ((matchAll && matches == skillCount) || (!matchAll && matches > 0))
         {
             result.addJob(jobs[i].id, jobs[i].position, jobs[i].skills, jobs[i].skillCount);
-            i--;
-        }
-
-        i = foundIndex + 1;
-        while (i < size && jobs[i].skillCount > 0 && jobs[i].skills[0] == skill)
-        {
-            result.addJob(jobs[i].id, jobs[i].position, jobs[i].skills, jobs[i].skillCount);
-            i++;
         }
     }
 

@@ -18,13 +18,14 @@ private:
 public:
     ResumeArray();
     ~ResumeArray();
+    int getSize() const;
+    Resume getResume(int index) const;
 
     void addResume(int id, string *skills, int skillCount);
-    bool loadFromCSV(const string &filename);
     void printResumes();
 
-    ResumeArray linearSearchResumeBySkills(const string *skillSet, int skillCount, bool matchAll);
-    ResumeArray binarySearchResumeBySkills(const string *skillSet, int skillCount);
+    ResumeArray linearSearchBySkills(const string *skillSet, int skillCount, bool matchAll);
+    ResumeArray binarySearchBySkills(const string *skillSet, int skillCount, bool matchAll);
 
     int partition(int low, int high, bool (*cmp)(const Resume &, const Resume &));
     void quickSortHelper(int low, int high, bool (*cmp)(const Resume &, const Resume &));

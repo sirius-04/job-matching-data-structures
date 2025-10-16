@@ -6,6 +6,9 @@
 #include "LinkedList/JobLinkedList/JobLinkedList.hpp"
 #include "LinkedList/ResumeLinkedList/ResumeLinkedList.hpp"
 #include "utils/CSVLoader/CSVLoader.hpp"
+#include "Array/JobArray/JobArray.hpp"
+#include "Array/ResumeArray/ResumeArray.hpp"
+#include "JobMatching/JobMatching.hpp"
 
 using namespace std;
 
@@ -67,13 +70,30 @@ void displayMenu()
 
 int main()
 {
+    JobArray jobArray;
+    ResumeArray resumeArray;
     JobLinkedList jobLinkedList;
     ResumeLinkedList resumelinkedList;
 
     // createResumeLinkedList(resumelinkedList);
-    createJobLinkedList(jobLinkedList);
+    // createJobLinkedList(jobLinkedList);
 
-    jobLinkedList.mergeSortBy("position");
-    jobLinkedList.printSlice();
+    // createJobArray(jobArray);
+    // const string skills[] = {"python", "sql", "pandas"};
+    // JobArray result = jobArray.linearSearchBySkills(skills, 3, true);
+    // result.printJobs();
+
+    createResumeArray(resumeArray);
+    resumeArray.quickSortBySkill();
+    const string skills[] = {"python", "pandas"};
+    ResumeArray result = resumeArray.binarySearchBySkills(skills, 2, true);
+    result.printResumes();
+
+    // jobArray.quickSortByPosition();
+    // JobArray result = jobArray.binarySearchByPosition("software engineer");
+    // result.printJobs();
+
+    // jobLinkedList.mergeSortBy("position");
+    // jobLinkedList.printSlice();
     // resumelinkedList.printSlice();
 }
