@@ -12,10 +12,6 @@ private:
     JobNode *tail;
     int length;
 
-    // Helper to break and restore circular link
-    void breakCircular();
-    void restoreCircular();
-
 public:
     // constructor & destructor
     JobCircularLinkedList();
@@ -37,12 +33,12 @@ public:
     void printSlice();
 
     // linear search
-    JobCircularLinkedList linearSearchJobByPosition(const string &position);
-    JobCircularLinkedList linearSearchJobBySkills(const string *skillSet, int skillCount, bool matchAll);
+    JobCircularLinkedList *linearSearchJobByPosition(const string &position);
+    JobCircularLinkedList *linearSearchJobBySkills(const string *skillSet, int skillCount, bool matchAll);
 
     // binary search
-    JobNode *getMiddle(JobNode *start, int count);
-    JobCircularLinkedList binarySearchJobByPosition(const string &position);
+    JobNode *getMiddle(JobNode *start, JobNode *end);
+    JobCircularLinkedList *binarySearchJobByPosition(const string &position);
     JobCircularLinkedList *binarySearchJobBySkills(const string *skillSet, int skillCount, bool matchAll);
 
     // merge sort

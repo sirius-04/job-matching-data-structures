@@ -6,6 +6,7 @@
 #include "LinkedList/JobLinkedList/JobLinkedList.hpp"
 #include "CircularLinkedList/JobCircularLinkedList/JobCircularLinkedList.hpp"
 #include "LinkedList/ResumeLinkedList/ResumeLinkedList.hpp"
+#include "CircularLinkedList/ResumeCircularLinkedList/ResumeCircularLinkedList.hpp"
 #include "utils/CSVLoader/CSVLoader.hpp"
 #include "Array/JobArray/JobArray.hpp"
 #include "Array/ResumeArray/ResumeArray.hpp"
@@ -76,9 +77,12 @@ int main()
     JobLinkedList jobLinkedList;
     ResumeLinkedList resumelinkedList;
     JobCircularLinkedList jobCircularLinkedList;
+    ResumeCircularLinkedList resumeCircularLinkedList;
 
     createResumeLinkedList(resumelinkedList);
     createJobLinkedList(jobLinkedList);
+    createJobCircularLinkedList(jobCircularLinkedList);
+    createResumeCircularLinkedList(resumeCircularLinkedList);
 
     // JobLinkedList *matchedJobs = jobLinkedList.linearSearchJobBySkills(new string[4]{"Rest Apis", "Spring Boot", "Git", "Agile"}, 4, true);
     // JobLinkedList *matchedJobs = jobLinkedList.binarySearchJobBySkills(new string[4]{"Rest Apis", "Spring Boot", "Git", "Agile"}, 4, true);
