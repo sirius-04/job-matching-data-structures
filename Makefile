@@ -1,5 +1,9 @@
-CXX = g++
-CXXFLAGS = -std=c++17 -Wall -I./models -I./controllers -I./utils -I./LinkedList -I./LinkedList/JobLinkedList -I./LinkedList/ResumeLinkedList
+INC = -I. \
+      -I./Array \
+      -I./LinkedList \
+      -I./JobMatching \
+      -I./models \
+      -I./utils
 
 SRC = $(wildcard *.cpp) \
 			$(wildcard Array/**/*.cpp) \
@@ -9,6 +13,8 @@ SRC = $(wildcard *.cpp) \
       $(wildcard models/**/*.cpp) \
       $(wildcard utils/**/*.cpp)
 
+CXX = g++
+CXXFLAGS = -std=c++17 -Wall $(INC)
 OBJ = $(SRC:.cpp=.o)
 TARGET = main
 

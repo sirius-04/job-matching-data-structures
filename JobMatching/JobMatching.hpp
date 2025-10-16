@@ -3,6 +3,10 @@
 
 #include "../LinkedList/JobLinkedList/JobLinkedList.hpp"
 #include "../LinkedList/ResumeLinkedList/ResumeLinkedList.hpp"
+#include "../LinkedList/JobCircular/JobCircular.hpp"
+#include "../LinkedList/ResumeCircular/ResumeCircular.hpp"
+#include "../Array/JobArray/JobArray.hpp"
+#include "../Array/ResumeArray/ResumeArray.hpp"
 #include "../models/MatchResult/MatchResult.hpp"
 #include <iostream>
 #include <chrono>
@@ -22,7 +26,7 @@ enum DataStruct {
 
 enum MatchStrategy {
     RULE_BASED,
-    WEIGHTED
+    WEIGHTED_SCORING
 };
 
 enum SearchAlgorithm {
@@ -30,36 +34,39 @@ enum SearchAlgorithm {
     BINARY
 };
 
-enum SortAlgorithm {
-    MERGE,
-    QUICK
-};
-
 class JobMatching {
 private:
-    JobLinkedList* jobs;
-    ResumeLinkedList* resumes;
-    MatchResultList* results;
+    JobArray* jobArray;
+    JobLinkedList* jobLinkedList;
+    JobCircular* jobCircular;
 
-    MatchMode mode;
+    ResumeArray* resumeArray;
+    ResumeLinkedList* resumeLinkedList;
+    ResumeCircular* resumeCircular;
+
+    MatchMode matchMode;
+    DataStruct dataStruct;
     MatchStrategy matchStrategy;
     SearchAlgorithm searchAlgo;
-    SortAlgorithm sortAlgo;
 
+    MatchResultList* results;
     double matchTime;
 
 public:
-    JobMatching(JobLinkedList* jobs, ResumeLinkedList* resumes);
+    JobMatching(JobArray* jobArray, ResumeArray* resumeArray);
+    JobMatching(JobLinkedList* jobLinkedList, ResumeLinkedList* resumeLinkedList);
+    JobMatching(JobCircular* jobCircular, ResumeCircular* resumeCircular);
     ~JobMatching();
 
-    void setMatchMode(MatchMode mode);
+    void setMatchMode(MatchMode matchMode);
     void setDataStruct(DataStruct dataStruct);
-    void setMatchingStrategy(MatchStrategy strategy);
+    void setMatchStrategy(MatchStrategy strategy);
     void setSearchAlgorithm(SearchAlgorithm searchAlgo);
-    void setSortAlgorithm(SortAlgorithm sortAlgo);
 
-    double ruleBasedMatch(JobNode* job, ResumeNode* resume);
-    double weightedMatch(JobNode* job, ResumeNode* resume);
+    void* search(const string* skillSet, int skillCount, bool matchAll);
+
+    double ruleBasedMatch(Job job, Resume resume);
+    double weightedScoringMatch(Job job, Resume resume);
 
     void runMatching();
     void printPerformance();

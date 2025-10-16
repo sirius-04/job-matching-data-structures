@@ -7,6 +7,9 @@
 #include "CircularLinkedList/JobCircularLinkedList/JobCircularLinkedList.hpp"
 #include "LinkedList/ResumeLinkedList/ResumeLinkedList.hpp"
 #include "utils/CSVLoader/CSVLoader.hpp"
+#include "Array/JobArray/JobArray.hpp"
+#include "Array/ResumeArray/ResumeArray.hpp"
+#include "JobMatching/JobMatching.hpp"
 
 using namespace std;
 
@@ -68,6 +71,8 @@ void displayMenu()
 
 int main()
 {
+    JobArray jobArray;
+    ResumeArray resumeArray;
     JobLinkedList jobLinkedList;
     ResumeLinkedList resumelinkedList;
     JobCircularLinkedList jobCircularLinkedList;

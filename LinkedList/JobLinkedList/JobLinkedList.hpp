@@ -33,8 +33,8 @@ public:
     void printSlice();
 
     // linear search
-    JobLinkedList linearSearchJobByPosition(const string &position);
-    JobLinkedList linearSearchJobBySkills(const string *skillSet, int skillCount, bool matchAll);
+    JobLinkedList *linearSearchJobByPosition(const string &position);
+    JobLinkedList *linearSearchJobBySkills(const string *skillSet, int skillCount, bool matchAll);
 
     // binary search
     JobNode *getMiddle(JobNode *start, JobNode *end);

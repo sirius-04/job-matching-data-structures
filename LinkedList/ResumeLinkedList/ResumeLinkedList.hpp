@@ -33,7 +33,7 @@ public:
     void printSlice();
 
     // linear search
-    ResumeLinkedList linearSearchResumeBySkills(const string *skillSet, int skillCount, bool matchAll);
+    ResumeLinkedList *linearSearchResumeBySkills(const string *skillSet, int skillCount, bool matchAll);
 
     // binary search
     ResumeLinkedList *binarySearchResumeBySkills(const string *skillSet, int skillCount, bool matchAll);
