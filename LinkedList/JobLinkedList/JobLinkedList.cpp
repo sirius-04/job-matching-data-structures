@@ -233,34 +233,29 @@ int JobLinkedList::getLength()
     return length;
 }
 
-JobLinkedList JobLinkedList::linearSearchJobByPosition(const string &position)
-{
-    JobLinkedList jobListByPosition;
+JobLinkedList *JobLinkedList::linearSearchJobByPosition(const string &position) {
+     if (position.empty()) return nullptr; 
 
-    if (position.empty())
-        return jobListByPosition;
+     JobLinkedList *jobListByPosition = new JobLinkedList();
 
-    JobNode *current = head;
+     JobNode *current = head;
+     while (current != nullptr) {
+        if (current->data.position == position){
+            jobListByPosition->append(current->data); 
+        } 
+        
+        current = current->next; 
+    } 
 
-    while (current != nullptr)
-    {
-        if (current->data.position == position)
-        {
-            jobListByPosition.append(current->data);
-        }
-        current = current->next;
-    }
-
-    return jobListByPosition;
+    return jobListByPosition; 
 }
 
-JobLinkedList JobLinkedList::linearSearchJobBySkills(const string *skillSet, int skillCount, bool matchAll)
+JobLinkedList *JobLinkedList::linearSearchJobBySkills(const string *skillSet, int skillCount, bool matchAll)
 {
-    JobLinkedList jobListBySkills;
-
     if (skillSet == nullptr || skillCount <= 0)
-        return jobListBySkills;
+        return nullptr;
 
+    JobLinkedList *jobListBySkills = new JobLinkedList();
     JobNode *current = head;
 
     while (current != nullptr)
@@ -283,13 +278,16 @@ JobLinkedList JobLinkedList::linearSearchJobBySkills(const string *skillSet, int
         bool isMatch = matchAll ? (matchCount == skillCount) : (matchCount > 0);
 
         if (isMatch)
-            jobListBySkills.append(job);
+        {
+            jobListBySkills->append(job);
+        }
 
         current = current->next;
     }
 
     return jobListBySkills;
 }
+
 
 JobNode *JobLinkedList::split(JobNode *head)
 {
@@ -546,40 +544,42 @@ void JobLinkedList::quickSortByPosition()
 }
 
 // ======= Search by Position Keyword =======
-JobLinkedList JobLinkedList::binarySearchJobByPosition(const string &positionKeyword)
+JobLinkedList *JobLinkedList::binarySearchJobByPosition(const string &positionKeyword)
 {
-    JobLinkedList matches;
+    if (head == nullptr) // check empty list
+        return nullptr;
 
-    if (head == nullptr || positionKeyword.empty())
-        return matches; // return empty list
+    quickSortByPosition(); // sort by position
+    JobNode *p = head;
+    JobLinkedList *matches = new JobLinkedList();
 
-    quickSortByPosition(); // sort by position alphabetically
-
-    for (JobNode *p = head; p != nullptr; p = p->next)
+    while (p != nullptr)
     {
         if (p->data.position.find(positionKeyword) != string::npos)
         {
-            matches.append(p->data);
+            matches->append(p->data);
         }
+        p = p->next;
     }
 
-    return matches; // copy returned (RVO or move semantics)
+    return (matches->head == nullptr) ? nullptr : matches; // return nullptr if empty
 }
 
 // ======= Search by Skill Set (All Skills Must Match) =======
-JobLinkedList JobLinkedList::binarySearchJobBySkills(const string *skills, int skillCount)
+JobLinkedList *JobLinkedList::binarySearchJobBySkills(const string *skills, int skillCount)
 {
-    JobLinkedList matches;
-
     if (head == nullptr || skills == nullptr || skillCount <= 0)
-        return matches; // return empty list
+        return nullptr;
 
-    quickSortBySkill(); // sort by first skill (for potential binary search use)
+    quickSortBySkill(); // sort by first skill
+    JobNode *p = head;
+    JobLinkedList *matches = new JobLinkedList();
 
-    for (JobNode *p = head; p != nullptr; p = p->next)
+    while (p != nullptr)
     {
         int matched = 0;
 
+        // count how many of the required skills are present in the current job
         for (int s = 0; s < skillCount; s++)
         {
             for (int j = 0; j < p->data.skillCount; j++)
@@ -587,14 +587,17 @@ JobLinkedList JobLinkedList::binarySearchJobBySkills(const string *skills, int s
                 if (p->data.skills[j] == skills[s])
                 {
                     matched++;
-                    break; // go to next skill in input list
+                    break; // move to next skill in skillSet
                 }
             }
         }
 
-        if (matched == skillCount) // all required skills matched
-            matches.append(p->data);
+        // only include job if all required skills are matched
+        if (matched == skillCount)
+            matches->append(p->data);
+
+        p = p->next;
     }
 
-    return matches;
+    return (matches->head == nullptr) ? nullptr : matches; // return nullptr if no matches
 }
