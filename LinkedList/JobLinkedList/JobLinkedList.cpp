@@ -226,27 +226,31 @@ int JobLinkedList::getLength()
     return length;
 }
 
-JobLinkedList *JobLinkedList::linearSearchJobByPosition(const string &position) {
-     if (position.empty()) return nullptr; 
+JobLinkedList *JobLinkedList::linearSearchJobByPosition(const string &position)
+{
+    if (position.empty())
+        return nullptr;
 
-     JobLinkedList *jobListByPosition = new JobLinkedList();
+    JobLinkedList *jobListByPosition = new JobLinkedList();
 
-     JobNode *current = head;
-     while (current != nullptr) {
-        if (current->data.position == position){
-            jobListByPosition->append(current->data); 
-        } 
-        
-        current = current->next; 
-    } 
+    JobNode *current = head;
+    while (current != nullptr)
+    {
+        if (current->data.position == position)
+        {
+            jobListByPosition->append(current->data);
+        }
 
-    return jobListByPosition; 
+        current = current->next;
+    }
+
+    return jobListByPosition;
 }
 
 JobLinkedList *JobLinkedList::linearSearchJobBySkills(const string *skillSet, int skillCount, bool matchAll)
 {
     if (skillSet == nullptr || skillCount <= 0)
-        return nullptr;
+        return new JobLinkedList(); // safer
 
     JobLinkedList *jobListBySkills = new JobLinkedList();
     JobNode *current = head;
@@ -271,16 +275,13 @@ JobLinkedList *JobLinkedList::linearSearchJobBySkills(const string *skillSet, in
         bool isMatch = matchAll ? (matchCount == skillCount) : (matchCount > 0);
 
         if (isMatch)
-        {
             jobListBySkills->append(job);
-        }
 
         current = current->next;
     }
 
     return jobListBySkills;
 }
-
 
 JobNode *JobLinkedList::split(JobNode *head)
 {
@@ -557,16 +558,22 @@ JobNode *JobLinkedList::getMiddle(JobNode *start, JobNode *end)
     return slow;
 }
 
-JobLinkedList JobLinkedList::binarySearchJobByPosition(const string &positionKeyword)
+JobLinkedList *JobLinkedList::binarySearchJobByPosition(const string &positionKeyword)
 {
-    if (head == nullptr) // check empty list
-        return nullptr;
+    // If the list is empty, return an empty result pointer
+    if (head == nullptr)
+        return new JobLinkedList();
 
-    quickSortByPosition(); // ensure list is sorted alphabetically by position
+    // Create a new list to hold matches
+    JobLinkedList *matches = new JobLinkedList();
+
+    // Sort the list by position before binary searching
+    quickSortByPosition();
 
     JobNode *start = head;
     JobNode *end = nullptr;
 
+    // Perform binary search on the linked list
     while (start != end)
     {
         JobNode *mid = getMiddle(start, end);
@@ -575,29 +582,30 @@ JobLinkedList JobLinkedList::binarySearchJobByPosition(const string &positionKey
 
         string currentPos = mid->data.position;
 
-        // Compare positions alphabetically
         if (currentPos == positionKeyword)
         {
-            matches.append(mid->data);
+            // Add the mid node
+            matches->append(mid->data);
 
-            // Optional: collect duplicates around mid
+            // Search left side for duplicates
             JobNode *left = head;
             while (left != mid)
             {
                 if (left->data.position == positionKeyword)
-                    matches.append(left->data);
+                    matches->append(left->data);
                 left = left->next;
             }
 
+            // Search right side for duplicates
             JobNode *right = mid->next;
             while (right != end)
             {
                 if (right->data.position == positionKeyword)
-                    matches.append(right->data);
+                    matches->append(right->data);
                 right = right->next;
             }
 
-            break; // exit after collecting all matches
+            break; // all matches collected
         }
         else if (currentPos < positionKeyword)
         {
@@ -607,7 +615,6 @@ JobLinkedList JobLinkedList::binarySearchJobByPosition(const string &positionKey
         {
             end = mid; // search left half
         }
-        p = p->next;
     }
 
     return matches;
@@ -621,10 +628,23 @@ JobLinkedList *JobLinkedList::binarySearchJobBySkills(const string *skills, int 
     if (head == nullptr || skills == nullptr || skillCount <= 0)
         return matches;
 
-    quickSortBySkill();
-
-    while (p != nullptr)
+    for (JobNode *p = head; p != nullptr; p = p->next)
     {
+        // Sort this job's skills array for binary search
+        // Using simple bubble sort since skill arrays are small
+        for (int i = 0; i < p->data.skillCount - 1; ++i)
+        {
+            for (int j = 0; j < p->data.skillCount - i - 1; ++j)
+            {
+                if (p->data.skills[j] > p->data.skills[j + 1])
+                {
+                    string temp = p->data.skills[j];
+                    p->data.skills[j] = p->data.skills[j + 1];
+                    p->data.skills[j + 1] = temp;
+                }
+            }
+        }
+
         int matched = 0;
 
         // For each skill to search
@@ -634,7 +654,7 @@ JobLinkedList *JobLinkedList::binarySearchJobBySkills(const string *skills, int 
             int left = 0;
             int right = p->data.skillCount - 1;
 
-            // Binary search through this job's skill array
+            // Binary search through this job's sorted skill array
             while (left <= right)
             {
                 int mid = left + (right - left) / 2;
@@ -662,5 +682,5 @@ JobLinkedList *JobLinkedList::binarySearchJobBySkills(const string *skills, int 
             matches->append(p->data);
     }
 
-    return (matches->head == nullptr) ? nullptr : matches; // return nullptr if no matches
+    return matches;
 }

@@ -225,9 +225,9 @@ int ResumeLinkedList::getLength()
     return length;
 }
 
-ResumeLinkedList* ResumeLinkedList::linearSearchResumeBySkills(const string *skillSet, int skillCount, bool matchAll)
+ResumeLinkedList *ResumeLinkedList::linearSearchResumeBySkills(const string *skillSet, int skillCount, bool matchAll)
 {
-    ResumeLinkedList* resumeListBySkills = new ResumeLinkedList();
+    ResumeLinkedList *resumeListBySkills = new ResumeLinkedList();
 
     if (skillSet == nullptr || skillCount <= 0)
         return resumeListBySkills;
@@ -411,41 +411,82 @@ void ResumeLinkedList::printSlice()
 // ======= Swap =======
 void ResumeLinkedList::swap(ResumeNode *a, ResumeNode *b)
 {
-    std::swap(a->data.id, b->data.id);
-    std::swap(a->data.skills, b->data.skills);
-    std::swap(a->data.skillCount, b->data.skillCount);
+    // Swap the entire Resume data structure
+    Resume temp = a->data;
+    a->data = b->data;
+    b->data = temp;
 }
 
 // ======= Partition =======
+// ======= Partition =======
 ResumeNode *ResumeLinkedList::partitionBySkillCount(ResumeNode *low, ResumeNode *high)
 {
+    if (!low || !high)
+        return nullptr;
+
     int pivot = high->data.skillCount;
-    ResumeNode *i = low;
+    ResumeNode *i = nullptr; // i points to the last element < pivot
+
     for (ResumeNode *j = low; j != high; j = j->next)
     {
+        if (!j) // Safety check
+            break;
+
         if (j->data.skillCount < pivot)
         {
+            // First element less than pivot
+            if (i == nullptr)
+                i = low;
+            else
+                i = i->next;
+
             swap(i, j);
-            i = i->next;
         }
     }
+
+    // Place pivot in correct position
+    if (i == nullptr)
+        i = low;
+    else
+        i = i->next;
+
     swap(i, high);
     return i;
 }
 
 ResumeNode *ResumeLinkedList::partitionBySkill(ResumeNode *low, ResumeNode *high)
 {
+    if (!low || !high)
+        return nullptr;
+
     string pivot = (high->data.skillCount > 0) ? high->data.skills[0] : "";
-    ResumeNode *i = low;
+    ResumeNode *i = nullptr;
+
     for (ResumeNode *j = low; j != high; j = j->next)
     {
+        if (!j)
+            break;
+
         string firstSkillJ = (j->data.skillCount > 0) ? j->data.skills[0] : "";
+
         if (firstSkillJ < pivot)
         {
+            // First element less than pivot
+            if (i == nullptr)
+                i = low;
+            else
+                i = i->next;
+
             swap(i, j);
-            i = i->next;
         }
     }
+
+    // Place pivot in correct position
+    if (i == nullptr)
+        i = low;
+    else
+        i = i->next;
+
     swap(i, high);
     return i;
 }
@@ -453,28 +494,58 @@ ResumeNode *ResumeLinkedList::partitionBySkill(ResumeNode *low, ResumeNode *high
 // ======= QuickSort Core =======
 void ResumeLinkedList::quickSort(ResumeNode *low, ResumeNode *high, const string &type)
 {
+    // Base cases
     if (!low || !high || low == high)
         return;
 
+    ResumeNode *temp = low;
+    bool found = false;
+    while (temp)
+    {
+        if (temp == high)
+        {
+            found = true;
+            break;
+        }
+        temp = temp->next;
+    }
+
+    if (!found)
+        return;
+
+    // Partition
     ResumeNode *pivot = nullptr;
     if (type == "skillCount")
         pivot = partitionBySkillCount(low, high);
     else if (type == "skill")
         pivot = partitionBySkill(low, high);
 
-    ResumeNode *beforePivot = low;
-    while (beforePivot && beforePivot->next != pivot)
-        beforePivot = beforePivot->next;
+    if (!pivot)
+        return;
 
-    if (beforePivot != nullptr && low != pivot)
+    // Find node before pivot for left partition
+    ResumeNode *beforePivot = nullptr;
+    if (low != pivot)
+    {
+        beforePivot = low;
+        while (beforePivot && beforePivot->next != pivot)
+            beforePivot = beforePivot->next;
+    }
+
+    // Sort left partition (from low to beforePivot)
+    if (beforePivot && low != pivot)
         quickSort(low, beforePivot, type);
 
-    if (pivot != nullptr && pivot->next != nullptr)
+    // Sort right partition (from pivot->next to high)
+    if (pivot && pivot != high && pivot->next)
         quickSort(pivot->next, high, type);
 }
 
 ResumeNode *ResumeLinkedList::sortTail()
 {
+    if (!head)
+        return nullptr;
+
     ResumeNode *temp = head;
     while (temp && temp->next)
         temp = temp->next;
@@ -484,17 +555,22 @@ ResumeNode *ResumeLinkedList::sortTail()
 // ======= Sort Wrappers =======
 void ResumeLinkedList::quickSortBySkillCount()
 {
+    if (!head || !head->next) // Empty or single element
+        return;
+
     ResumeNode *lastNode = sortTail();
     quickSort(head, lastNode, "skillCount");
 }
 
 void ResumeLinkedList::quickSortBySkill()
 {
+    if (!head || !head->next) // Empty or single element
+        return;
+
     ResumeNode *lastNode = sortTail();
     quickSort(head, lastNode, "skill");
 }
 
-// ======= Search by Skills =======
 ResumeLinkedList *ResumeLinkedList::binarySearchResumeBySkills(const string *skills, int skillCount, bool matchAll)
 {
     ResumeLinkedList *matches = new ResumeLinkedList();
@@ -502,25 +578,44 @@ ResumeLinkedList *ResumeLinkedList::binarySearchResumeBySkills(const string *ski
     if (head == nullptr || skills == nullptr || skillCount <= 0)
         return matches;
 
-    quickSortBySkill();
-
     for (ResumeNode *p = head; p != nullptr; p = p->next)
     {
+        for (int i = 0; i < p->data.skillCount - 1; ++i)
+        {
+            for (int j = 0; j < p->data.skillCount - i - 1; ++j)
+            {
+                if (p->data.skills[j] > p->data.skills[j + 1])
+                {
+                    string temp = p->data.skills[j];
+                    p->data.skills[j] = p->data.skills[j + 1];
+                    p->data.skills[j + 1] = temp;
+                }
+            }
+        }
+
         int matched = 0;
 
         // For each skill in search criteria
         for (int s = 0; s < skillCount; ++s)
         {
             bool found = false;
+            int left = 0;
+            int right = p->data.skillCount - 1;
 
-            // Search in this resume's skill list
-            for (int j = 0; j < p->data.skillCount; ++j)
+            while (left <= right)
             {
-                if (p->data.skills[j] == skills[s])
+                int mid = left + (right - left) / 2;
+                string key = p->data.skills[mid];
+
+                if (key == skills[s])
                 {
                     found = true;
-                    break; // go to next search skill
+                    break;
                 }
+                else if (key < skills[s])
+                    left = mid + 1;
+                else
+                    right = mid - 1;
             }
 
             if (found)

@@ -38,7 +38,7 @@ public:
 
     // binary search
     JobNode *getMiddle(JobNode *start, JobNode *end);
-    JobLinkedList binarySearchJobByPosition(const string &position);
+    JobLinkedList *binarySearchJobByPosition(const string &position);
     JobLinkedList *binarySearchJobBySkills(const string *skillSet, int skillCount, bool matchAll);
 
     // merge sort

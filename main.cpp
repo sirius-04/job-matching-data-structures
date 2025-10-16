@@ -77,13 +77,21 @@ int main()
     ResumeLinkedList resumelinkedList;
     JobCircularLinkedList jobCircularLinkedList;
 
-    // createResumeLinkedList(resumelinkedList);
-    // createJobLinkedList(jobLinkedList);
+    createResumeLinkedList(resumelinkedList);
+    createJobLinkedList(jobLinkedList);
 
-    // jobLinkedList.mergeSortBy("position");
-    // jobLinkedList.printSlice();
-    // resumelinkedList.printSlice();
+    // JobLinkedList *matchedJobs = jobLinkedList.linearSearchJobBySkills(new string[4]{"Rest Apis", "Spring Boot", "Git", "Agile"}, 4, true);
+    // JobLinkedList *matchedJobs = jobLinkedList.binarySearchJobBySkills(new string[4]{"Rest Apis", "Spring Boot", "Git", "Agile"}, 4, true);
 
-    createJobCircularLinkedList(jobCircularLinkedList);
-    jobCircularLinkedList.printSlice();
+    // JobLinkedList *matchedJobs = jobLinkedList.binarySearchJobByPosition("Software Engineer");
+    // JobLinkedList *matchedJobs = jobLinkedList.linearSearchJobByPosition("Software Engineer");
+
+    // string skills[] = {"Rest Apis", "Spring Boot", "Git", "Agile"};
+    // ResumeLinkedList *matchedJobs = resumelinkedList.binarySearchResumeBySkills(skills, 4, true);
+    // ResumeLinkedList *matchedJobs = resumelinkedList.linearSearchResumeBySkills(skills, 4, true);
+
+    resumelinkedList.quickSortBySkillCount();
+    // matchedJobs->printSlice();
+
+    resumelinkedList.printSlice();
 }
