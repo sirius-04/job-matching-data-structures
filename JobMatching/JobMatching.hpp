@@ -63,7 +63,7 @@ public:
     void setMatchStrategy(MatchStrategy strategy);
     void setSearchAlgorithm(SearchAlgorithm searchAlgo);
 
-    auto search(const string* skillSet, int skillCount, bool matchAll);
+    void* search(const string* skillSet, int skillCount, bool matchAll);
 
     double ruleBasedMatch(Job job, Resume resume);
     double weightedScoringMatch(Job job, Resume resume);

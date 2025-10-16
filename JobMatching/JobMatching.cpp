@@ -75,8 +75,8 @@ void* JobMatching::search(const string* skillSet, int skillCount, bool matchAll)
         switch (dataStruct) {
             case ARRAY:
                 return (searchAlgo == LINEAR)
-                    ? (void*)resumeArray->linearSearchResumeBySkills(skillSet, skillCount, matchAll)
-                    : (void*)resumeArray->binarySearchResumeBySkills(skillSet, skillCount, matchAll);
+                    ? (void*)resumeArray->linearSearchBySkills(skillSet, skillCount, matchAll)
+                    : (void*)resumeArray->binarySearchBySkills(skillSet, skillCount, matchAll);
 
             case SINGLY_LINKED_LIST:
                 return (searchAlgo == LINEAR)
@@ -98,8 +98,8 @@ void* JobMatching::search(const string* skillSet, int skillCount, bool matchAll)
         switch (dataStruct) {
             case ARRAY:
                 return (searchAlgo == LINEAR)
-                    ? (void*)jobArray->linearSearchJobBySkills(skillSet, skillCount, matchAll)
-                    : (void*)jobArray->binarySearchJobBySkills(skillSet, skillCount, matchAll);
+                    ? (void*)jobArray->linearSearchBySkills(skillSet, skillCount, matchAll)
+                    : (void*)jobArray->binarySearchBySkills(skillSet, skillCount, matchAll);
 
             case SINGLY_LINKED_LIST:
                 return (searchAlgo == LINEAR)

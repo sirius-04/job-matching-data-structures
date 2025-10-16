@@ -24,8 +24,8 @@ public:
     void addResume(int id, string *skills, int skillCount);
     void printResumes();
 
-    ResumeArray linearSearchBySkills(const string *skillSet, int skillCount, bool matchAll);
-    ResumeArray binarySearchBySkills(const string *skillSet, int skillCount, bool matchAll);
+    ResumeArray* linearSearchBySkills(const string *skillSet, int skillCount, bool matchAll);
+    ResumeArray* binarySearchBySkills(const string *skillSet, int skillCount, bool matchAll);
 
     int partition(int low, int high, bool (*cmp)(const Resume &, const Resume &));
     void quickSortHelper(int low, int high, bool (*cmp)(const Resume &, const Resume &));

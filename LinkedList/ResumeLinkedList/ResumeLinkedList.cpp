@@ -231,9 +231,9 @@ int ResumeLinkedList::getLength() {
     return length;
 }
 
-ResumeLinkedList ResumeLinkedList::linearSearchResumeBySkills(const string *skillSet, int skillCount, bool matchAll)
+ResumeLinkedList* ResumeLinkedList::linearSearchResumeBySkills(const string *skillSet, int skillCount, bool matchAll)
 {
-    ResumeLinkedList resumeListBySkills;
+    ResumeLinkedList* resumeListBySkills = new ResumeLinkedList();
 
     if (skillSet == nullptr || skillCount <= 0)
         return resumeListBySkills;
@@ -260,7 +260,7 @@ ResumeLinkedList ResumeLinkedList::linearSearchResumeBySkills(const string *skil
         bool isMatch = matchAll ? (matchCount == skillCount) : (matchCount > 0);
 
         if (isMatch)
-            resumeListBySkills.append(resume);
+            resumeListBySkills->append(resume);
 
         current = current->next;
     }
@@ -501,9 +501,9 @@ void ResumeLinkedList::quickSortBySkill()
 }
 
 // ======= Search by Skills =======
-ResumeLinkedList ResumeLinkedList::binarySearchResumeBySkills(const string *skills, int skillCount)
+ResumeLinkedList* ResumeLinkedList::binarySearchResumeBySkills(const string *skills, int skillCount)
 {
-    ResumeLinkedList matches;
+    ResumeLinkedList* matches = new ResumeLinkedList();
 
     if (head == nullptr || skills == nullptr || skillCount <= 0)
         return matches; // return empty list
@@ -527,7 +527,7 @@ ResumeLinkedList ResumeLinkedList::binarySearchResumeBySkills(const string *skil
         }
 
         if (matched == skillCount) // all required skills matched
-            matches.append(p->data);
+            matches->append(p->data);
     }
 
     return matches;

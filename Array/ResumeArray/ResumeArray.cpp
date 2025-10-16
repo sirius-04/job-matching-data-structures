@@ -86,9 +86,9 @@ void ResumeArray::printResumes()
 
 // ======================= Linear Search =======================
 
-ResumeArray ResumeArray::linearSearchBySkills(const string *skillSet, int skillCount, bool matchAll)
+ResumeArray* ResumeArray::linearSearchBySkills(const string *skillSet, int skillCount, bool matchAll)
 {
-    ResumeArray result;
+    ResumeArray* result = new ResumeArray();
 
     for (int i = 0; i < size; i++)
     {
@@ -109,7 +109,7 @@ ResumeArray ResumeArray::linearSearchBySkills(const string *skillSet, int skillC
 
         if ((matchAll && matchCount == skillCount) || (!matchAll && matchCount > 0))
         {
-            result.addResume(resumes[i].id, resumes[i].skills, resumes[i].skillCount);
+            result->addResume(resumes[i].id, resumes[i].skills, resumes[i].skillCount);
         }
     }
 
@@ -245,9 +245,9 @@ void ResumeArray::quickSortBySkillCount()
 }
 
 // binary search
-ResumeArray ResumeArray::binarySearchBySkills(const string *skillSet, int skillCount, bool matchAll)
+ResumeArray* ResumeArray::binarySearchBySkills(const string *skillSet, int skillCount, bool matchAll)
 {
-    ResumeArray result;
+    ResumeArray* result = new ResumeArray();
 
     for (int i = 0; i < size; i++)
     {
@@ -280,7 +280,7 @@ ResumeArray ResumeArray::binarySearchBySkills(const string *skillSet, int skillC
 
         if ((matchAll && matches == skillCount) || (!matchAll && matches > 0))
         {
-            result.addResume(resumes[i].id, resumes[i].skills, resumes[i].skillCount);
+            result->addResume(resumes[i].id, resumes[i].skills, resumes[i].skillCount);
         }
     }
 

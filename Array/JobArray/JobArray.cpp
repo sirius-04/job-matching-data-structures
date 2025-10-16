@@ -74,9 +74,9 @@ void JobArray::printJobs()
 }
 
 // ======================= Linear Search =======================
-JobArray JobArray::linearSearchBySkills(const string *skillSet, int skillCount, bool matchAll)
+JobArray* JobArray::linearSearchBySkills(const string *skillSet, int skillCount, bool matchAll)
 {
-    JobArray result;
+    JobArray* result = new JobArray();
 
     for (int i = 0; i < size; i++)
     {
@@ -98,21 +98,21 @@ JobArray JobArray::linearSearchBySkills(const string *skillSet, int skillCount, 
 
         if (addThis)
         {
-            result.addJob(jobs[i].id, jobs[i].position, jobs[i].skills, jobs[i].skillCount);
+            result->addJob(jobs[i].id, jobs[i].position, jobs[i].skills, jobs[i].skillCount);
         }
     }
 
     return result;
 }
 
-JobArray JobArray::linearSearchByPosition(const string &position)
+JobArray* JobArray::linearSearchByPosition(const string &position)
 {
-    JobArray result;
+    JobArray* result = new JobArray();
     for (int i = 0; i < size; i++)
     {
         if (jobs[i].position == position)
         {
-            result.addJob(jobs[i].id, jobs[i].position, jobs[i].skills, jobs[i].skillCount);
+            result->addJob(jobs[i].id, jobs[i].position, jobs[i].skills, jobs[i].skillCount);
         }
     }
     return result;
@@ -257,9 +257,9 @@ void JobArray::quickSortBySkillCount()
 }
 
 // binary search
-JobArray JobArray::binarySearchByPosition(const string &position)
+JobArray* JobArray::binarySearchByPosition(const string &position)
 {
-    JobArray result;
+    JobArray* result = new JobArray();
 
     int left = 0, right = size - 1;
     int foundIndex = -1;
@@ -285,23 +285,23 @@ JobArray JobArray::binarySearchByPosition(const string &position)
     int i = foundIndex;
     while (i >= 0 && jobs[i].position == position)
     {
-        result.addJob(jobs[i].id, jobs[i].position, jobs[i].skills, jobs[i].skillCount);
+        result->addJob(jobs[i].id, jobs[i].position, jobs[i].skills, jobs[i].skillCount);
         i--;
     }
 
     i = foundIndex + 1;
     while (i < size && jobs[i].position == position)
     {
-        result.addJob(jobs[i].id, jobs[i].position, jobs[i].skills, jobs[i].skillCount);
+        result->addJob(jobs[i].id, jobs[i].position, jobs[i].skills, jobs[i].skillCount);
         i++;
     }
 
     return result;
 }
 
-JobArray JobArray::binarySearchBySkills(const string *skillSet, int skillCount, bool matchAll)
+JobArray* JobArray::binarySearchBySkills(const string *skillSet, int skillCount, bool matchAll)
 {
-    JobArray result;
+    JobArray* result = new JobArray();
 
     for (int i = 0; i < size; i++)
     {
@@ -333,7 +333,7 @@ JobArray JobArray::binarySearchBySkills(const string *skillSet, int skillCount, 
         }
         if ((matchAll && matches == skillCount) || (!matchAll && matches > 0))
         {
-            result.addJob(jobs[i].id, jobs[i].position, jobs[i].skills, jobs[i].skillCount);
+            result->addJob(jobs[i].id, jobs[i].position, jobs[i].skills, jobs[i].skillCount);
         }
     }
 
