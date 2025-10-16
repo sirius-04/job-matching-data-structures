@@ -8,6 +8,7 @@ INC = -I. \
 SRC = $(wildcard *.cpp) \
 			$(wildcard Array/**/*.cpp) \
       $(wildcard LinkedList/**/*.cpp) \
+      $(wildcard CircularLinkedList/**/*.cpp) \
       $(wildcard JobMatching/*.cpp) \
       $(wildcard models/**/*.cpp) \
       $(wildcard utils/**/*.cpp)

@@ -4,6 +4,7 @@
 #include <string>
 #include <algorithm>
 #include "LinkedList/JobLinkedList/JobLinkedList.hpp"
+#include "CircularLinkedList/JobCircularLinkedList/JobCircularLinkedList.hpp"
 #include "LinkedList/ResumeLinkedList/ResumeLinkedList.hpp"
 #include "utils/CSVLoader/CSVLoader.hpp"
 #include "Array/JobArray/JobArray.hpp"
@@ -74,26 +75,15 @@ int main()
     ResumeArray resumeArray;
     JobLinkedList jobLinkedList;
     ResumeLinkedList resumelinkedList;
+    JobCircularLinkedList jobCircularLinkedList;
 
     // createResumeLinkedList(resumelinkedList);
     // createJobLinkedList(jobLinkedList);
 
-    // createJobArray(jobArray);
-    // const string skills[] = {"python", "sql", "pandas"};
-    // JobArray result = jobArray.linearSearchBySkills(skills, 3, true);
-    // result.printJobs();
-
-    createResumeArray(resumeArray);
-    resumeArray.quickSortBySkill();
-    const string skills[] = {"python", "pandas"};
-    ResumeArray result = resumeArray.binarySearchBySkills(skills, 2, true);
-    result.printResumes();
-
-    // jobArray.quickSortByPosition();
-    // JobArray result = jobArray.binarySearchByPosition("software engineer");
-    // result.printJobs();
-
     // jobLinkedList.mergeSortBy("position");
     // jobLinkedList.printSlice();
     // resumelinkedList.printSlice();
+
+    createJobCircularLinkedList(jobCircularLinkedList);
+    jobCircularLinkedList.printSlice();
 }

@@ -1,29 +1,6 @@
 {
   "files.associations": {
-    "*.cpp": "cpp",
-    "__locale": "cpp",
-    "array": "cpp",
-    "bitset": "cpp",
-    "deque": "cpp",
-    "initializer_list": "cpp",
-    "ios": "cpp",
-    "iosfwd": "cpp",
-    "istream": "cpp",
-    "limits": "cpp",
-    "locale": "cpp",
-    "mutex": "cpp",
-    "new": "cpp",
-    "optional": "cpp",
-    "queue": "cpp",
-    "ratio": "cpp",
-    "stack": "cpp",
-    "streambuf": "cpp",
-    "string": "cpp",
-    "typeinfo": "cpp",
-    "unordered_map": "cpp",
-    "vector": "cpp",
-    "__hash_table": "cpp",
-    "__split_buffer": "cpp",
-    "string_view": "cpp"
+    "*.embeddedhtml": "html",
+    "fstream": "cpp"
   }
 }

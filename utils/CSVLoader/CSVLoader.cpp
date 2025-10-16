@@ -9,7 +9,7 @@ using namespace std;
 // Export functions with extern linkage
 void createJobLinkedList(JobLinkedList &jobLinkedList)
 {
-    ifstream file("dataset/cleaned_jobDescription.csv");
+    ifstream file("dataset/cleaned_jobDescription_v2.csv");
     if (!file.is_open())
     {
         cerr << "Error: Could not open file.\n";
@@ -72,7 +72,7 @@ void createJobLinkedList(JobLinkedList &jobLinkedList)
 
 void createResumeLinkedList(ResumeLinkedList &resumeLinkedList)
 {
-    ifstream file("dataset/cleaned_resume.csv");
+    ifstream file("dataset/cleaned_resume_v2.csv");
     if (!file.is_open())
     {
         cerr << "Error: Could not open file.\n";
@@ -129,31 +129,30 @@ void createResumeLinkedList(ResumeLinkedList &resumeLinkedList)
     file.close();
 }
 
-void createJobArray(JobArray &jobArray)
+void createJobCircularLinkedList(JobCircularLinkedList &jobCircularLinkedList)
 {
-    ifstream file("dataset/cleaned_jobDescription.csv");
+    ifstream file("dataset/cleaned_jobDescription_v2.csv");
     if (!file.is_open())
     {
-        cerr << "Failed to open file!" << endl;
+        cerr << "Error: Could not open file.\n";
         return;
     }
 
-    cout << "File opened successfully!" << endl;
-
     string line;
-    getline(file, line); // skip header
+    getline(file, line); // Skip header
 
     while (getline(file, line))
     {
-        if (line.empty())
-            continue;
-
         stringstream ss(line);
-        string idStr, position, skillsStr;
+        string idStr, position, skillStr;
 
         getline(ss, idStr, ',');
         getline(ss, position, ',');
-        getline(ss, skillsStr, '\n');
+        getline(ss, skillStr, '\n');
+
+        idStr = JobCircularLinkedList::cleanString(idStr);
+        position = JobCircularLinkedList::cleanString(position);
+        skillStr = JobCircularLinkedList::cleanString(skillStr);
 
         int id;
         try
@@ -162,100 +161,33 @@ void createJobArray(JobArray &jobArray)
         }
         catch (...)
         {
-            cerr << "Invalid ID: " << idStr << endl;
+            cerr << "Warning: Invalid ID \"" << idStr << "\", skipping.\n";
             continue;
         }
 
-        if (!skillsStr.empty() && skillsStr.front() == '"')
-            skillsStr.erase(0, 1);
-        if (!skillsStr.empty() && skillsStr.back() == '"')
-            skillsStr.pop_back();
+        string tempSkills[100];
+        int count = 0;
 
-        int skillCount = 1;
-        for (char ch : skillsStr)
-            if (ch == ',')
-                skillCount++;
-
-        string *skillsArr = new string[skillCount];
-
-        int index = 0;
-        size_t start = 0, end;
-        while ((end = skillsStr.find(',', start)) != string::npos)
+        stringstream sk(skillStr);
+        string skill;
+        while (getline(sk, skill, ','))
         {
-            skillsArr[index++] = skillsStr.substr(start, end - start);
-            start = end + 1;
+            skill = JobCircularLinkedList::cleanString(skill);
+            if (!skill.empty() && count < 100)
+                tempSkills[count++] = skill;
         }
-        skillsArr[index++] = skillsStr.substr(start); // last skill
 
-        jobArray.addJob(id, position, skillsArr, skillCount);
-        delete[] skillsArr;
+        // Create dynamic array of skills
+        string *skills = new string[count];
+        for (int i = 0; i < count; i++)
+            skills[i] = tempSkills[i];
+
+        // Construct Job object and append
+        Job job(id, position, skills, count);
+        jobCircularLinkedList.append(job);
+
+        delete[] skills; // cleanup temporary array
     }
 
     file.close();
-    return;
-}
-
-void createResumeArray(ResumeArray &resumeArray)
-{
-    ifstream file("dataset/cleaned_resume.csv");
-    if (!file.is_open())
-    {
-        cerr << "Failed to open file!" << endl;
-        return;
-    }
-
-    cout << "File opened successfully!" << endl;
-
-    string line;
-    getline(file, line); // skip header
-
-    while (getline(file, line))
-    {
-        if (line.empty())
-            continue;
-
-        stringstream ss(line);
-        string idStr, skillsStr;
-
-        getline(ss, idStr, ',');
-        getline(ss, skillsStr, '\n');
-
-        int id;
-        try
-        {
-            id = stoi(idStr);
-        }
-        catch (...)
-        {
-            cerr << "Invalid ID: " << idStr << endl;
-            continue;
-        }
-
-        if (!skillsStr.empty() && skillsStr.front() == '"')
-            skillsStr.erase(0, 1);
-        if (!skillsStr.empty() && skillsStr.back() == '"')
-            skillsStr.pop_back();
-
-        int skillCount = 1;
-        for (char ch : skillsStr)
-            if (ch == ',')
-                skillCount++;
-
-        string *skillsArr = new string[skillCount];
-
-        int index = 0;
-        size_t start = 0, end;
-        while ((end = skillsStr.find(',', start)) != string::npos)
-        {
-            skillsArr[index++] = skillsStr.substr(start, end - start);
-            start = end + 1;
-        }
-        skillsArr[index++] = skillsStr.substr(start); // last skill
-
-        resumeArray.addResume(id, skillsArr, skillCount);
-        delete[] skillsArr;
-    }
-
-    file.close();
-    return;
 }

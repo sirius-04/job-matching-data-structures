@@ -20,4 +20,13 @@ public:
     ~Job();
 };
 
+class JobNode
+{
+public:
+    Job data;
+    JobNode *next;
+
+    JobNode(Job data);
+};
+
 #endif

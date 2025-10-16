@@ -48,3 +48,9 @@ Job::~Job()
     delete[] skills;
     skills = nullptr;
 }
+
+JobNode::JobNode(Job data)
+{
+    this->data = data;
+    this->next = nullptr;
+}
