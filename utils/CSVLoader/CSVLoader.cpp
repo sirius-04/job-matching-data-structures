@@ -128,3 +128,66 @@ void createResumeLinkedList(ResumeLinkedList &resumeLinkedList)
 
     file.close();
 }
+
+void createJobCircularLinkedList(JobCircularLinkedList &jobCircularLinkedList)
+{
+    ifstream file("dataset/cleaned_jobDescription_v2.csv");
+    if (!file.is_open())
+    {
+        cerr << "Error: Could not open file.\n";
+        return;
+    }
+
+    string line;
+    getline(file, line); // Skip header
+
+    while (getline(file, line))
+    {
+        stringstream ss(line);
+        string idStr, position, skillStr;
+
+        getline(ss, idStr, ',');
+        getline(ss, position, ',');
+        getline(ss, skillStr, '\n');
+
+        idStr = JobCircularLinkedList::cleanString(idStr);
+        position = JobCircularLinkedList::cleanString(position);
+        skillStr = JobCircularLinkedList::cleanString(skillStr);
+
+        int id;
+        try
+        {
+            id = stoi(idStr);
+        }
+        catch (...)
+        {
+            cerr << "Warning: Invalid ID \"" << idStr << "\", skipping.\n";
+            continue;
+        }
+
+        string tempSkills[100];
+        int count = 0;
+
+        stringstream sk(skillStr);
+        string skill;
+        while (getline(sk, skill, ','))
+        {
+            skill = JobCircularLinkedList::cleanString(skill);
+            if (!skill.empty() && count < 100)
+                tempSkills[count++] = skill;
+        }
+
+        // Create dynamic array of skills
+        string *skills = new string[count];
+        for (int i = 0; i < count; i++)
+            skills[i] = tempSkills[i];
+
+        // Construct Job object and append
+        Job job(id, position, skills, count);
+        jobCircularLinkedList.append(job);
+
+        delete[] skills; // cleanup temporary array
+    }
+
+    file.close();
+}

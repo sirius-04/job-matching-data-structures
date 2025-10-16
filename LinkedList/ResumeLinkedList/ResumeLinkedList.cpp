@@ -1,12 +1,6 @@
 #include "ResumeLinkedList.hpp"
 #include <algorithm>
 
-ResumeNode::ResumeNode(Resume data)
-{
-    this->data = data;
-    this->next = nullptr;
-}
-
 ResumeLinkedList::ResumeLinkedList()
 {
     head = nullptr;
@@ -156,7 +150,6 @@ bool ResumeLinkedList::set(int index, const string *skills, int skillCount)
     return true;
 }
 
-
 bool ResumeLinkedList::insert(int index, Resume data)
 {
     if (index < 0 || index > length)
@@ -227,7 +220,8 @@ void ResumeLinkedList::reverse()
     }
 }
 
-int ResumeLinkedList::getLength() {
+int ResumeLinkedList::getLength()
+{
     return length;
 }
 
@@ -501,33 +495,43 @@ void ResumeLinkedList::quickSortBySkill()
 }
 
 // ======= Search by Skills =======
-ResumeLinkedList ResumeLinkedList::binarySearchResumeBySkills(const string *skills, int skillCount)
+ResumeLinkedList *ResumeLinkedList::binarySearchResumeBySkills(const string *skills, int skillCount, bool matchAll)
 {
-    ResumeLinkedList matches;
+    ResumeLinkedList *matches = new ResumeLinkedList();
 
     if (head == nullptr || skills == nullptr || skillCount <= 0)
-        return matches; // return empty list
+        return matches;
 
-    quickSortBySkill(); // sort by first skill (for potential binary search use)
+    quickSortBySkill();
 
     for (ResumeNode *p = head; p != nullptr; p = p->next)
     {
         int matched = 0;
 
-        for (int s = 0; s < skillCount; s++)
+        // For each skill in search criteria
+        for (int s = 0; s < skillCount; ++s)
         {
-            for (int j = 0; j < p->data.skillCount; j++)
+            bool found = false;
+
+            // Search in this resume's skill list
+            for (int j = 0; j < p->data.skillCount; ++j)
             {
                 if (p->data.skills[j] == skills[s])
                 {
-                    matched++;
-                    break; // go to next skill in input list
+                    found = true;
+                    break; // go to next search skill
                 }
             }
+
+            if (found)
+                matched++;
         }
 
-        if (matched == skillCount) // all required skills matched
-            matches.append(p->data);
+        // Determine if the resume matches based on matchAll flag
+        bool isMatch = matchAll ? (matched == skillCount) : (matched > 0);
+
+        if (isMatch)
+            matches->append(p->data);
     }
 
     return matches;

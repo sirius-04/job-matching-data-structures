@@ -5,15 +5,6 @@
 #include "../../models/Resume/Resume.hpp"
 using namespace std;
 
-class ResumeNode
-{
-public:
-    Resume data;
-    ResumeNode *next;
-
-    ResumeNode(Resume data);
-};
-
 class ResumeLinkedList
 {
 private:
@@ -45,7 +36,7 @@ public:
     ResumeLinkedList linearSearchResumeBySkills(const string *skillSet, int skillCount, bool matchAll);
 
     // binary search
-    ResumeLinkedList binarySearchResumeBySkills(const string *skillSet, int skillCount);
+    ResumeLinkedList *binarySearchResumeBySkills(const string *skillSet, int skillCount, bool matchAll);
 
     // merge sort
     typedef bool (*CompareFn)(ResumeNode *, ResumeNode *);
@@ -65,7 +56,6 @@ public:
     ResumeNode *partitionBySkillCount(ResumeNode *low, ResumeNode *high);
     ResumeNode *partitionBySkill(ResumeNode *low, ResumeNode *high);
 
-    void quickSortById();
     void quickSortBySkill();
     void quickSortBySkillCount();
 

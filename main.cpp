@@ -4,6 +4,7 @@
 #include <string>
 #include <algorithm>
 #include "LinkedList/JobLinkedList/JobLinkedList.hpp"
+#include "CircularLinkedList/JobCircularLinkedList/JobCircularLinkedList.hpp"
 #include "LinkedList/ResumeLinkedList/ResumeLinkedList.hpp"
 #include "utils/CSVLoader/CSVLoader.hpp"
 
@@ -69,11 +70,15 @@ int main()
 {
     JobLinkedList jobLinkedList;
     ResumeLinkedList resumelinkedList;
+    JobCircularLinkedList jobCircularLinkedList;
 
     // createResumeLinkedList(resumelinkedList);
-    createJobLinkedList(jobLinkedList);
+    // createJobLinkedList(jobLinkedList);
 
-    jobLinkedList.mergeSortBy("position");
-    jobLinkedList.printSlice();
+    // jobLinkedList.mergeSortBy("position");
+    // jobLinkedList.printSlice();
     // resumelinkedList.printSlice();
+
+    createJobCircularLinkedList(jobCircularLinkedList);
+    jobCircularLinkedList.printSlice();
 }
