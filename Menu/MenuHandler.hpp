@@ -1,0 +1,47 @@
+#ifndef MENU_HANDLER_HPP
+#define MENU_HANDLER_HPP
+
+#include <iostream>
+#include <string>
+#include "LinkedList/JobLinkedList/JobLinkedList.hpp"
+#include "CircularLinkedList/JobCircularLinkedList/JobCircularLinkedList.hpp"
+#include "LinkedList/ResumeLinkedList/ResumeLinkedList.hpp"
+#include "Array/JobArray/JobArray.hpp"
+#include "Array/ResumeArray/ResumeArray.hpp"
+#include "JobMatching/JobMatching.hpp"
+
+using namespace std;
+
+// Utility menu functions
+int getUserChoice(int min, int max);
+int selectSearchAlgorithm();
+int selectSortAlgorithm();
+int displayMainMenu(const string &mode);
+int displaySearchMenu(const string &mode);
+int displaySortMenu(const string &mode);
+
+// Array handling
+void handleListArray(JobArray &jobArray, ResumeArray &resumeArray);
+void handleSearchArray(JobArray &jobArray, ResumeArray &resumeArray);
+void handleSortArray(JobArray &jobArray, ResumeArray &resumeArray);
+void handleMatchArray(JobArray &jobArray, ResumeArray &resumeArray);
+void runArray(JobArray &jobArray, ResumeArray &resumeArray);
+
+// LinkedList handling
+void handleListMenu(JobLinkedList &jobLinkedList, ResumeLinkedList &resumeLinkedList);
+void handleJobSearch(JobLinkedList &jobLinkedList);
+void handleResumeSearch(ResumeLinkedList &resumeLinkedList);
+void handleJobSort(JobLinkedList &jobLinkedList);
+void handleResumeSort(ResumeLinkedList &resumeLinkedList);
+void handleMatchMenu(JobLinkedList &jobLinkedList, ResumeLinkedList &resumeLinkedList);
+void handleSearchMenu(JobLinkedList &jobLinkedList, ResumeLinkedList &resumeLinkedList);
+void handleSortMenu(JobLinkedList &jobLinkedList, ResumeLinkedList &resumeLinkedList);
+void runLinkedList(JobLinkedList &jobLinkedList, ResumeLinkedList &resumeLinkedList);
+
+// Circular LinkedList handling
+void runCircularLinkedList(JobCircularLinkedList &jobCircularLinkedList);
+
+// summary report
+void summary();
+
+#endif
