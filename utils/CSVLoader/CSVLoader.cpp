@@ -218,32 +218,6 @@ void createResumeCircularLinkedList(ResumeCircularLinkedList &resumeCircularLink
         skillStr = ResumeCircularLinkedList::cleanString(skillStr);
 
         // Convert ID
-void createJobArray(JobArray &jobArray)
-{
-    ifstream file("dataset/cleaned_jobDescription_v2.csv");
-    if (!file.is_open())
-    {
-        cerr << "Failed to open file!" << endl;
-        return;
-    }
-
-    cout << "File opened successfully!" << endl;
-
-    string line;
-    getline(file, line); // skip header
-
-    while (getline(file, line))
-    {
-        if (line.empty())
-            continue;
-
-        stringstream ss(line);
-        string idStr, position, skillsStr;
-
-        getline(ss, idStr, ',');
-        getline(ss, position, ',');
-        getline(ss, skillsStr, '\n');
-
         int id;
         try
         {
@@ -281,6 +255,41 @@ void createJobArray(JobArray &jobArray)
     }
 
     file.close();
+}
+
+void createJobArray(JobArray &jobArray)
+{
+    ifstream file("dataset/cleaned_jobDescription_v2.csv");
+    if (!file.is_open())
+    {
+        cerr << "Failed to open file!" << endl;
+        return;
+    }
+
+    cout << "File opened successfully!" << endl;
+
+    string line;
+    getline(file, line); // skip header
+
+    while (getline(file, line))
+    {
+        if (line.empty())
+            continue;
+
+        stringstream ss(line);
+        string idStr, position, skillsStr;
+
+        getline(ss, idStr, ',');
+        getline(ss, position, ',');
+        getline(ss, skillsStr, '\n');
+
+        int id;
+        try
+        {
+            id = stoi(idStr);
+        }
+        catch (...)
+        {
             cerr << "Invalid ID: " << idStr << endl;
             continue;
         }
