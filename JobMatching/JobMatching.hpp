@@ -4,11 +4,15 @@
 #include "../LinkedList/JobLinkedList/JobLinkedList.hpp"
 #include "../LinkedList/ResumeLinkedList/ResumeLinkedList.hpp"
 #include "../CircularLinkedList/JobCircularLinkedList/JobCircularLinkedList.hpp"
+#include "../CircularLinkedList/ResumeCircularLinkedList/ResumeCircularLinkedList.hpp"
 #include "../Array/JobArray/JobArray.hpp"
 #include "../Array/ResumeArray/ResumeArray.hpp"
 #include "../models/MatchResult/MatchResult.hpp"
 #include <iostream>
+#include <windows.h>
+#include <psapi.h>
 #include <chrono>
+#include <cstdlib>
 using namespace std;
 using namespace std::chrono;
 
@@ -46,7 +50,7 @@ private:
 
     ResumeArray *resumeArray;
     ResumeLinkedList *resumeLinkedList;
-    // ResumeCircularLinkedList *resumeCircular;
+    ResumeCircularLinkedList *resumeCircular;
 
     MatchMode matchMode;
     DataStruct dataStruct;
@@ -55,11 +59,14 @@ private:
 
     MatchResultList *results;
     double matchTime;
+    size_t memoryUsed;
+
+    size_t getCurrentMemoryUsage();
 
 public:
     JobMatching(JobArray *jobArray, ResumeArray *resumeArray);
     JobMatching(JobLinkedList *jobLinkedList, ResumeLinkedList *resumeLinkedList);
-    // JobMatching(JobCircularLinkedList *jobCircular, ResumeCircularLinkedList *resumeCircular);
+    JobMatching(JobCircularLinkedList *jobCircular, ResumeCircularLinkedList *resumeCircular);
     ~JobMatching();
 
     void setMatchMode(MatchMode matchMode);
@@ -67,14 +74,16 @@ public:
     void setMatchStrategy(MatchStrategy strategy);
     void setSearchAlgorithm(SearchAlgorithm searchAlgo);
 
+    // unified search function
     void *search(const string *skillSet, int skillCount, bool matchAll);
 
-    double ruleBasedMatch(Job job, Resume resume);
-    double weightedScoringMatch(Job job, Resume resume);
+    // algorithms
+    MatchResultList* ruleBasedMatch(const string *skillSet, int skillCount, bool matchAll);
+    double calculateWeightedScore(const string* inputSkills, int inputCount, const string* targetSkills, int targetCount);
+    MatchResultList* weightedScoringMatch(const string *skillSet, int skillCount, bool matchAll);
 
-    void runMatching();
-    void printPerformance();
-    void printMatches();
+    MatchResultList* runMatching(const string* skillSet, int skillCount, bool matchAll);
+    void printPerformance() const;
 };
 
 #endif

@@ -7,13 +7,13 @@ INC = -I. \
       -I./Menu \
 
 SRC = $(wildcard *.cpp) \
-			$(wildcard Array/**/*.cpp) \
+	$(wildcard Array/**/*.cpp) \
       $(wildcard LinkedList/**/*.cpp) \
       $(wildcard CircularLinkedList/**/*.cpp) \
       $(wildcard models/**/*.cpp) \
       $(wildcard Menu/*.cpp) \
       $(wildcard utils/**/*.cpp)
-#       $(wildcard JobMatching/*.cpp) \
+      $(wildcard JobMatching/*.cpp) \
 
 CXX = g++
 CXXFLAGS = -std=c++17 -Wall $(INC)

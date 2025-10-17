@@ -12,6 +12,7 @@ JobMatching::JobMatching(JobArray* jobArray, ResumeArray* resumeArray) {
 
     this->results = new MatchResultList();
     this->matchTime = 0;
+    this->memoryUsed = 0;
     this->matchMode = FIND_RESUME;
     this->dataStruct = ARRAY;
     this->matchStrategy = RULE_BASED;
@@ -28,13 +29,14 @@ JobMatching::JobMatching(JobLinkedList* jobLinkedList, ResumeLinkedList* resumeL
 
     this->results = new MatchResultList();
     this->matchTime = 0;
+    this->memoryUsed = 0;
     this->matchMode = FIND_RESUME;
     this->dataStruct = SINGLY_LINKED_LIST;
     this->matchStrategy = RULE_BASED;
     this->searchAlgo = LINEAR;
 }
 
-JobMatching::JobMatching(JobCircular* jobCircular, ResumeCircular* resumeCircular) {
+JobMatching::JobMatching(JobCircularLinkedList* jobCircular, ResumeCircularLinkedList* resumeCircular) {
     this->jobArray = nullptr;
     this->resumeArray = nullptr;
     this->jobLinkedList = nullptr;
@@ -44,6 +46,7 @@ JobMatching::JobMatching(JobCircular* jobCircular, ResumeCircular* resumeCircula
 
     this->results = new MatchResultList();
     this->matchTime = 0;
+    this->memoryUsed = 0;
     this->matchMode = FIND_RESUME;
     this->dataStruct = CIRCULAR_LINKED_LIST;
     this->matchStrategy = RULE_BASED;
@@ -121,43 +124,283 @@ void* JobMatching::search(const string* skillSet, int skillCount, bool matchAll)
     return nullptr;
 }
 
-double JobMatching::ruleBasedMatch(Job job, Resume resume) {
-    // 1. Search for matching skills (using selected DataStruct + SearchAlgorithm)
-    auto searchResults = search(job.skills, job.skillCount, /*matchAll=*/false);
+MatchResultList* JobMatching::ruleBasedMatch(const string* skillSet, int skillCount, bool matchAll) {
+    delete results;
+    results = new MatchResultList();
 
-    // 2. Use results count to determine overlap
-    int overlapCount = searchResults.size(); // or length, depending on your class
-
-    if (job.skillCount == 0) return 0.0;
-
-    // 3. Calculate match percentage
-    double score = (static_cast<double>(overlapCount) / job.skillCount) * 100.0;
-
-    return score;
-}
-
-double JobMatching::weightedScoringMatch(Job job, Resume resume) {
-    if (job.skillCount == 0) return 0.0;
-
-    double totalWeight = 0.0;
-    double matchedWeight = 0.0;
-
-    // Generate weight for each skill
-    for (int i = 0; i < job.skillCount; i++) {
-        double weight = 1.0 - (i * 0.1);
-        if (weight < 0.1) weight = 0.1;
-        totalWeight += weight;
+    void* searchResult = search(skillSet, skillCount, matchAll);
+    if (!searchResult) {
+        cerr << "❌ No search result found!" << endl;
+        return results;
     }
 
-    // Use search() function to find overlapping skills
-    auto searchResults = search(job.skills, job.skillCount, /*matchAll=*/false);
-    int overlapCount = searchResults.size(); // adjust based on your structure
+    if (matchMode == FIND_JOB) {
+        switch (dataStruct) {
+            case ARRAY: {
+                JobArray* matchedJobs = static_cast<JobArray*>(searchResult);
+                for (int i = 0; i < matchedJobs->getSize(); i++) {
+                    Job job = matchedJobs->getJob(i);
+                    results->append(MatchResult(job.id, 0, 100.0));
+                }
+                break;
+            }
+            case SINGLY_LINKED_LIST: {
+                JobLinkedList* matchedJobs = static_cast<JobLinkedList*>(searchResult);
+                JobNode* node = matchedJobs->getHead();
+                
+                while (node) {
+                    results->append(MatchResult(node->data.id, 0, 100.0));
+                    node = node->next;
+                }
+                break;
+            }
+            case CIRCULAR_LINKED_LIST: {
+                JobCircularLinkedList* matchedJobs = static_cast<JobCircularLinkedList*>(searchResult);
+                JobNode* node = matchedJobs->getHead();
+                if (node) {
+                    JobNode* start = node;
+                    do {
+                        results->append(MatchResult(node->data.id, 0, 100.0));
+                        node = node->next;
+                    } while (node != start);
+                }
+                break;
+            }
+        }
+    }
 
-    // Estimate matched weight proportionally
-    matchedWeight = (overlapCount / static_cast<double>(job.skillCount)) * totalWeight;
+    else if (matchMode == FIND_RESUME) {
+        switch (dataStruct) {
+            case ARRAY: {
+                ResumeArray* matchedResumes = static_cast<ResumeArray*>(searchResult);
+                for (int i = 0; i < matchedResumes->getSize(); i++) {
+                    Resume resume = matchedResumes->getResume(i);
+                    results->append(MatchResult(0, resume.id, 100.0));
+                }
+                break;
+            }
+            case SINGLY_LINKED_LIST: {
+                ResumeLinkedList* matchedResumes = static_cast<ResumeLinkedList*>(searchResult);
+                ResumeNode* node = matchedResumes->getHead();
+                while (node) {
+                    results->append(MatchResult(0, node->data.id, 100.0));
+                    node = node->next;
+                }
+                break;
+            }
+            case CIRCULAR_LINKED_LIST: {
+                ResumeCircularLinkedList* matchedResumes = static_cast<ResumeCircularLinkedList*>(searchResult);
+                ResumeNode* node = matchedResumes->getHead();
+                if (node) {
+                    ResumeNode* start = node;
+                    do {
+                        results->append(MatchResult(0, node->data.id, 100.0));
+                        node = node->next;
+                    } while (node != start);
+                }
+                break;
+            }
+        }
+    }
 
-    double score = (matchedWeight / totalWeight) * 100.0;
-    return score;
+    return results;
 }
 
-// how to determine weight
+double JobMatching::calculateWeightedScore(
+    const string* inputSkills, int inputCount,
+    const string* targetSkills, int targetCount
+) {
+    int matchCount = 0;
+
+    for (int i = 0; i < inputCount; i++) {
+        for (int j = 0; j < targetCount; j++) {
+            if (inputSkills[i] == targetSkills[j]) {
+                matchCount++;
+                break;
+            }
+        }
+    }
+
+    if (targetCount == 0) return 0.0;
+    return (static_cast<double>(matchCount) / targetCount) * 100.0;
+}
+
+MatchResultList* JobMatching::weightedScoringMatch(const string* skillSet, int skillCount, bool matchAll) {
+    delete results;
+    results = new MatchResultList();
+
+    void* searchResult = search(skillSet, skillCount, matchAll);
+    if (!searchResult) {
+        cerr << "❌ No search result found!" << endl;
+        return results;
+    }
+
+    if (matchMode == FIND_JOB) {
+        switch (dataStruct) {
+            case ARRAY: {
+                JobArray* matchedJobs = static_cast<JobArray*>(searchResult);
+
+                for (int i = 0; i < matchedJobs->getSize(); i++) {
+                    Job job = matchedJobs->getJob(i);
+                    double score = calculateWeightedScore(skillSet, skillCount, job.skills, job.skillCount);
+                    results->append(MatchResult(job.id, 0, score));
+                }
+                break;
+            }
+
+            case SINGLY_LINKED_LIST: {
+                JobLinkedList* matchedJobs = static_cast<JobLinkedList*>(searchResult);
+                JobNode* node = matchedJobs->getHead();
+                while (node) {
+                    double score = calculateWeightedScore(skillSet, skillCount, node->data.skills, node->data.skillCount);
+                    results->append(MatchResult(node->data.id, 0, score));
+                    node = node->next;
+                }
+                break;
+            }
+
+            case CIRCULAR_LINKED_LIST: {
+                JobCircularLinkedList* matchedJobs = static_cast<JobCircularLinkedList*>(searchResult);
+                JobNode* node = matchedJobs->getHead();
+                if (node) {
+                    JobNode* startNode = node;
+                    do {
+                        double score = calculateWeightedScore(skillSet, skillCount, node->data.skills, node->data.skillCount);
+                        results->append(MatchResult(node->data.id, 0, score));
+                        node = node->next;
+                    } while (node != startNode);
+                }
+                break;
+            }
+        }
+    }
+
+    else if (matchMode == FIND_RESUME) {
+        switch (dataStruct) {
+            case ARRAY: {
+                ResumeArray* matchedResumes = static_cast<ResumeArray*>(searchResult);
+                for (int i = 0; i < matchedResumes->getSize(); i++) {
+                    Resume resume = matchedResumes->getResume(i);
+                    double score = calculateWeightedScore(skillSet, skillCount, resume.skills, resume.skillCount);
+                    results->append(MatchResult(0, resume.id, score));
+                }
+                break;
+            }
+
+            case SINGLY_LINKED_LIST: {
+                ResumeLinkedList* matchedResumes = static_cast<ResumeLinkedList*>(searchResult);
+                ResumeNode* node = matchedResumes->getHead();
+                while (node) {
+                    double score = calculateWeightedScore(skillSet, skillCount, node->data.skills, node->data.skillCount);
+                    results->append(MatchResult(0, node->data.id, score));
+                    node = node->next;
+                }
+                break;
+            }
+
+            case CIRCULAR_LINKED_LIST: {
+                ResumeCircularLinkedList* matchedResumes = static_cast<ResumeCircularLinkedList*>(searchResult);
+                ResumeNode* node = matchedResumes->getHead();
+                if (node) {
+                    ResumeNode* startNode = node;
+                    do {
+                        double score = calculateWeightedScore(skillSet, skillCount, node->data.skills, node->data.skillCount);
+                        results->append(MatchResult(0, node->data.id, score));
+                        node = node->next;
+                    } while (node != startNode);
+                }
+                break;
+            }
+        }
+    }
+
+    return results;
+}
+
+size_t JobMatching::getCurrentMemoryUsage() {
+    PROCESS_MEMORY_COUNTERS info;
+    if (GetProcessMemoryInfo(GetCurrentProcess(), &info, sizeof(info))) {
+        return static_cast<size_t>(info.WorkingSetSize) / 1024; // in KB
+    }
+    return 0;
+}
+
+MatchResultList* JobMatching::runMatching(const string* skillSet, int skillCount, bool matchAll) {
+    cout << "===== Running Match =====" << endl;
+
+    auto startTime = high_resolution_clock::now();
+    size_t startMem = getCurrentMemoryUsage();
+
+    MatchResultList* matchResults = nullptr;
+
+    switch (matchStrategy) {
+        case RULE_BASED:
+            cout << "[Strategy] Rule-Based Matching" << endl;
+            matchResults = ruleBasedMatch(skillSet, skillCount, matchAll);
+            break;
+
+        case WEIGHTED_SCORING:
+            cout << "[Strategy] Weighted Scoring Matching" << endl;
+            matchResults = weightedScoringMatch(skillSet, skillCount, matchAll);
+            break;
+
+        default:
+            cerr << "❌ Invalid match strategy!" << endl;
+            return nullptr;
+    }
+
+    auto endTime = high_resolution_clock::now();
+    size_t endMem = getCurrentMemoryUsage();
+
+    matchTime = duration_cast<milliseconds>(endTime - startTime).count();
+    memoryUsed = (endMem > startMem) ? (endMem - startMem) : 0;
+
+    return matchResults;
+}
+
+void JobMatching::printPerformance() const {
+    cout << "\n===== 🧩 Matching Configuration & Performance =====" << endl;
+
+    // --- Match Mode ---
+    cout << "🎯 Match Mode: ";
+    switch (matchMode) {
+        case FIND_JOB: cout << "Find Job (Resumes → Jobs)"; break;
+        case FIND_RESUME: cout << "Find Resume (Jobs → Resumes)"; break;
+        default: cout << "Unknown"; break;
+    }
+    cout << endl;
+
+    // --- Match Strategy ---
+    cout << "🧠 Match Strategy: ";
+    switch (matchStrategy) {
+        case RULE_BASED: cout << "Rule-Based"; break;
+        case WEIGHTED_SCORING: cout << "Weighted Scoring"; break;
+        default: cout << "Unknown"; break;
+    }
+    cout << endl;
+
+    // --- Search Algorithm ---
+    cout << "🔍 Search Algorithm: ";
+    switch (searchAlgo) {
+        case LINEAR: cout << "Linear Search"; break;
+        case BINARY: cout << "Binary Search"; break;
+        default: cout << "Unknown"; break;
+    }
+    cout << endl;
+
+    // --- Data Structure ---
+    cout << "📦 Data Structure: ";
+    switch (dataStruct) {
+        case ARRAY: cout << "Array"; break;
+        case SINGLY_LINKED_LIST: cout << "Singly Linked List"; break;
+        case CIRCULAR_LINKED_LIST: cout << "Circular Linked List"; break;
+        default: cout << "Unknown"; break;
+    }
+    cout << endl;
+
+    // --- Performance ---
+    cout << "-----------------------------------------------" << endl;
+    cout << "⏱️  Time Taken: " << matchTime << " ms" << endl;
+    cout << "💾 Memory Used: " << memoryUsed << " KB" << endl;
+    cout << "===============================================" << endl;
+}

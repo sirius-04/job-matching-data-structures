@@ -31,6 +31,10 @@ JobCircularLinkedList::~JobCircularLinkedList()
     length = 0;
 }
 
+JobNode* JobCircularLinkedList::getHead() const {
+    return head;
+}
+
 void JobCircularLinkedList::append(Job data)
 {
     JobNode *newNode = new JobNode(data);
