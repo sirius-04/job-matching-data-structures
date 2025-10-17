@@ -4,8 +4,9 @@
 #include <iostream>
 #include <string>
 #include "LinkedList/JobLinkedList/JobLinkedList.hpp"
-#include "CircularLinkedList/JobCircularLinkedList/JobCircularLinkedList.hpp"
 #include "LinkedList/ResumeLinkedList/ResumeLinkedList.hpp"
+#include "CircularLinkedList/JobCircularLinkedList/JobCircularLinkedList.hpp"
+#include "CircularLinkedList/ResumeCircularLinkedList/ResumeCircularLinkedList.hpp"
 #include "Array/JobArray/JobArray.hpp"
 #include "Array/ResumeArray/ResumeArray.hpp"
 #include "JobMatching/JobMatching.hpp"
@@ -28,18 +29,18 @@ void handleMatchArray(JobArray &jobArray, ResumeArray &resumeArray);
 void runArray(JobArray &jobArray, ResumeArray &resumeArray);
 
 // LinkedList handling
-void handleListMenu(JobLinkedList &jobLinkedList, ResumeLinkedList &resumeLinkedList);
-void handleJobSearch(JobLinkedList &jobLinkedList);
-void handleResumeSearch(ResumeLinkedList &resumeLinkedList);
-void handleJobSort(JobLinkedList &jobLinkedList);
-void handleResumeSort(ResumeLinkedList &resumeLinkedList);
-void handleMatchMenu(JobLinkedList &jobLinkedList, ResumeLinkedList &resumeLinkedList);
-void handleSearchMenu(JobLinkedList &jobLinkedList, ResumeLinkedList &resumeLinkedList);
-void handleSortMenu(JobLinkedList &jobLinkedList, ResumeLinkedList &resumeLinkedList);
+void handleListLinkedList(JobLinkedList &jobLinkedList, ResumeLinkedList &resumeLinkedList);
+void handleLinkedListSearch(JobLinkedList &jobLinkedList, ResumeLinkedList &resumeLinkedList);
+void handleLinkedListSort(JobLinkedList &jobLinkedList, ResumeLinkedList &resumeLinkedList);
+void handleLinkedListMatch(JobLinkedList &jobLinkedList, ResumeLinkedList &resumeLinkedList);
 void runLinkedList(JobLinkedList &jobLinkedList, ResumeLinkedList &resumeLinkedList);
 
 // Circular LinkedList handling
-void runCircularLinkedList(JobCircularLinkedList &jobCircularLinkedList);
+void handleCircularListLinkedList(JobCircularLinkedList &jobCircularLinkedList, ResumeCircularLinkedList &resumeCircularLinkedList);
+void handleCircularLinkedListSearch(JobCircularLinkedList &jobCircularLinkedList, ResumeCircularLinkedList &resumeCircularLinkedList);
+void handleCircularLinkedListSort(JobCircularLinkedList &jobCircularLinkedList, ResumeCircularLinkedList &resumeCircularLinkedList);
+void handleCircularLinkedListMatch(JobCircularLinkedList &jobCircularLinkedList, ResumeCircularLinkedList &resumeCircularLinkedList);
+void runCircularLinkedList(JobCircularLinkedList &jobCircularLinkedList, ResumeCircularLinkedList &resumeCircularLinkedList);
 
 // summary report
 void summary();
