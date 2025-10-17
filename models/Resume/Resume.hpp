@@ -20,4 +20,13 @@ public:
     Resume &operator=(const Resume &other);
 };
 
+class ResumeNode
+{
+public:
+    Resume data;
+    ResumeNode *next;
+
+    ResumeNode(Resume data);
+};
+
 #endif

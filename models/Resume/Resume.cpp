@@ -45,3 +45,9 @@ Resume::~Resume()
     delete[] skills;
     skills = nullptr;
 }
+
+ResumeNode::ResumeNode(Resume data)
+{
+    this->data = data;
+    this->next = nullptr;
+}

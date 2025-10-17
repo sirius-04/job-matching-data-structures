@@ -1,11 +1,11 @@
-#ifndef RESUME_LINKED_LIST_HPP
-#define RESUME_LINKED_LIST_HPP
+#ifndef RESUME_CIRCULAR_LINKED_LIST_HPP
+#define RESUME_CIRCULAR_LINKED_LIST_HPP
 
 #include <iostream>
 #include "../../models/Resume/Resume.hpp"
 using namespace std;
 
-class ResumeLinkedList
+class ResumeCircularLinkedList
 {
 private:
     ResumeNode *head;
@@ -14,8 +14,8 @@ private:
 
 public:
     // constructor & destructor
-    ResumeLinkedList();
-    ~ResumeLinkedList();
+    ResumeCircularLinkedList();
+    ~ResumeCircularLinkedList();
 
     // general functions & utilities
     ResumeNode* getHead() const;
@@ -34,10 +34,10 @@ public:
     void printSlice();
 
     // linear search
-    ResumeLinkedList *linearSearchResumeBySkills(const string *skillSet, int skillCount, bool matchAll);
+    ResumeCircularLinkedList *linearSearchResumeBySkills(const string *skillSet, int skillCount, bool matchAll);
 
     // binary search
-    ResumeLinkedList *binarySearchResumeBySkills(const string *skillSet, int skillCount, bool matchAll);
+    ResumeCircularLinkedList *binarySearchResumeBySkills(const string *skillSet, int skillCount, bool matchAll);
 
     // merge sort
     typedef bool (*CompareFn)(ResumeNode *, ResumeNode *);
@@ -45,9 +45,9 @@ public:
     static bool compareBySkillCount(ResumeNode *a, ResumeNode *b);
     static bool compareBySkill(ResumeNode *a, ResumeNode *b);
 
-    ResumeNode *split(ResumeNode *head);
+    ResumeNode *split(ResumeNode *head, int count);
     ResumeNode *merge(ResumeNode *first, ResumeNode *second, CompareFn compare);
-    ResumeNode *mergeSort(ResumeNode *head, CompareFn compare);
+    ResumeNode *mergeSort(ResumeNode *head, int count, CompareFn compare);
     void mergeSortBy(const string &criterion);
 
     // quick sort

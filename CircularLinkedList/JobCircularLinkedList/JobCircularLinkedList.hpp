@@ -1,11 +1,11 @@
-#ifndef JOB_LINKED_LIST_HPP
-#define JOB_LINKED_LIST_HPP
+#ifndef JOB_CIRCULAR_LINKED_LIST_HPP
+#define JOB_CIRCULAR_LINKED_LIST_HPP
 
 #include <iostream>
 #include "../../models/Job/Job.hpp"
 using namespace std;
 
-class JobLinkedList
+class JobCircularLinkedList
 {
 private:
     JobNode *head;
@@ -14,8 +14,8 @@ private:
 
 public:
     // constructor & destructor
-    JobLinkedList();
-    ~JobLinkedList();
+    JobCircularLinkedList();
+    ~JobCircularLinkedList();
 
     // general functions or utilities
     JobNode* getHead() const;
@@ -34,13 +34,13 @@ public:
     void printSlice();
 
     // linear search
-    JobLinkedList *linearSearchJobByPosition(const string &position);
-    JobLinkedList *linearSearchJobBySkills(const string *skillSet, int skillCount, bool matchAll);
+    JobCircularLinkedList *linearSearchJobByPosition(const string &position);
+    JobCircularLinkedList *linearSearchJobBySkills(const string *skillSet, int skillCount, bool matchAll);
 
     // binary search
     JobNode *getMiddle(JobNode *start, JobNode *end);
-    JobLinkedList *binarySearchJobByPosition(const string &position);
-    JobLinkedList *binarySearchJobBySkills(const string *skillSet, int skillCount, bool matchAll);
+    JobCircularLinkedList *binarySearchJobByPosition(const string &position);
+    JobCircularLinkedList *binarySearchJobBySkills(const string *skillSet, int skillCount, bool matchAll);
 
     // merge sort
     typedef bool (*CompareFn)(JobNode *, JobNode *);
@@ -48,9 +48,9 @@ public:
     static bool compareBySkillCount(JobNode *a, JobNode *b);
     static bool compareBySkill(JobNode *a, JobNode *b);
 
-    JobNode *split(JobNode *head);
+    JobNode *split(JobNode *head, int count);
     JobNode *merge(JobNode *first, JobNode *second, CompareFn compare);
-    JobNode *mergeSort(JobNode *head, CompareFn compare);
+    JobNode *mergeSort(JobNode *head, int count, CompareFn compare);
     void mergeSortBy(string criterion);
 
     // quick sort
