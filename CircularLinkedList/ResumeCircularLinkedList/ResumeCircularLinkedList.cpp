@@ -31,6 +31,10 @@ ResumeCircularLinkedList::~ResumeCircularLinkedList()
     length = 0;
 }
 
+ResumeNode* ResumeCircularLinkedList::getHead() const {
+    return head;
+}
+
 void ResumeCircularLinkedList::append(Resume data)
 {
     ResumeNode *newNode = new ResumeNode(data);

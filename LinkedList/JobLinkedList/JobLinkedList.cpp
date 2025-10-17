@@ -23,6 +23,10 @@ JobLinkedList::~JobLinkedList()
     length = 0;
 }
 
+JobNode* JobLinkedList::getHead() const {
+    return head;
+}
+
 void JobLinkedList::append(Job data)
 {
     JobNode *newNode = new JobNode(data);

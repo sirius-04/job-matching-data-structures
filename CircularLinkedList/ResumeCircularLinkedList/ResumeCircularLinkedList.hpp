@@ -18,6 +18,7 @@ public:
     ~ResumeCircularLinkedList();
 
     // general functions & utilities
+    ResumeNode* getHead() const;
     void append(Resume data);
     void prepend(Resume data);
     void deleteFirst();

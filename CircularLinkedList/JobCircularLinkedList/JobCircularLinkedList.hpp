@@ -18,6 +18,7 @@ public:
     ~JobCircularLinkedList();
 
     // general functions or utilities
+    JobNode* getHead() const;
     void append(Job data);
     void prepend(Job data);
     void deleteFirst();

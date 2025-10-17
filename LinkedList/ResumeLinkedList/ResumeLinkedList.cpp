@@ -23,6 +23,10 @@ ResumeLinkedList::~ResumeLinkedList()
     length = 0;
 }
 
+ResumeNode* ResumeLinkedList::getHead() const {
+    return head;
+}
+
 void ResumeLinkedList::append(Resume data)
 {
     ResumeNode *newNode = new ResumeNode(data);
