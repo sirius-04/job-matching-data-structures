@@ -15,7 +15,7 @@
 
 using namespace std;
 
-void displayMenu(JobArray &jobArray, ResumeArray &resumeArray, JobLinkedList &jobLinkedList, ResumeLinkedList &resumelinkedList, JobCircularLinkedList &jobCircularLinkedList)
+void displayMenu(JobArray &jobArray, ResumeArray &resumeArray, JobLinkedList &jobLinkedList, ResumeLinkedList &resumelinkedList, JobCircularLinkedList &jobCircularLinkedList, ResumeCircularLinkedList &resumeCircularLinkedList)
 {
     int userChoice;
 
@@ -46,7 +46,7 @@ void displayMenu(JobArray &jobArray, ResumeArray &resumeArray, JobLinkedList &jo
             runLinkedList(jobLinkedList, resumelinkedList);
             break;
         case 3:
-            runCircularLinkedList(jobCircularLinkedList);
+            runCircularLinkedList(jobCircularLinkedList, resumeCircularLinkedList);
             break;
         case 4:
             summary();
@@ -69,10 +69,10 @@ int main()
     JobCircularLinkedList jobCircularLinkedList;
     ResumeCircularLinkedList resumeCircularLinkedList;
 
-    createResumeLinkedList(resumelinkedList);
-    createJobLinkedList(jobLinkedList);
-    createJobCircularLinkedList(jobCircularLinkedList);
-    createResumeCircularLinkedList(resumeCircularLinkedList);
+    // createResumeLinkedList(resumelinkedList);
+    // createJobLinkedList(jobLinkedList);
+    // createJobCircularLinkedList(jobCircularLinkedList);
+    // createResumeCircularLinkedList(resumeCircularLinkedList);
 
     // JobLinkedList *matchedJobs = jobLinkedList.linearSearchJobBySkills(new string[4]{"Rest Apis", "Spring Boot", "Git", "Agile"}, 4, true);
     // JobLinkedList *matchedJobs = jobLinkedList.binarySearchJobBySkills(new string[4]{"Rest Apis", "Spring Boot", "Git", "Agile"}, 4, true);
@@ -98,5 +98,5 @@ int main()
     // ResumeArray *resumeResult = resumeArray.binarySearchBySkills(skills, 2, true);
     // resumeResult->printResumes();
 
-    displayMenu(jobArray, resumeArray, jobLinkedList, resumelinkedList, jobCircularLinkedList);
+    displayMenu(jobArray, resumeArray, jobLinkedList, resumelinkedList, jobCircularLinkedList, resumeCircularLinkedList);
 }

@@ -400,7 +400,7 @@ void runArray(JobArray &jobArray, ResumeArray &resumeArray)
 
 // Linked List Menu
 
-void handleListMenu(JobLinkedList &jobLinkedList, ResumeLinkedList &resumeLinkedList)
+void handleListLinkedList(JobLinkedList &jobLinkedList, ResumeLinkedList &resumeLinkedList)
 {
     cout << "\n--- Linked List Data ---" << endl;
     cout << "[1] List Jobs" << endl;
@@ -423,128 +423,159 @@ void handleListMenu(JobLinkedList &jobLinkedList, ResumeLinkedList &resumeLinked
     }
 }
 
-void handleJobSearch(JobLinkedList &jobLinkedList)
+void handleLinkedListSearch(JobLinkedList &jobLinkedList, ResumeLinkedList &resumeLinkedList)
 {
-    cout << "\n--- SEARCH JOBS (LinkedList) ---" << endl;
-    cout << "[1] Search By Position" << endl;
-    cout << "[2] Search By Skills" << endl;
-    cout << "[3] Back" << endl;
-
-    int choice = getUserChoice(1, 3);
-    if (choice == 3)
-        return;
-
-    int algo = selectSearchAlgorithm(); // You already have this function
-
-    if (choice == 1)
+    while (true)
     {
-        string keyword;
-        cout << "Enter job position keyword: ";
-        cin.ignore();
-        getline(cin, keyword);
+        int searchMenu = displaySearchMenu("LINKED LIST");
+        if (searchMenu == 3)
+            return;
 
-        cout << ((algo == 1) ? "\nLinear Search..." : "\nBinary Search...") << endl;
-        JobLinkedList *result = (algo == 1)
-                                    ? jobLinkedList.linearSearchJobByPosition(keyword)
-                                    : jobLinkedList.binarySearchJobByPosition(keyword);
-        if (result)
-            result->printSlice();
-        else
-            cout << "No jobs found.\n";
+        switch (searchMenu)
+        {
+        case 1: // Search Jobs
+        {
+            int jobSearch = 0;
+            while (jobSearch != 3)
+            {
+                cout << "\n--- SEARCH JOBS (LinkedList) ---" << endl;
+                cout << "[1] Search By Position" << endl;
+                cout << "[2] Search By Skills" << endl;
+                cout << "[3] Back" << endl;
+
+                int choice = getUserChoice(1, 3);
+                if (choice == 3)
+                    return;
+
+                int algo = selectSearchAlgorithm();
+
+                if (choice == 1)
+                {
+                    string keyword;
+                    cout << "Enter job position keyword: ";
+                    cin.ignore();
+                    getline(cin, keyword);
+
+                    cout << ((algo == 1) ? "\nLinear Search..." : "\nBinary Search...") << endl;
+                    JobLinkedList *result = (algo == 1)
+                                                ? jobLinkedList.linearSearchJobByPosition(keyword)
+                                                : jobLinkedList.binarySearchJobByPosition(keyword);
+                    if (result)
+                        result->printSlice();
+                    else
+                        cout << "No jobs found.\n";
+                }
+                else if (choice == 2)
+                {
+                    string skills[2];
+                    cout << "Enter skill 1: ";
+                    cin.ignore();
+                    getline(cin, skills[0]);
+                    cout << "Enter skill 2: ";
+                    getline(cin, skills[1]);
+
+                    cout << ((algo == 1) ? "\nLinear Search..." : "\nBinary Search...") << endl;
+                    JobLinkedList *result = (algo == 1)
+                                                ? jobLinkedList.linearSearchJobBySkills(skills, 2, false)
+                                                : jobLinkedList.binarySearchJobBySkills(skills, 2, false);
+                    if (result)
+                        result->printSlice();
+                    else
+                        cout << "No jobs found.\n";
+                }
+            }
+            break;
+        }
+        case 2: // Search Resumes
+        {
+            int algo = selectSearchAlgorithm();
+            if (algo == 3)
+                break;
+
+            string skills[2];
+            cout << "Enter skill 1: ";
+            cin.ignore();
+            getline(cin, skills[0]);
+            cout << "Enter skill 2: ";
+            getline(cin, skills[1]);
+
+            ResumeLinkedList *result = (algo == 1)
+                                           ? resumeLinkedList.linearSearchResumeBySkills(skills, 2, false)
+                                           : resumeLinkedList.binarySearchResumeBySkills(skills, 2, false);
+
+            if (result)
+                result->printSlice();
+            else
+                cout << "No resume found.\n";
+            delete result;
+            break;
+        }
+        }
     }
-    else if (choice == 2)
+}
+
+void handleLinkedListSort(JobLinkedList &jobLinkedList, ResumeLinkedList &resumeLinkedList)
+{
+    while (true)
     {
-        string skills[2];
-        cout << "Enter skill 1: ";
-        cin.ignore();
-        getline(cin, skills[0]);
-        cout << "Enter skill 2: ";
-        getline(cin, skills[1]);
+        int sortMenu = displaySortMenu("LINKED LIST");
+        if (sortMenu == 3)
+            return;
+        switch (sortMenu)
+        {
+        case 1: // Sort Jobs
+        {
+            cout << "\n--- SORT JOBS ---" << endl;
+            cout << "[1] Sort By Position\n";
+            cout << "[2] Sort By Skills\n";
+            cout << "[3] Sort By Skill Count\n";
+            cout << "[4] Back\n";
+            int choice = getUserChoice(1, 4);
+            if (choice == 4)
+                return;
 
-        cout << ((algo == 1) ? "\nLinear Search..." : "\nBinary Search...") << endl;
-        JobLinkedList *result = (algo == 1)
-                                    ? jobLinkedList.linearSearchJobBySkills(skills, 2, false)
-                                    : jobLinkedList.binarySearchJobBySkills(skills, 2, false);
-        if (result)
-            result->printSlice();
-        else
-            cout << "No jobs found.\n";
+            int algo = selectSortAlgorithm();
+
+            if (algo == 1)
+                cout << "\nPerforming Merge Sort\n";
+            else
+                cout << "\nPerforming Quick Sort\n";
+
+            if (choice == 1)
+                (algo == 1) ? jobLinkedList.mergeSortBy("position") : jobLinkedList.quickSortByPosition();
+            else if (choice == 2)
+                (algo == 1) ? jobLinkedList.mergeSortBy("skill") : jobLinkedList.quickSortBySkill();
+            else
+                (algo == 1) ? jobLinkedList.mergeSortBy("skillCount") : jobLinkedList.quickSortBySkillCount();
+
+            jobLinkedList.printSlice();
+            break;
+        }
+
+        case 2: // Sort Resume
+        {
+            cout << "\n--- SORT RESUMES ---" << endl;
+            cout << "[1] Sort By Skills\n";
+            cout << "[2] Sort By Skill Count\n";
+            cout << "[3] Back\n";
+            int choice = getUserChoice(1, 3);
+            if (choice == 3)
+                return;
+
+            int algo = selectSortAlgorithm();
+
+            if (choice == 1)
+                (algo == 1) ? resumeLinkedList.mergeSortBy("skill") : resumeLinkedList.quickSortBySkill();
+            else
+                (algo == 1) ? resumeLinkedList.mergeSortBy("skillCount") : resumeLinkedList.quickSortBySkillCount();
+
+            resumeLinkedList.printSlice();
+        }
+        }
     }
 }
 
-void handleResumeSearch(ResumeLinkedList &resumeLinkedList)
-{
-    cout << "\n--- SEARCH RESUMES (LinkedList) ---" << endl;
-    cout << "[1] Search By Skills" << endl;
-    cout << "[2] Back" << endl;
-
-    int choice = getUserChoice(1, 2);
-    if (choice == 2)
-        return;
-
-    int algo = selectSearchAlgorithm();
-
-    string skills[2];
-    cout << "Enter skill 1: ";
-    cin.ignore();
-    getline(cin, skills[0]);
-    cout << "Enter skill 2: ";
-    getline(cin, skills[1]);
-
-    ResumeLinkedList *result = (algo == 1)
-                                   ? resumeLinkedList.linearSearchResumeBySkills(skills, 2, false)
-                                   : resumeLinkedList.binarySearchResumeBySkills(skills, 2, false);
-
-    if (result)
-        result->printSlice();
-    else
-        cout << "No resume found.\n";
-}
-
-void handleJobSort(JobLinkedList &jobLinkedList)
-{
-    cout << "\n--- SORT JOBS ---" << endl;
-    cout << "[1] By Position\n[2] By Skills\n[3] By Skill Count\n[4] Back\n";
-    int choice = getUserChoice(1, 4);
-    if (choice == 4)
-        return;
-
-    int algo = selectSortAlgorithm();
-
-    if (algo == 1)
-        cout << "\nPerforming Merge Sort\n";
-    else
-        cout << "\nPerforming Quick Sort\n";
-
-    if (choice == 1)
-        (algo == 1) ? jobLinkedList.mergeSortBy("position") : jobLinkedList.quickSortByPosition();
-    else if (choice == 2)
-        (algo == 1) ? jobLinkedList.mergeSortBy("skill") : jobLinkedList.quickSortBySkill();
-    else
-        (algo == 1) ? jobLinkedList.mergeSortBy("skillCount") : jobLinkedList.quickSortBySkillCount();
-
-    jobLinkedList.printSlice();
-}
-
-void handleResumeSort(ResumeLinkedList &resumeLinkedList)
-{
-    cout << "\n--- SORT RESUMES ---" << endl;
-    cout << "[1] By Skills\n[2] By Skill Count\n[3] Back\n";
-    int choice = getUserChoice(1, 3);
-    if (choice == 3)
-        return;
-
-    int algo = selectSortAlgorithm();
-
-    if (choice == 1)
-        (algo == 1) ? resumeLinkedList.mergeSortBy("skill") : resumeLinkedList.quickSortBySkill();
-    else
-        (algo == 1) ? resumeLinkedList.mergeSortBy("skillCount") : resumeLinkedList.quickSortBySkillCount();
-
-    resumeLinkedList.printSlice();
-}
-
-void handleMatchMenu(JobLinkedList &jobLinkedList, ResumeLinkedList &resumeLinkedList)
+void handleLinkedListMatch(JobLinkedList &jobLinkedList, ResumeLinkedList &resumeLinkedList)
 {
     bool inMatchMenu = true;
     while (inMatchMenu)
@@ -574,99 +605,267 @@ void handleMatchMenu(JobLinkedList &jobLinkedList, ResumeLinkedList &resumeLinke
     }
 }
 
-void handleSearchMenu(JobLinkedList &jobLinkedList, ResumeLinkedList &resumeLinkedList)
-{
-    bool inSearchMenu = true;
-    while (inSearchMenu)
-    {
-        cout << "\n--- SEARCH MENU (LinkedList) ---" << endl;
-        cout << "[1] Search Jobs" << endl;
-        cout << "[2] Search Resumes" << endl;
-        cout << "[3] Back" << endl;
-
-        int searchChoice = getUserChoice(1, 3);
-        switch (searchChoice)
-        {
-        case 1:
-            handleJobSearch(jobLinkedList);
-            break;
-        case 2:
-            handleResumeSearch(resumeLinkedList);
-            break;
-        case 3:
-            inSearchMenu = false;
-            break;
-        }
-    }
-}
-
-void handleSortMenu(JobLinkedList &jobLinkedList, ResumeLinkedList &resumeLinkedList)
-{
-    bool inSortMenu = true;
-    while (inSortMenu)
-    {
-        cout << "\n--- SORT MENU (LinkedList) ---" << endl;
-        cout << "[1] Sort Jobs" << endl;
-        cout << "[2] Sort Resumes" << endl;
-        cout << "[3] Back" << endl;
-
-        int choice = getUserChoice(1, 3);
-        switch (choice)
-        {
-        case 1:
-            handleJobSort(jobLinkedList);
-            break;
-        case 2:
-            handleResumeSort(resumeLinkedList);
-            break;
-        case 3:
-            inSortMenu = false;
-            break;
-        }
-    }
-}
-
 void runLinkedList(JobLinkedList &jobLinkedList, ResumeLinkedList &resumeLinkedList)
 {
-    cout << "\n=== LINKED LIST MODE ===" << endl;
-    bool running = true;
+    createJobLinkedList(jobLinkedList);
+    createResumeLinkedList(resumeLinkedList);
 
-    while (running)
+    while (true)
     {
-        cout << "\nSelect operation: " << endl;
-        cout << "[1] List data" << endl;
-        cout << "[2] Search" << endl;
-        cout << "[3] Sort" << endl;
-        cout << "[4] Match jobs" << endl;
-        cout << "[5] Back to main menu" << endl;
-
-        int choice = getUserChoice(1, 5);
+        int choice = displayMainMenu("LINKED LIST");
         switch (choice)
         {
         case 1:
-            handleListMenu(jobLinkedList, resumeLinkedList);
+            handleListLinkedList(jobLinkedList, resumeLinkedList);
             break;
         case 2:
-            handleSearchMenu(jobLinkedList, resumeLinkedList);
+            handleLinkedListSearch(jobLinkedList, resumeLinkedList);
             break;
         case 3:
-            handleSortMenu(jobLinkedList, resumeLinkedList);
+            handleLinkedListSort(jobLinkedList, resumeLinkedList);
             break;
         case 4:
-            handleMatchMenu(jobLinkedList, resumeLinkedList);
+            handleLinkedListMatch(jobLinkedList, resumeLinkedList);
             break;
         case 5:
-            running = false;
-            break;
+            return;
         }
     }
 }
 
 // Circular Linked List Menu
 
-void runCircularLinkedList(JobCircularLinkedList &jobCircularLinkedList)
+void handleCircularListLinkedList(JobCircularLinkedList &jobCircularLinkedList, ResumeCircularLinkedList &resumeCircularLinkedList)
 {
-    cout << "\n=== CIRCULAR LINKED LIST MODE ===" << endl;
+    cout << "\n--- Circular Linked List Data ---" << endl;
+    cout << "[1] List Jobs" << endl;
+    cout << "[2] List Resumes" << endl;
+    cout << "[3] Back" << endl;
+
+    int listChoice = getUserChoice(1, 3);
+    switch (listChoice)
+    {
+    case 1:
+        cout << "\n--- JOBS ---\n";
+        jobCircularLinkedList.printSlice();
+        break;
+    case 2:
+        cout << "\n--- RESUMES ---\n";
+        resumeCircularLinkedList.printSlice();
+        break;
+    case 3:
+        return;
+    }
+}
+
+void handleCircularLinkedListSearch(JobCircularLinkedList &jobCircularLinkedList, ResumeCircularLinkedList &resumeCircularLinkedList)
+{
+    while (true)
+    {
+        int searchMenu = displaySearchMenu("CIRCULAR LINKED LIST");
+        if (searchMenu == 3)
+            return;
+
+        switch (searchMenu)
+        {
+        case 1: // Search Jobs
+        {
+            int jobSearch = 0;
+            while (jobSearch != 3)
+            {
+                cout << "\n--- SEARCH JOBS (CircularLinkedList) ---" << endl;
+                cout << "[1] Search By Position" << endl;
+                cout << "[2] Search By Skills" << endl;
+                cout << "[3] Back" << endl;
+
+                int choice = getUserChoice(1, 3);
+                if (choice == 3)
+                    return;
+
+                int algo = selectSearchAlgorithm();
+
+                if (choice == 1)
+                {
+                    string keyword;
+                    cout << "Enter job position keyword: ";
+                    cin.ignore();
+                    getline(cin, keyword);
+
+                    cout << ((algo == 1) ? "\nLinear Search..." : "\nBinary Search...") << endl;
+                    JobCircularLinkedList *result = (algo == 1)
+                                                        ? jobCircularLinkedList.linearSearchJobByPosition(keyword)
+                                                        : jobCircularLinkedList.binarySearchJobByPosition(keyword);
+                    if (result)
+                        result->printSlice();
+                    else
+                        cout << "No jobs found.\n";
+                }
+                else if (choice == 2)
+                {
+                    string skills[2];
+                    cout << "Enter skill 1: ";
+                    cin.ignore();
+                    getline(cin, skills[0]);
+                    cout << "Enter skill 2: ";
+                    getline(cin, skills[1]);
+
+                    cout << ((algo == 1) ? "\nLinear Search..." : "\nBinary Search...") << endl;
+                    JobCircularLinkedList *result = (algo == 1)
+                                                        ? jobCircularLinkedList.linearSearchJobBySkills(skills, 2, false)
+                                                        : jobCircularLinkedList.binarySearchJobBySkills(skills, 2, false);
+                    if (result)
+                        result->printSlice();
+                    else
+                        cout << "No jobs found.\n";
+                }
+            }
+            break;
+        }
+        case 2: // Search Resumes
+        {
+            int algo = selectSearchAlgorithm();
+            if (algo == 3)
+                break;
+
+            string skills[2];
+            cout << "Enter skill 1: ";
+            cin.ignore();
+            getline(cin, skills[0]);
+            cout << "Enter skill 2: ";
+            getline(cin, skills[1]);
+
+            ResumeCircularLinkedList *result = (algo == 1)
+                                                   ? resumeCircularLinkedList.linearSearchResumeBySkills(skills, 2, false)
+                                                   : resumeCircularLinkedList.binarySearchResumeBySkills(skills, 2, false);
+
+            if (result)
+                result->printSlice();
+            else
+                cout << "No resume found.\n";
+            delete result;
+            break;
+        }
+        }
+    }
+}
+
+void handleCircularLinkedListSort(JobCircularLinkedList &jobCircularLinkedList, ResumeCircularLinkedList &resumeCircularLinkedList)
+{
+    while (true)
+    {
+        int sortMenu = displaySortMenu("CIRCULAR LINKED LIST");
+        if (sortMenu == 3)
+            return;
+        switch (sortMenu)
+        {
+        case 1: // Sort Jobs
+        {
+            cout << "\n--- SORT JOBS ---" << endl;
+            cout << "[1] Sort By Position\n";
+            cout << "[2] Sort By Skills\n";
+            cout << "[3] Sort By Skill Count\n";
+            cout << "[4] Back\n";
+            int choice = getUserChoice(1, 4);
+            if (choice == 4)
+                return;
+
+            int algo = selectSortAlgorithm();
+
+            if (algo == 1)
+                cout << "\nPerforming Merge Sort\n";
+            else
+                cout << "\nPerforming Quick Sort\n";
+
+            if (choice == 1)
+                (algo == 1) ? jobCircularLinkedList.mergeSortBy("position") : jobCircularLinkedList.quickSortByPosition();
+            else if (choice == 2)
+                (algo == 1) ? jobCircularLinkedList.mergeSortBy("skill") : jobCircularLinkedList.quickSortBySkill();
+            else
+                (algo == 1) ? jobCircularLinkedList.mergeSortBy("skillCount") : jobCircularLinkedList.quickSortBySkillCount();
+
+            jobCircularLinkedList.printSlice();
+            break;
+        }
+
+        case 2: // Sort Resume
+        {
+            cout << "\n--- SORT RESUMES (CircularLinkedList) ---" << endl;
+            cout << "[1] Sort By Skills\n";
+            cout << "[2] Sort By Skill Count\n";
+            cout << "[3] Back\n";
+            int choice = getUserChoice(1, 3);
+            if (choice == 3)
+                return;
+
+            int algo = selectSortAlgorithm();
+
+            if (choice == 1)
+                (algo == 1) ? resumeCircularLinkedList.mergeSortBy("skill") : resumeCircularLinkedList.quickSortBySkill();
+            else
+                (algo == 1) ? resumeCircularLinkedList.mergeSortBy("skillCount") : resumeCircularLinkedList.quickSortBySkillCount();
+
+            resumeCircularLinkedList.printSlice();
+        }
+        }
+    }
+}
+
+void handleCircularLinkedListMatch(JobCircularLinkedList &jobCircularLinkedList, ResumeCircularLinkedList &resumeCircularLinkedList)
+{
+    bool inMatchMenu = true;
+    while (inMatchMenu)
+    {
+        cout << "\n--- JOB MATCHING (CircularLinkedList) ---" << endl;
+        cout << "[1] Match resumes by job" << endl;
+        cout << "[2] Match jobs by resume" << endl;
+        cout << "[3] Match all" << endl;
+        cout << "[4] Back" << endl;
+
+        int matchChoice = getUserChoice(1, 4);
+        switch (matchChoice)
+        {
+        case 1:
+            cout << "Matching resumes by job...\n";
+            break;
+        case 2:
+            cout << "Matching jobs by resume...\n";
+            break;
+        case 3:
+            cout << "Matching all...\n";
+            break;
+        case 4:
+            inMatchMenu = false;
+            break;
+        }
+    }
+}
+
+void runCircularLinkedList(JobCircularLinkedList &jobCircularLinkedList, ResumeCircularLinkedList &resumeCircularLinkedList)
+{
+    createJobCircularLinkedList(jobCircularLinkedList);
+    createResumeCircularLinkedList(resumeCircularLinkedList);
+
+    while (true)
+    {
+        int choice = displayMainMenu("CIRCULAR LINKED LIST");
+        switch (choice)
+        {
+        case 1:
+            handleCircularListLinkedList(jobCircularLinkedList, resumeCircularLinkedList);
+            break;
+        case 2:
+            handleCircularLinkedListSearch(jobCircularLinkedList, resumeCircularLinkedList);
+            break;
+        case 3:
+            handleCircularLinkedListSort(jobCircularLinkedList, resumeCircularLinkedList);
+            break;
+        case 4:
+            handleCircularLinkedListMatch(jobCircularLinkedList, resumeCircularLinkedList);
+            break;
+        case 5:
+            return;
+        }
+    }
 }
 
 // Summary Report
