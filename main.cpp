@@ -11,25 +11,11 @@
 #include "Array/JobArray/JobArray.hpp"
 #include "Array/ResumeArray/ResumeArray.hpp"
 #include "JobMatching/JobMatching.hpp"
+#include "Menu/MenuHandler.hpp"
 
 using namespace std;
 
-void runArray()
-{
-    cout << "array" << endl;
-}
-
-void runLinkedList()
-{
-    cout << "linkedlist: " << endl;
-}
-
-void summary()
-{
-    cout << "summary" << endl;
-}
-
-void displayMenu()
+void displayMenu(JobArray &jobArray, ResumeArray &resumeArray, JobLinkedList &jobLinkedList, ResumeLinkedList &resumelinkedList, JobCircularLinkedList &jobCircularLinkedList)
 {
     int userChoice;
 
@@ -38,8 +24,9 @@ void displayMenu()
         cout << "\nSelect operation: " << endl;
         cout << "[1] Array" << endl;
         cout << "[2] Linked List" << endl;
-        cout << "[3] Summary" << endl;
-        cout << "[4] Exit" << endl;
+        cout << "[3] Circular Linked List" << endl;
+        cout << "[4] Summary" << endl;
+        cout << "[5] Exit" << endl;
         cout << "Enter choice: ";
 
         if (!(cin >> userChoice))
@@ -53,15 +40,18 @@ void displayMenu()
         switch (userChoice)
         {
         case 1:
-            runArray();
+            runArray(jobArray, resumeArray);
             break;
         case 2:
-            runLinkedList();
+            runLinkedList(jobLinkedList, resumelinkedList);
             break;
         case 3:
-            summary();
+            runCircularLinkedList(jobCircularLinkedList);
             break;
         case 4:
+            summary();
+            break;
+        case 5:
             cout << "Exiting program..." << endl;
             return;
         default:
@@ -94,8 +84,19 @@ int main()
     // ResumeLinkedList *matchedJobs = resumelinkedList.binarySearchResumeBySkills(skills, 4, true);
     // ResumeLinkedList *matchedJobs = resumelinkedList.linearSearchResumeBySkills(skills, 4, true);
 
-    resumelinkedList.quickSortBySkillCount();
+    // resumelinkedList.quickSortBySkillCount();
     // matchedJobs->printSlice();
 
-    resumelinkedList.printSlice();
+    // resumelinkedList.printSlice();
+    // createJobArray(jobArray);
+    // JobArray *result = jobArray.linearSearchByPosition("Data Analyst");
+    // result->printJobs();
+
+    // createResumeArray(resumeArray);
+    // resumeArray.quickSortBySkill();
+    // const string skills[] = {"python", "pandas"};
+    // ResumeArray *resumeResult = resumeArray.binarySearchBySkills(skills, 2, true);
+    // resumeResult->printResumes();
+
+    displayMenu(jobArray, resumeArray, jobLinkedList, resumelinkedList, jobCircularLinkedList);
 }

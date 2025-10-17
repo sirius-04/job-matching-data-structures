@@ -3,13 +3,15 @@ INC = -I. \
       -I./LinkedList \
       -I./JobMatching \
       -I./models \
-      -I./utils
+      -I./utils \
+      -I./Menu \
 
 SRC = $(wildcard *.cpp) \
 			$(wildcard Array/**/*.cpp) \
       $(wildcard LinkedList/**/*.cpp) \
       $(wildcard CircularLinkedList/**/*.cpp) \
       $(wildcard models/**/*.cpp) \
+      $(wildcard Menu/*.cpp) \
       $(wildcard utils/**/*.cpp)
 #       $(wildcard JobMatching/*.cpp) \
 
