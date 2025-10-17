@@ -192,6 +192,32 @@ void createJobCircularLinkedList(JobCircularLinkedList &jobCircularLinkedList)
     file.close();
 }
 
+void createResumeCircularLinkedList(ResumeCircularLinkedList &resumeCircularLinkedList)
+{
+    ifstream file("dataset/cleaned_resume_v2.csv");
+    if (!file.is_open())
+    {
+        cerr << "Error: Could not open file.\n";
+        return;
+    }
+
+    string line;
+    getline(file, line); // Skip header line
+
+    while (getline(file, line))
+    {
+        stringstream ss(line);
+        string idStr, skillStr;
+
+        // Split columns
+        getline(ss, idStr, ',');
+        getline(ss, skillStr, '\n');
+
+        // Clean the strings
+        idStr = ResumeCircularLinkedList::cleanString(idStr);
+        skillStr = ResumeCircularLinkedList::cleanString(skillStr);
+
+        // Convert ID
 void createJobArray(JobArray &jobArray)
 {
     ifstream file("dataset/cleaned_jobDescription_v2.csv");
@@ -225,6 +251,36 @@ void createJobArray(JobArray &jobArray)
         }
         catch (...)
         {
+            cerr << "Warning: Invalid ID \"" << idStr << "\", skipping.\n";
+            continue;
+        }
+
+        // Split skills
+        string tempSkills[100];
+        int count = 0;
+
+        stringstream sk(skillStr);
+        string skill;
+        while (getline(sk, skill, ','))
+        {
+            skill = ResumeCircularLinkedList::cleanString(skill);
+            if (!skill.empty() && count < 100)
+                tempSkills[count++] = skill;
+        }
+
+        // Create dynamic array
+        string *skills = new string[count];
+        for (int i = 0; i < count; i++)
+            skills[i] = tempSkills[i];
+
+        // Create Resume object and append to circular linked list
+        Resume resume(id, skills, count);
+        resumeCircularLinkedList.append(resume);
+
+        delete[] skills; // Cleanup
+    }
+
+    file.close();
             cerr << "Invalid ID: " << idStr << endl;
             continue;
         }

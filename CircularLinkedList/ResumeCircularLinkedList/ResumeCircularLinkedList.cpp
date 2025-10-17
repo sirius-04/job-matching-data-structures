@@ -1,20 +1,20 @@
-#include "JobCircularLinkedList.hpp"
+#include "ResumeCircularLinkedList.hpp"
 #include <algorithm>
 
-JobCircularLinkedList::JobCircularLinkedList()
+ResumeCircularLinkedList::ResumeCircularLinkedList()
 {
     head = nullptr;
     tail = nullptr;
     length = 0;
 }
 
-JobCircularLinkedList::~JobCircularLinkedList()
+ResumeCircularLinkedList::~ResumeCircularLinkedList()
 {
     if (head == nullptr)
         return;
 
-    JobNode *current = head;
-    JobNode *temp;
+    ResumeNode *current = head;
+    ResumeNode *temp;
 
     // Break the circular link first
     tail->next = nullptr;
@@ -31,9 +31,9 @@ JobCircularLinkedList::~JobCircularLinkedList()
     length = 0;
 }
 
-void JobCircularLinkedList::append(Job data)
+void ResumeCircularLinkedList::append(Resume data)
 {
-    JobNode *newNode = new JobNode(data);
+    ResumeNode *newNode = new ResumeNode(data);
 
     if (length == 0)
     {
@@ -51,9 +51,9 @@ void JobCircularLinkedList::append(Job data)
     length++;
 }
 
-void JobCircularLinkedList::prepend(Job data)
+void ResumeCircularLinkedList::prepend(Resume data)
 {
-    JobNode *newNode = new JobNode(data);
+    ResumeNode *newNode = new ResumeNode(data);
 
     if (length == 0)
     {
@@ -71,12 +71,12 @@ void JobCircularLinkedList::prepend(Job data)
     length++;
 }
 
-void JobCircularLinkedList::deleteFirst()
+void ResumeCircularLinkedList::deleteFirst()
 {
     if (length == 0)
         return;
 
-    JobNode *temp = head;
+    ResumeNode *temp = head;
 
     if (length == 1)
     {
@@ -93,7 +93,7 @@ void JobCircularLinkedList::deleteFirst()
     length--;
 }
 
-void JobCircularLinkedList::deleteLast()
+void ResumeCircularLinkedList::deleteLast()
 {
     if (length == 0)
         return;
@@ -107,7 +107,7 @@ void JobCircularLinkedList::deleteLast()
         return;
     }
 
-    JobNode *current = head;
+    ResumeNode *current = head;
     while (current->next != tail)
     {
         current = current->next;
@@ -119,14 +119,14 @@ void JobCircularLinkedList::deleteLast()
     length--;
 }
 
-JobNode *JobCircularLinkedList::get(int index)
+ResumeNode *ResumeCircularLinkedList::get(int index)
 {
     if (index < 0 || index >= length || length == 0)
     {
         return nullptr;
     }
 
-    JobNode *temp = head;
+    ResumeNode *temp = head;
 
     for (int i = 0; i < index; i++)
     {
@@ -136,29 +136,28 @@ JobNode *JobCircularLinkedList::get(int index)
     return temp;
 }
 
-bool JobCircularLinkedList::set(int index, const string &position, const string *skills, int skillCount)
+bool ResumeCircularLinkedList::set(int index, const string *skills, int skillCount)
 {
-    JobNode *temp = get(index);
+    ResumeNode *temp = get(index);
     if (!temp)
         return false;
 
-    Job &job = temp->data;
+    Resume &resume = temp->data;
 
-    job.position = position;
-
-    delete[] job.skills;
-    job.skills = new string[skillCount];
+    // Free old skills before assigning new ones
+    delete[] resume.skills;
+    resume.skills = new string[skillCount];
     for (int i = 0; i < skillCount; ++i)
     {
-        job.skills[i] = skills[i];
+        resume.skills[i] = skills[i];
     }
 
-    job.skillCount = skillCount;
+    resume.skillCount = skillCount;
 
     return true;
 }
 
-bool JobCircularLinkedList::insert(int index, Job data)
+bool ResumeCircularLinkedList::insert(int index, Resume data)
 {
     if (index < 0 || index > length)
         return false;
@@ -173,8 +172,8 @@ bool JobCircularLinkedList::insert(int index, Job data)
     }
     else
     {
-        JobNode *newNode = new JobNode(data);
-        JobNode *temp = get(index - 1);
+        ResumeNode *newNode = new ResumeNode(data);
+        ResumeNode *temp = get(index - 1);
 
         newNode->next = temp->next;
         temp->next = newNode;
@@ -183,7 +182,7 @@ bool JobCircularLinkedList::insert(int index, Job data)
     return true;
 }
 
-void JobCircularLinkedList::deleteNode(int index)
+void ResumeCircularLinkedList::deleteNode(int index)
 {
     if (index < 0 || index >= length)
         return;
@@ -198,8 +197,8 @@ void JobCircularLinkedList::deleteNode(int index)
     }
     else
     {
-        JobNode *prev = get(index - 1);
-        JobNode *temp = prev->next;
+        ResumeNode *prev = get(index - 1);
+        ResumeNode *temp = prev->next;
 
         prev->next = temp->next;
 
@@ -208,16 +207,16 @@ void JobCircularLinkedList::deleteNode(int index)
     }
 }
 
-void JobCircularLinkedList::reverse()
+void ResumeCircularLinkedList::reverse()
 {
     if (length <= 1)
         return;
 
-    JobNode *prev = tail;
-    JobNode *current = head;
-    JobNode *next;
+    ResumeNode *prev = tail;
+    ResumeNode *current = head;
+    ResumeNode *next;
 
-    JobNode *oldHead = head;
+    ResumeNode *oldHead = head;
     head = tail;
     tail = oldHead;
 
@@ -230,53 +229,30 @@ void JobCircularLinkedList::reverse()
     }
 }
 
-int JobCircularLinkedList::getLength()
+int ResumeCircularLinkedList::getLength()
 {
     return length;
 }
 
-JobCircularLinkedList *JobCircularLinkedList::linearSearchJobByPosition(const string &position)
+ResumeCircularLinkedList *ResumeCircularLinkedList::linearSearchResumeBySkills(const string *skillSet, int skillCount, bool matchAll)
 {
-    if (position.empty() || length == 0)
-        return nullptr;
+    ResumeCircularLinkedList *resumeListBySkills = new ResumeCircularLinkedList();
 
-    JobCircularLinkedList *jobListByPosition = new JobCircularLinkedList();
+    if (skillSet == nullptr || skillCount <= 0 || length == 0)
+        return resumeListBySkills;
 
-    JobNode *current = head;
-    for (int i = 0; i < length; i++)
-    {
-        if (current->data.position == position)
-        {
-            jobListByPosition->append(current->data);
-        }
-        current = current->next;
-    }
-
-    return jobListByPosition;
-}
-
-JobCircularLinkedList *JobCircularLinkedList::linearSearchJobBySkills(const string *skillSet, int skillCount, bool matchAll)
-{
-    if (skillSet == nullptr || skillCount <= 0)
-        return new JobCircularLinkedList();
-
-    JobCircularLinkedList *jobListBySkills = new JobCircularLinkedList();
-
-    if (length == 0)
-        return jobListBySkills;
-
-    JobNode *current = head;
+    ResumeNode *current = head;
 
     for (int i = 0; i < length; i++)
     {
-        const Job &job = current->data;
+        const Resume &resume = current->data;
         int matchCount = 0;
 
         for (int j = 0; j < skillCount; ++j)
         {
-            for (int k = 0; k < job.skillCount; ++k)
+            for (int k = 0; k < resume.skillCount; ++k)
             {
-                if (skillSet[j] == job.skills[k])
+                if (skillSet[j] == resume.skills[k])
                 {
                     matchCount++;
                     break;
@@ -287,20 +263,20 @@ JobCircularLinkedList *JobCircularLinkedList::linearSearchJobBySkills(const stri
         bool isMatch = matchAll ? (matchCount == skillCount) : (matchCount > 0);
 
         if (isMatch)
-            jobListBySkills->append(job);
+            resumeListBySkills->append(resume);
 
         current = current->next;
     }
 
-    return jobListBySkills;
+    return resumeListBySkills;
 }
 
-JobNode *JobCircularLinkedList::split(JobNode *start, int len)
+ResumeNode *ResumeCircularLinkedList::split(ResumeNode *start, int len)
 {
     if (len <= 1)
         return nullptr;
 
-    JobNode *slow = start;
+    ResumeNode *slow = start;
     int mid = len / 2;
 
     for (int i = 0; i < mid - 1; i++)
@@ -308,12 +284,12 @@ JobNode *JobCircularLinkedList::split(JobNode *start, int len)
         slow = slow->next;
     }
 
-    JobNode *second = slow->next;
+    ResumeNode *second = slow->next;
     slow->next = nullptr;
     return second;
 }
 
-JobNode *JobCircularLinkedList::merge(JobNode *first, JobNode *second, CompareFn compare)
+ResumeNode *ResumeCircularLinkedList::merge(ResumeNode *first, ResumeNode *second, CompareFn compare)
 {
     if (!first)
         return second;
@@ -332,12 +308,12 @@ JobNode *JobCircularLinkedList::merge(JobNode *first, JobNode *second, CompareFn
     }
 }
 
-JobNode *JobCircularLinkedList::mergeSort(JobNode *start, int len, CompareFn compare)
+ResumeNode *ResumeCircularLinkedList::mergeSort(ResumeNode *start, int len, CompareFn compare)
 {
     if (!start || len <= 1)
         return start;
 
-    JobNode *second = split(start, len);
+    ResumeNode *second = split(start, len);
 
     int firstLen = len / 2;
     int secondLen = len - firstLen;
@@ -348,17 +324,17 @@ JobNode *JobCircularLinkedList::mergeSort(JobNode *start, int len, CompareFn com
     return merge(start, second, compare);
 }
 
-bool JobCircularLinkedList::compareByPosition(JobNode *a, JobNode *b)
+bool ResumeCircularLinkedList::compareById(ResumeNode *a, ResumeNode *b)
 {
-    return a->data.position < b->data.position;
+    return a->data.id < b->data.id;
 }
 
-bool JobCircularLinkedList::compareBySkillCount(JobNode *a, JobNode *b)
+bool ResumeCircularLinkedList::compareBySkillCount(ResumeNode *a, ResumeNode *b)
 {
     return a->data.skillCount < b->data.skillCount;
 }
 
-bool JobCircularLinkedList::compareBySkill(JobNode *a, JobNode *b)
+bool ResumeCircularLinkedList::compareBySkill(ResumeNode *a, ResumeNode *b)
 {
     if (a->data.skillCount == 0 || b->data.skillCount == 0)
     {
@@ -376,7 +352,7 @@ bool JobCircularLinkedList::compareBySkill(JobNode *a, JobNode *b)
     return a->data.skillCount < b->data.skillCount;
 }
 
-void JobCircularLinkedList::mergeSortBy(string criterion)
+void ResumeCircularLinkedList::mergeSortBy(const string &criterion)
 {
     if (length <= 1)
         return;
@@ -384,9 +360,9 @@ void JobCircularLinkedList::mergeSortBy(string criterion)
     // Break circular link for sorting
     tail->next = nullptr;
 
-    if (criterion == "position")
+    if (criterion == "id")
     {
-        head = mergeSort(head, length, compareByPosition);
+        head = mergeSort(head, length, compareById);
     }
     else if (criterion == "skillCount")
     {
@@ -404,7 +380,8 @@ void JobCircularLinkedList::mergeSortBy(string criterion)
     tail->next = head;
 }
 
-string JobCircularLinkedList::cleanString(string s)
+// ======= Clean String =======
+string ResumeCircularLinkedList::cleanString(string s)
 {
     s.erase(remove(s.begin(), s.end(), '"'), s.end());
     while (!s.empty() && isspace(s.front()))
@@ -414,23 +391,25 @@ string JobCircularLinkedList::cleanString(string s)
     return s;
 }
 
-void JobCircularLinkedList::printSlice()
+// ======= Display Slice =======
+void ResumeCircularLinkedList::printSlice()
 {
     if (length == 0)
     {
-        cout << "\n===== Job Circular Linked List (Empty) =====\n\n";
+        cout << "\n===== Resume Circular Linked List (Empty) =====\n\n";
         return;
     }
 
-    JobNode *p = head;
+    ResumeNode *p = head;
     int index = 0;
-    cout << "\n===== Job Circular Linked List (Showing first 10 and last 10) =====\n";
+
+    cout << "\n===== Resume Circular Linked List (Showing first 10 and last 10) =====\n";
 
     for (int i = 0; i < length; i++)
     {
         if (index < 5 || index >= length - 5)
         {
-            cout << "|" << p->data.id << "| " << p->data.position << " | Skills: ";
+            cout << "|" << p->data.id << " | Skills: ";
             for (int j = 0; j < p->data.skillCount; j++)
             {
                 cout << p->data.skills[j];
@@ -441,7 +420,7 @@ void JobCircularLinkedList::printSlice()
         }
         else if (index == 5)
         {
-            cout << "...\n...\n...(skipping " << length - 10 << " jobs)...\n...\n...\n";
+            cout << "...\n...\n...(skipping " << length - 10 << " resumes)...\n...\n...\n";
         }
 
         p = p->next;
@@ -451,105 +430,157 @@ void JobCircularLinkedList::printSlice()
     cout << endl;
 }
 
-void JobCircularLinkedList::swap(JobNode *a, JobNode *b)
+// ======= Swap =======
+void ResumeCircularLinkedList::swap(ResumeNode *a, ResumeNode *b)
 {
-    std::swap(a->data.id, b->data.id);
-    std::swap(a->data.position, b->data.position);
-    std::swap(a->data.skills, b->data.skills);
-    std::swap(a->data.skillCount, b->data.skillCount);
+    // Swap the entire Resume data structure
+    Resume temp = a->data;
+    a->data = b->data;
+    b->data = temp;
 }
 
-JobNode *JobCircularLinkedList::partitionBySkillCount(JobNode *low, JobNode *high)
+// ======= Partition =======
+ResumeNode *ResumeCircularLinkedList::partitionBySkillCount(ResumeNode *low, ResumeNode *high)
 {
+    if (!low || !high)
+        return nullptr;
+
     int pivot = high->data.skillCount;
-    JobNode *i = low;
-    for (JobNode *j = low; j != high; j = j->next)
+    ResumeNode *i = nullptr; // i points to the last element < pivot
+
+    for (ResumeNode *j = low; j != high; j = j->next)
     {
+        if (!j) // Safety check
+            break;
+
         if (j->data.skillCount < pivot)
         {
+            // First element less than pivot
+            if (i == nullptr)
+                i = low;
+            else
+                i = i->next;
+
             swap(i, j);
-            i = i->next;
         }
     }
+
+    // Place pivot in correct position
+    if (i == nullptr)
+        i = low;
+    else
+        i = i->next;
+
     swap(i, high);
     return i;
 }
 
-JobNode *JobCircularLinkedList::partitionBySkill(JobNode *low, JobNode *high)
+ResumeNode *ResumeCircularLinkedList::partitionBySkill(ResumeNode *low, ResumeNode *high)
 {
+    if (!low || !high)
+        return nullptr;
+
     string pivot = (high->data.skillCount > 0) ? high->data.skills[0] : "";
-    JobNode *i = low;
-    for (JobNode *j = low; j != high; j = j->next)
+    ResumeNode *i = nullptr;
+
+    for (ResumeNode *j = low; j != high; j = j->next)
     {
+        if (!j)
+            break;
+
         string firstSkillJ = (j->data.skillCount > 0) ? j->data.skills[0] : "";
+
         if (firstSkillJ < pivot)
         {
+            // First element less than pivot
+            if (i == nullptr)
+                i = low;
+            else
+                i = i->next;
+
             swap(i, j);
-            i = i->next;
         }
     }
+
+    // Place pivot in correct position
+    if (i == nullptr)
+        i = low;
+    else
+        i = i->next;
+
     swap(i, high);
     return i;
 }
 
-JobNode *JobCircularLinkedList::partitionByPosition(JobNode *low, JobNode *high)
+// ======= QuickSort Core =======
+void ResumeCircularLinkedList::quickSort(ResumeNode *low, ResumeNode *high, const string &type)
 {
-    string pivot = high->data.position;
-    JobNode *i = low;
-    for (JobNode *j = low; j != high; j = j->next)
-    {
-        if (j->data.position < pivot)
-        {
-            swap(i, j);
-            i = i->next;
-        }
-    }
-    swap(i, high);
-    return i;
-}
-
-void JobCircularLinkedList::quickSort(JobNode *low, JobNode *high, const string &type)
-{
+    // Base cases
     if (!low || !high || low == high)
         return;
 
-    JobNode *pivot = nullptr;
+    ResumeNode *temp = low;
+    bool found = false;
+    while (temp)
+    {
+        if (temp == high)
+        {
+            found = true;
+            break;
+        }
+        temp = temp->next;
+    }
+
+    if (!found)
+        return;
+
+    // Partition
+    ResumeNode *pivot = nullptr;
     if (type == "skillCount")
         pivot = partitionBySkillCount(low, high);
     else if (type == "skill")
         pivot = partitionBySkill(low, high);
-    else if (type == "position")
-        pivot = partitionByPosition(low, high);
 
-    JobNode *beforePivot = low;
-    while (beforePivot && beforePivot->next != pivot)
-        beforePivot = beforePivot->next;
+    if (!pivot)
+        return;
 
-    if (beforePivot != nullptr && low != pivot)
+    // Find node before pivot for left partition
+    ResumeNode *beforePivot = nullptr;
+    if (low != pivot)
+    {
+        beforePivot = low;
+        while (beforePivot && beforePivot->next != pivot)
+            beforePivot = beforePivot->next;
+    }
+
+    // Sort left partition (from low to beforePivot)
+    if (beforePivot && low != pivot)
         quickSort(low, beforePivot, type);
 
-    if (pivot != nullptr && pivot->next != nullptr)
+    // Sort right partition (from pivot->next to high)
+    if (pivot && pivot != high && pivot->next)
         quickSort(pivot->next, high, type);
 }
 
-JobNode *JobCircularLinkedList::sortTail()
+ResumeNode *ResumeCircularLinkedList::sortTail()
 {
-    if (length == 0)
+    if (!head || length == 0)
         return nullptr;
 
-    JobNode *temp = head;
+    ResumeNode *temp = head;
     for (int i = 0; i < length - 1; i++)
         temp = temp->next;
     return temp;
 }
 
-void JobCircularLinkedList::quickSortBySkillCount()
+// ======= Sort Wrappers =======
+void ResumeCircularLinkedList::quickSortBySkillCount()
 {
-    if (length <= 1)
+    if (!head || length <= 1)
         return;
 
     tail->next = nullptr; // Break circular link
-    JobNode *lastNode = sortTail();
+    ResumeNode *lastNode = sortTail();
     quickSort(head, lastNode, "skillCount");
 
     // Restore circular link
@@ -559,13 +590,13 @@ void JobCircularLinkedList::quickSortBySkillCount()
     tail->next = head;
 }
 
-void JobCircularLinkedList::quickSortBySkill()
+void ResumeCircularLinkedList::quickSortBySkill()
 {
-    if (length <= 1)
+    if (!head || length <= 1)
         return;
 
     tail->next = nullptr; // Break circular link
-    JobNode *lastNode = sortTail();
+    ResumeNode *lastNode = sortTail();
     quickSort(head, lastNode, "skill");
 
     // Restore circular link
@@ -575,117 +606,16 @@ void JobCircularLinkedList::quickSortBySkill()
     tail->next = head;
 }
 
-void JobCircularLinkedList::quickSortByPosition()
+ResumeCircularLinkedList *ResumeCircularLinkedList::binarySearchResumeBySkills(const string *skills, int skillCount, bool matchAll)
 {
-    if (length <= 1)
-        return;
-
-    tail->next = nullptr; // Break circular link
-    JobNode *lastNode = sortTail();
-    quickSort(head, lastNode, "position");
-
-    // Restore circular link
-    tail = head;
-    while (tail->next != nullptr)
-        tail = tail->next;
-    tail->next = head;
-}
-
-JobNode *JobCircularLinkedList::getMiddle(JobNode *start, JobNode *end)
-{
-    if (start == nullptr)
-        return nullptr;
-
-    JobNode *slow = start;
-    JobNode *fast = start->next;
-
-    while (fast != end)
-    {
-        fast = fast->next;
-        if (fast != end)
-        {
-            slow = slow->next;
-            fast = fast->next;
-        }
-    }
-
-    return slow;
-}
-
-JobCircularLinkedList *JobCircularLinkedList::binarySearchJobByPosition(const string &positionKeyword)
-{
-    if (head == nullptr)
-        return new JobCircularLinkedList();
-
-    JobCircularLinkedList *matches = new JobCircularLinkedList();
-
-    // Break circular link and sort
-    tail->next = nullptr;
-    quickSortByPosition();
-    tail->next = head; // Restore circular link
-
-    // Break again for binary search
-    tail->next = nullptr;
-    JobNode *start = head;
-    JobNode *end = nullptr;
-
-    while (start != end)
-    {
-        JobNode *mid = getMiddle(start, end);
-        if (mid == nullptr)
-            break;
-
-        string currentPos = mid->data.position;
-
-        if (currentPos == positionKeyword)
-        {
-            matches->append(mid->data);
-
-            JobNode *left = head;
-            while (left != mid)
-            {
-                if (left->data.position == positionKeyword)
-                    matches->append(left->data);
-                left = left->next;
-            }
-
-            JobNode *right = mid->next;
-            while (right != end)
-            {
-                if (right->data.position == positionKeyword)
-                    matches->append(right->data);
-                right = right->next;
-            }
-
-            break;
-        }
-        else if (currentPos < positionKeyword)
-        {
-            start = mid->next;
-        }
-        else
-        {
-            end = mid;
-        }
-    }
-
-    // Restore circular link
-    tail->next = head;
-
-    return matches;
-}
-
-JobCircularLinkedList *JobCircularLinkedList::binarySearchJobBySkills(const string *skills, int skillCount, bool matchAll)
-{
-    JobCircularLinkedList *matches = new JobCircularLinkedList();
+    ResumeCircularLinkedList *matches = new ResumeCircularLinkedList();
 
     if (head == nullptr || skills == nullptr || skillCount <= 0)
         return matches;
 
-    JobNode *p = head;
+    ResumeNode *p = head;
     for (int idx = 0; idx < length; idx++)
     {
-        // Sort this job's skills array for binary search
         for (int i = 0; i < p->data.skillCount - 1; ++i)
         {
             for (int j = 0; j < p->data.skillCount - i - 1; ++j)
@@ -701,6 +631,7 @@ JobCircularLinkedList *JobCircularLinkedList::binarySearchJobBySkills(const stri
 
         int matched = 0;
 
+        // For each skill in search criteria
         for (int s = 0; s < skillCount; ++s)
         {
             bool found = false;
@@ -727,6 +658,7 @@ JobCircularLinkedList *JobCircularLinkedList::binarySearchJobBySkills(const stri
                 matched++;
         }
 
+        // Determine if the resume matches based on matchAll flag
         bool isMatch = matchAll ? (matched == skillCount) : (matched > 0);
 
         if (isMatch)
