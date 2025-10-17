@@ -8,6 +8,7 @@
 #include "../Array/JobArray/JobArray.hpp"
 #include "../Array/ResumeArray/ResumeArray.hpp"
 #include "../models/MatchResult/MatchResult.hpp"
+#include "../models/SkillWeight/SkillWeight.hpp"
 #include <iostream>
 #include <windows.h>
 #include <psapi.h>
@@ -79,7 +80,9 @@ public:
 
     // algorithms
     MatchResultList* ruleBasedMatch(const string *skillSet, int skillCount, bool matchAll);
-    double calculateWeightedScore(const string* inputSkills, int inputCount, const string* targetSkills, int targetCount);
+
+    SkillWeightList* promptSkillWeights(const string* skillSet, int skillCount);
+    double calculateWeightedScore(const string* inputSkills, int inputCount, const string* targetSkills, int targetCount, const SkillWeightList& weightList);
     MatchResultList* weightedScoringMatch(const string *skillSet, int skillCount, bool matchAll);
 
     MatchResultList* runMatching(const string* skillSet, int skillCount, bool matchAll);

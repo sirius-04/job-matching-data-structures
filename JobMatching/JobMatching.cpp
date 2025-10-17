@@ -206,28 +206,74 @@ MatchResultList* JobMatching::ruleBasedMatch(const string* skillSet, int skillCo
     return results;
 }
 
+SkillWeightList* JobMatching::promptSkillWeights(const string* skillSet, int skillCount) {
+    cout << "\n===== Skill Weight Configuration =====" << endl;
+
+    SkillWeightList* weightList = new SkillWeightList(skillCount);
+
+    for (int i = 0; i < skillCount; i++) {
+        int weight;
+        while (true) {
+            cout << "Enter weight (1–10) for skill \"" << skillSet[i] << "\": ";
+            cin >> weight;
+
+            if (cin.fail()) {
+                cin.clear();
+                cin.ignore(1000, '\n');
+                cout << "❌ Invalid input! Please enter a number between 1 and 10.\n";
+                continue;
+            }
+
+            if (weight < 1 || weight > 10) {
+                cout << "❌ Please enter a value between 1 and 10.\n";
+            } else {
+                break;
+            }
+        }
+
+        weightList->add(skillSet[i], weight);
+    }
+
+    cout << "\n✅ Skill weights recorded successfully!\n" << endl;
+    return weightList;
+}
+
 double JobMatching::calculateWeightedScore(
     const string* inputSkills, int inputCount,
-    const string* targetSkills, int targetCount
+    const string* targetSkills, int targetCount,
+    const SkillWeightList& weightList
 ) {
-    int matchCount = 0;
+    if (targetCount == 0) return 0.0;
+
+    int totalWeight = 0;
+    int matchedWeight = 0;
 
     for (int i = 0; i < inputCount; i++) {
+        totalWeight += weightList.getWeight(inputSkills[i]);
+    }
+
+    for (int i = 0; i < inputCount; i++) {
+        int skillWeight = weightList.getWeight(inputSkills[i]);
         for (int j = 0; j < targetCount; j++) {
             if (inputSkills[i] == targetSkills[j]) {
-                matchCount++;
+                matchedWeight += skillWeight;
                 break;
             }
         }
     }
 
-    if (targetCount == 0) return 0.0;
-    return (static_cast<double>(matchCount) / targetCount) * 100.0;
+    if (totalWeight == 0) return 0.0;
+    return (static_cast<double>(matchedWeight) / totalWeight) * 100.0;
 }
 
 MatchResultList* JobMatching::weightedScoringMatch(const string* skillSet, int skillCount, bool matchAll) {
     delete results;
     results = new MatchResultList();
+
+    cout << "\n===== Weighted Scoring Configuration =====" << endl;
+    SkillWeightList* weightList = promptSkillWeights(skillSet, skillCount);
+
+    cout << "\n===== Running Weighted Scoring Match =====" << endl;
 
     void* searchResult = search(skillSet, skillCount, matchAll);
     if (!searchResult) {
@@ -239,10 +285,9 @@ MatchResultList* JobMatching::weightedScoringMatch(const string* skillSet, int s
         switch (dataStruct) {
             case ARRAY: {
                 JobArray* matchedJobs = static_cast<JobArray*>(searchResult);
-
                 for (int i = 0; i < matchedJobs->getSize(); i++) {
                     Job job = matchedJobs->getJob(i);
-                    double score = calculateWeightedScore(skillSet, skillCount, job.skills, job.skillCount);
+                    double score = calculateWeightedScore(skillSet, skillCount, job.skills, job.skillCount, *weightList);
                     results->append(MatchResult(job.id, 0, score));
                 }
                 break;
@@ -252,7 +297,7 @@ MatchResultList* JobMatching::weightedScoringMatch(const string* skillSet, int s
                 JobLinkedList* matchedJobs = static_cast<JobLinkedList*>(searchResult);
                 JobNode* node = matchedJobs->getHead();
                 while (node) {
-                    double score = calculateWeightedScore(skillSet, skillCount, node->data.skills, node->data.skillCount);
+                    double score = calculateWeightedScore(skillSet, skillCount, node->data.skills, node->data.skillCount, *weightList);
                     results->append(MatchResult(node->data.id, 0, score));
                     node = node->next;
                 }
@@ -265,7 +310,7 @@ MatchResultList* JobMatching::weightedScoringMatch(const string* skillSet, int s
                 if (node) {
                     JobNode* startNode = node;
                     do {
-                        double score = calculateWeightedScore(skillSet, skillCount, node->data.skills, node->data.skillCount);
+                        double score = calculateWeightedScore(skillSet, skillCount, node->data.skills, node->data.skillCount, *weightList);
                         results->append(MatchResult(node->data.id, 0, score));
                         node = node->next;
                     } while (node != startNode);
@@ -281,7 +326,7 @@ MatchResultList* JobMatching::weightedScoringMatch(const string* skillSet, int s
                 ResumeArray* matchedResumes = static_cast<ResumeArray*>(searchResult);
                 for (int i = 0; i < matchedResumes->getSize(); i++) {
                     Resume resume = matchedResumes->getResume(i);
-                    double score = calculateWeightedScore(skillSet, skillCount, resume.skills, resume.skillCount);
+                    double score = calculateWeightedScore(skillSet, skillCount, resume.skills, resume.skillCount, *weightList);
                     results->append(MatchResult(0, resume.id, score));
                 }
                 break;
@@ -291,7 +336,7 @@ MatchResultList* JobMatching::weightedScoringMatch(const string* skillSet, int s
                 ResumeLinkedList* matchedResumes = static_cast<ResumeLinkedList*>(searchResult);
                 ResumeNode* node = matchedResumes->getHead();
                 while (node) {
-                    double score = calculateWeightedScore(skillSet, skillCount, node->data.skills, node->data.skillCount);
+                    double score = calculateWeightedScore(skillSet, skillCount, node->data.skills, node->data.skillCount, *weightList);
                     results->append(MatchResult(0, node->data.id, score));
                     node = node->next;
                 }
@@ -304,7 +349,7 @@ MatchResultList* JobMatching::weightedScoringMatch(const string* skillSet, int s
                 if (node) {
                     ResumeNode* startNode = node;
                     do {
-                        double score = calculateWeightedScore(skillSet, skillCount, node->data.skills, node->data.skillCount);
+                        double score = calculateWeightedScore(skillSet, skillCount, node->data.skills, node->data.skillCount, *weightList);
                         results->append(MatchResult(0, node->data.id, score));
                         node = node->next;
                     } while (node != startNode);
