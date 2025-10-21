@@ -2,6 +2,7 @@
 #include <limits>
 #include "utils/CSVLoader/CSVLoader.hpp"
 #include "models/PerformanceTracker/PerformanceTracker.hpp"
+#include "JobMatching/JobMatching.hpp"
 using namespace std;
 
 // common method
@@ -96,6 +97,90 @@ void performKeywordSearch(SearchFunc searchFunc, const string &label)
         return;
 
     searchFunc(keywords);
+}
+
+void handleMatch(JobMatching* matcher, DataStruct dataStruct)
+{
+    cout << "\n========== MATCHING CONFIGURATION ==========" << endl;
+
+    // --- Select Match Mode ---
+    cout << "\n--- SELECT MATCH MODE ---" << endl;
+    cout << "[1] Find Job (Resumes -> Jobs)" << endl;
+    cout << "[2] Find Resume (Jobs -> Resumes)" << endl;
+    cout << "[3] Back" << endl;
+
+    int modeChoice = getUserChoice(1, 3);
+    if (modeChoice == 3)
+        return;
+
+    MatchMode matchMode = (modeChoice == 1) ? FIND_JOB : FIND_RESUME;
+    matcher->setMatchMode(matchMode);
+
+    // --- Select Match Strategy ---
+    cout << "\n--- SELECT MATCH STRATEGY ---" << endl;
+    cout << "[1] Rule-Based Matching" << endl;
+    cout << "[2] Weighted Scoring Matching" << endl;
+    cout << "[3] Back" << endl;
+
+    int strategyChoice = getUserChoice(1, 3);
+    if (strategyChoice == 3)
+        return;
+
+    MatchStrategy matchStrategy = (strategyChoice == 1) ? RULE_BASED : WEIGHTED_SCORING;
+    matcher->setMatchStrategy(matchStrategy);
+
+    // --- Select Search Algorithm ---
+    int algoChoice = selectSearchAlgorithm();
+    if (algoChoice == 3)
+        return;
+
+    SearchAlgorithm searchAlgo = (algoChoice == 1) ? LINEAR : BINARY;
+    matcher->setSearchAlgorithm(searchAlgo);
+
+    // --- Data Structure ---
+    matcher->setDataStruct(dataStruct);
+
+    cout << "\n--- Enter Skills for Matching ---" << endl;
+    int skillCount;
+    cout << "Enter number of skills: ";
+    cin >> skillCount;
+    if (cin.fail() || skillCount <= 0)
+    {
+        cin.clear();
+        cin.ignore(1000, '\n');
+        cout << "Invalid skill count.\n";
+        return;
+    }
+
+    string* skills = new string[skillCount];
+    for (int i = 0; i < skillCount; i++)
+    {
+        cout << "Enter skill " << (i + 1) << ": ";
+        cin >> ws;
+        getline(cin, skills[i]);
+    }
+
+    bool matchAll;
+    cout << "\nRequire all skills to match? (1 = Yes, 0 = No): ";
+    cin >> matchAll;
+    if (cin.fail())
+    {
+        cin.clear();
+        cin.ignore(1000, '\n');
+        matchAll = false;
+    }
+
+    // --- Run Matching ---
+    MatchResultList* results = matcher->runMatching(skills, skillCount, matchAll);
+
+    // --- Print Results ---
+    cout << "\n=====  MATCH RESULTS =====" << endl;
+    results->printSlice();
+
+    // --- Print Performance ---
+    matcher->printPerformance();
+
+    delete[] skills;
 }
 
 void handleListArray(JobArray &jobArray, ResumeArray &resumeArray)
@@ -380,30 +465,9 @@ void handleSortArray(JobArray &jobArray, ResumeArray &resumeArray)
 
 void handleMatchArray(JobArray &jobArray, ResumeArray &resumeArray)
 {
-    while (true)
-    {
-        cout << "\n--- MATCH MENU (Array) ---\n";
-        cout << "[1] Match resumes by job\n";
-        cout << "[2] Match jobs by resume\n";
-        cout << "[3] Match all\n";
-        cout << "[4] Back\n";
-        int choice = getUserChoice(1, 4);
-
-        switch (choice)
-        {
-        case 1:
-            cout << "Matching resumes by job\n";
-            break;
-        case 2:
-            cout << "Matching jobs by resume\n";
-            break;
-        case 3:
-            cout << "Matching all...\n";
-            break;
-        case 4:
-            return;
-        }
-    }
+    cout << "\n--- MATCH MENU (Array) ---\n";
+    JobMatching matcher(&jobArray, &resumeArray);
+    handleMatch(&matcher, ARRAY);
 }
 
 void runArray(JobArray &jobArray, ResumeArray &resumeArray)
@@ -678,32 +742,9 @@ void handleLinkedListSort(JobLinkedList &jobLinkedList, ResumeLinkedList &resume
 
 void handleLinkedListMatch(JobLinkedList &jobLinkedList, ResumeLinkedList &resumeLinkedList)
 {
-    bool inMatchMenu = true;
-    while (inMatchMenu)
-    {
-        cout << "\n--- JOB MATCHING (LinkedList) ---" << endl;
-        cout << "[1] Match resumes by job" << endl;
-        cout << "[2] Match jobs by resume" << endl;
-        cout << "[3] Match all" << endl;
-        cout << "[4] Back" << endl;
-
-        int matchChoice = getUserChoice(1, 4);
-        switch (matchChoice)
-        {
-        case 1:
-            cout << "Matching resumes by job...\n";
-            break;
-        case 2:
-            cout << "Matching jobs by resume...\n";
-            break;
-        case 3:
-            cout << "Matching all...\n";
-            break;
-        case 4:
-            inMatchMenu = false;
-            break;
-        }
-    }
+    cout << "\n--- MATCH MENU (Singly Linked List) ---\n";
+    JobMatching matcher(&jobLinkedList, &resumeLinkedList);
+    handleMatch(&matcher, SINGLY_LINKED_LIST);
 }
 
 void runLinkedList(JobLinkedList &jobLinkedList, ResumeLinkedList &resumeLinkedList)
@@ -977,32 +1018,9 @@ void handleCircularLinkedListSort(JobCircularLinkedList &jobCircularLinkedList, 
 
 void handleCircularLinkedListMatch(JobCircularLinkedList &jobCircularLinkedList, ResumeCircularLinkedList &resumeCircularLinkedList)
 {
-    bool inMatchMenu = true;
-    while (inMatchMenu)
-    {
-        cout << "\n--- JOB MATCHING (CircularLinkedList) ---" << endl;
-        cout << "[1] Match resumes by job" << endl;
-        cout << "[2] Match jobs by resume" << endl;
-        cout << "[3] Match all" << endl;
-        cout << "[4] Back" << endl;
-
-        int matchChoice = getUserChoice(1, 4);
-        switch (matchChoice)
-        {
-        case 1:
-            cout << "Matching resumes by job...\n";
-            break;
-        case 2:
-            cout << "Matching jobs by resume...\n";
-            break;
-        case 3:
-            cout << "Matching all...\n";
-            break;
-        case 4:
-            inMatchMenu = false;
-            break;
-        }
-    }
+    cout << "\n--- MATCH MENU (Circular Linked List) ---\n";
+    JobMatching matcher(&jobCircularLinkedList, &resumeCircularLinkedList);
+    handleMatch(&matcher, CIRCULAR_LINKED_LIST);
 }
 
 void runCircularLinkedList(JobCircularLinkedList &jobCircularLinkedList, ResumeCircularLinkedList &resumeCircularLinkedList)

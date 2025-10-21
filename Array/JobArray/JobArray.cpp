@@ -41,6 +41,17 @@ Job JobArray::getJob(int index) const
     return jobs[index];
 }
 
+Job* JobArray::findById(int id)
+{
+    for (int i = 0; i < size; i++)
+    {
+        if (jobs[i].id == id)
+            return &jobs[i]; // return pointer to matching job
+    }
+    return nullptr; // not found
+}
+
+
 void JobArray::addJob(int id, string position, string *skills, int skillCount)
 {
     if (size >= capacity)

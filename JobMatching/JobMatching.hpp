@@ -75,7 +75,8 @@ public:
     void setSearchAlgorithm(SearchAlgorithm searchAlgo);
 
     // unified search function
-    void *search(const string *skillSet, int skillCount, bool matchAll);
+    void *searchBySkills(const string *skillSet, int skillCount, bool matchAll);
+    void *searchJobsByPosition(string position);
 
     // algorithms
     MatchResultList* ruleBasedMatch(const string *skillSet, int skillCount, bool matchAll);

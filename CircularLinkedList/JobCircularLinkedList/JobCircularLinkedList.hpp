@@ -24,6 +24,7 @@ public:
     void deleteFirst();
     void deleteLast();
     JobNode *get(int index);
+    Job *findById(int id);
     bool set(int index, const string &position, const string *skills, int skillCount);
     bool insert(int index, Job data);
     void deleteNode(int index);

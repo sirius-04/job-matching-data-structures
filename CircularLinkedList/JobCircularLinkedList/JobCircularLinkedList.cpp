@@ -140,6 +140,22 @@ JobNode *JobCircularLinkedList::get(int index)
     return temp;
 }
 
+Job* JobCircularLinkedList::findById(int id)
+{
+    if (!head)
+        return nullptr;
+
+    JobNode* current = head;
+    do {
+        if (current->data.id == id)
+            return &current->data;
+        current = current->next;
+    } while (current != head);
+
+    return nullptr;
+}
+
+
 bool JobCircularLinkedList::set(int index, const string &position, const string *skills, int skillCount)
 {
     JobNode *temp = get(index);
