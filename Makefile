@@ -12,7 +12,7 @@ SRC = $(wildcard *.cpp) \
       $(wildcard CircularLinkedList/**/*.cpp) \
       $(wildcard models/**/*.cpp) \
       $(wildcard Menu/*.cpp) \
-      $(wildcard utils/**/*.cpp)
+      $(wildcard utils/**/*.cpp) \
       $(wildcard JobMatching/*.cpp) \
 
 CXX = g++
@@ -23,7 +23,7 @@ TARGET = main
 all: $(TARGET)
 
 $(TARGET): $(OBJ)
-	$(CXX) $(CXXFLAGS) -o $@ $^
+	$(CXX) $(CXXFLAGS) -o $@ $^ -lpsapi
 
 clean:
 ifeq ($(OS),Windows_NT)

@@ -9,6 +9,7 @@
 #include "../Array/ResumeArray/ResumeArray.hpp"
 #include "../models/MatchResult/MatchResult.hpp"
 #include "../models/SkillWeight/SkillWeight.hpp"
+#include "../utils/MemoryUsageGetter/MemoryUsageGetter.hpp"
 #include <iostream>
 #include <windows.h>
 #include <psapi.h>
@@ -61,8 +62,6 @@ private:
     MatchResultList *results;
     double matchTime;
     size_t memoryUsed;
-
-    size_t getCurrentMemoryUsage();
 
 public:
     JobMatching(JobArray *jobArray, ResumeArray *resumeArray);

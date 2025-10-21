@@ -1,6 +1,6 @@
 #include "SkillWeight.hpp"
 
-SkillWeightList::SkillWeightList(int cap = 20) {
+SkillWeightList::SkillWeightList(int cap) {
     capacity = cap;
     size = 0;
     data = new SkillWeight[capacity];

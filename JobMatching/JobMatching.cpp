@@ -362,14 +362,6 @@ MatchResultList* JobMatching::weightedScoringMatch(const string* skillSet, int s
     return results;
 }
 
-size_t JobMatching::getCurrentMemoryUsage() {
-    PROCESS_MEMORY_COUNTERS info;
-    if (GetProcessMemoryInfo(GetCurrentProcess(), &info, sizeof(info))) {
-        return static_cast<size_t>(info.WorkingSetSize) / 1024; // in KB
-    }
-    return 0;
-}
-
 MatchResultList* JobMatching::runMatching(const string* skillSet, int skillCount, bool matchAll) {
     cout << "===== Running Match =====" << endl;
 
