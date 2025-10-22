@@ -1,6 +1,7 @@
 #include "JobArray.hpp"
 #include <fstream>
 #include <sstream>
+#include <algorithm>
 
 // normalize string
 inline std::string normalizeString(std::string s)
