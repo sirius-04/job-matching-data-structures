@@ -11,8 +11,13 @@
 #include "../models/SkillWeight/SkillWeight.hpp"
 #include "../models/PerformanceTracker/PerformanceTracker.hpp"
 #include <iostream>
+#ifdef _WIN32
 #include <windows.h>
 #include <psapi.h>
+#else
+#include <sys/resource.h>
+#include <unistd.h>
+#endif
 #include <chrono>
 #include <cstdlib>
 using namespace std;
@@ -79,13 +84,13 @@ public:
     void *searchJobsByPosition(string position);
 
     // algorithms
-    MatchResultList* ruleBasedMatch(const string *skillSet, int skillCount, bool matchAll);
+    MatchResultList *ruleBasedMatch(const string *skillSet, int skillCount, bool matchAll);
 
-    SkillWeightList* promptSkillWeights(const string* skillSet, int skillCount);
-    double calculateWeightedScore(const string* inputSkills, int inputCount, const string* targetSkills, int targetCount, const SkillWeightList& weightList);
-    MatchResultList* weightedScoringMatch(const string *skillSet, int skillCount, bool matchAll);
+    SkillWeightList *promptSkillWeights(const string *skillSet, int skillCount);
+    double calculateWeightedScore(const string *inputSkills, int inputCount, const string *targetSkills, int targetCount, const SkillWeightList &weightList);
+    MatchResultList *weightedScoringMatch(const string *skillSet, int skillCount, bool matchAll);
 
-    MatchResultList* runMatching(const string* skillSet, int skillCount, bool matchAll);
+    MatchResultList *runMatching(const string *skillSet, int skillCount, bool matchAll);
     void printPerformance() const;
 };
 
