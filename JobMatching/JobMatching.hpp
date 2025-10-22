@@ -11,13 +11,6 @@
 #include "../models/SkillWeight/SkillWeight.hpp"
 #include "../models/PerformanceTracker/PerformanceTracker.hpp"
 #include <iostream>
-#ifdef _WIN32
-#include <windows.h>
-#include <psapi.h>
-#else
-#include <sys/resource.h>
-#include <unistd.h>
-#endif
 #include <chrono>
 #include <cstdlib>
 using namespace std;
@@ -83,9 +76,14 @@ public:
     void *searchBySkills(const string *skillSet, int skillCount, bool matchAll);
     void *searchJobsByPosition(string position);
 
-    Job* convertJobsToArray(void* searchResult, int& outCount);
-    Resume* convertResumesToArray(void* searchResult, int& outCount);
-    Resume* getAllResumesAsArray(int& outCount);
+    template<typename Func>
+    void processJobs(void* jobData, Func callback);
+    template<typename Func>
+    void processResumes(void* resumeData, Func callback);
+
+    void* getAllResumes();
+    void cleanupJobSearchResult(void* searchResult);
+    void cleanupResumeSearchResult(void* searchResult);
 
     // algorithms
     MatchResultList *ruleBasedMatch(const string *skillSet, int skillCount, bool matchAll);

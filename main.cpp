@@ -69,8 +69,8 @@ int main()
     JobCircularLinkedList jobCircularLinkedList;
     ResumeCircularLinkedList resumeCircularLinkedList;
 
-    createResumeLinkedList(resumelinkedList);
-    createJobLinkedList(jobLinkedList);
+    // createResumeLinkedList(resumelinkedList);
+    // createJobLinkedList(jobLinkedList);
     // createJobCircularLinkedList(jobCircularLinkedList);
     // createResumeCircularLinkedList(resumeCircularLinkedList);
 
@@ -89,15 +89,15 @@ int main()
     // matchedJobs->printSlice();
 
     // resumelinkedList.printSlice();
-    createJobArray(jobArray);
-    createResumeArray(resumeArray);
+    // createJobArray(jobArray);
+    // createResumeArray(resumeArray);
 
     // jobArray.quickSortByPosition();
     // JobArray *result = jobArray.linearSearchByPosition("data analyst");
     // JobArray *result = jobArray.binarySearchByPosition("data analyst");
-    string skills[] = {"python", "pandas"};
+    // string skills[] = {"python", "pandas"};
     // JobArray *result = jobArray.linearSearchBySkills(skills, 2, true);
-    JobArray *result = jobArray.binarySearchBySkills(skills, 2, true);
+    // JobArray *result = jobArray.binarySearchBySkills(skills, 2, true);
     // jobArray.mergeSort(jobArray.compareByPosition);
     // jobArray.compareByFirstSkill();
     // jobArray.quickSortByPosition();
@@ -106,12 +106,12 @@ int main()
     // resumeArray.quickSort("skillCount");
     // resumeArray.mergeSort(resumeArray.compareBySkillCount);
     // resumeArray.printResumes();
-    result->printJobs();
+    // result->printJobs();
 
     // const string skills[] = {"Python", "Pandas"};
     // ResumeArray *resumeResult = resumeArray.linearSearchBySkills(skills, 2, false);
     // ResumeArray *resumeResult = resumeArray.binarySearchBySkills(skills, 2, false);
     // resumeResult->printResumes();
 
-    // displayMenu(jobArray, resumeArray, jobLinkedList, resumelinkedList, jobCircularLinkedList, resumeCircularLinkedList);
+    displayMenu(jobArray, resumeArray, jobLinkedList, resumelinkedList, jobCircularLinkedList, resumeCircularLinkedList);
 }
