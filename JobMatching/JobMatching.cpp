@@ -1,6 +1,7 @@
 #include "JobMatching.hpp"
 
 #include "JobMatching.hpp"
+#include <algorithm>
 
 JobMatching::JobMatching(JobArray* jobArray, ResumeArray* resumeArray) {
     this->jobArray = jobArray;
@@ -364,45 +365,34 @@ double JobMatching::calculateWeightedScore(
     const string* resumeSkills, int resumeSkillCount,
     const SkillWeightList& weightList
 ) {
-    if (jobSkillCount == 0 || resumeSkillCount == 0)
-        return 0.0;
+    if (jobSkillCount == 0 || resumeSkillCount == 0) return 0.0;
 
     int totalPossibleWeight = 0;
     int matchedWeight = 0;
+    const int DEFAULT_WEIGHT = 1;
 
-    // FIXED: Calculate total weight from ALL job skills
-    // If a job skill is not in weightList, assign default weight
-    const int DEFAULT_WEIGHT = 1;  // Default weight for skills not in user's input
-    
+    // Total possible weight (sum of all job skills)
     for (int i = 0; i < jobSkillCount; i++) {
-        int weight = weightList.getWeight(jobSkills[i]);
-        if (weight == 0) {
-            weight = DEFAULT_WEIGHT;  // Assign default weight to non-input skills
-        }
-        totalPossibleWeight += weight;
+        int w = weightList.getWeight(jobSkills[i]);
+        totalPossibleWeight += (w == 0) ? DEFAULT_WEIGHT : w;
     }
-
     if (totalPossibleWeight == 0) return 0.0;
 
     // Calculate matched weight
     for (int i = 0; i < jobSkillCount; i++) {
-        int skillWeight = weightList.getWeight(jobSkills[i]);
-        if (skillWeight == 0) {
-            skillWeight = DEFAULT_WEIGHT;
-        }
-        
+        int w = weightList.getWeight(jobSkills[i]);
+        if (w == 0) w = DEFAULT_WEIGHT;
+
         for (int j = 0; j < resumeSkillCount; j++) {
             if (jobSkills[i] == resumeSkills[j]) {
-                matchedWeight += skillWeight;
+                matchedWeight += w;
                 break;
             }
         }
     }
-    
+
     double score = (static_cast<double>(matchedWeight) / totalPossibleWeight) * 100.0;
-    if (score > 100.0) score = 100.0;
-    
-    return score;
+    return (score > 100.0) ? 100.0 : score;
 }
 
 MatchResultList* JobMatching::ruleBasedMatch(const string* skillSet, int skillCount, bool matchAll) {
@@ -499,6 +489,7 @@ MatchResultList* JobMatching::ruleBasedMatch(const string* skillSet, int skillCo
                     }
                     
                     double score = (static_cast<double>(matchedSkills) / job.skillCount) * 100.0;
+
                     results->append(MatchResult(job.id, resume.id, score));
                 }
             }
@@ -572,6 +563,7 @@ MatchResultList* JobMatching::ruleBasedMatch(const string* skillSet, int skillCo
                 }
                 
                 double score = (static_cast<double>(matchedSkills) / jobPtr->skillCount) * 100.0;
+
                 results->append(MatchResult(jobPtr->id, resume.id, score));
             }
         }
@@ -587,7 +579,7 @@ MatchResultList* JobMatching::weightedScoringMatch(const string* skillSet, int s
     delete results;
     results = new MatchResultList();
 
-    cout << "\n===== Weighted Scoring Match (Pure Scoring) =====" << endl;
+    cout << "\n===== Weighted Scoring Match (Optimized) =====" << endl;
     bool findJobMode = (matchMode == FIND_JOB);
 
     string keyword;
@@ -614,34 +606,36 @@ MatchResultList* JobMatching::weightedScoringMatch(const string* skillSet, int s
 
     SkillWeightList* weightList = promptSkillWeights(skillSet, skillCount);
 
+    auto addMatchUnique = [this](int jobId, int resumeId, double score) {
+        MatchResultNode* node = results->getHead();
+        while (node) {
+            if (node->data.jobId == jobId && node->data.resumeId == resumeId)
+                return; // Skip duplicate
+            node = node->next;
+        }
+        results->append(MatchResult(jobId, resumeId, score));
+    };
+
     if (findJobMode) {
         // Step 1: Search and convert jobs to array
         void* searchResult = searchJobsByPosition(keyword);
         int jobCount = 0;
         Job* jobs = convertJobsToArray(searchResult, jobCount);
-        
-        // Clean up search result
-        if (dataStruct == ARRAY) {
-            delete (JobArray*)searchResult;
-        } else if (dataStruct == SINGLY_LINKED_LIST) {
-            delete (JobLinkedList*)searchResult;
-        } else if (dataStruct == CIRCULAR_LINKED_LIST) {
-            delete (JobCircularLinkedList*)searchResult;
-        }
-        
+
+        if (dataStruct == ARRAY) delete (JobArray*)searchResult;
+        else if (dataStruct == SINGLY_LINKED_LIST) delete (JobLinkedList*)searchResult;
+        else if (dataStruct == CIRCULAR_LINKED_LIST) delete (JobCircularLinkedList*)searchResult;
+
         if (!jobs || jobCount == 0) {
             cout << "No jobs found matching keyword: " << keyword << endl;
             if (jobs) delete[] jobs;
             delete weightList;
             return results;
         }
-        
-        cout << "Processing " << jobCount << " jobs..." << endl;
-        
-        // Step 2: Get ALL resumes as array (no filtering by skills)
+
+        // Step 2: Get all resumes
         int resumeCount = 0;
         Resume* resumes = getAllResumesAsArray(resumeCount);
-        
         if (!resumes || resumeCount == 0) {
             cout << "No resumes found." << endl;
             delete[] jobs;
@@ -649,77 +643,102 @@ MatchResultList* JobMatching::weightedScoringMatch(const string* skillSet, int s
             delete weightList;
             return results;
         }
-        
-        // Step 3: Calculate weighted scores for all job-resume combinations
+
+        // Step 3: Sort each job’s skills once
+        string** sortedJobSkills = new string*[jobCount];
         for (int i = 0; i < jobCount; i++) {
-            Job job = jobs[i];
-            
+            sortedJobSkills[i] = new string[jobs[i].skillCount];
+            cout << "[DEBUG] Job " << jobs[i].id << " has " << jobs[i].skillCount << " skills:" << endl;
+            for (int k = 0; k < jobs[i].skillCount; k++)
+                sortedJobSkills[i][k] = jobs[i].skills[k];
+            sort(sortedJobSkills[i], sortedJobSkills[i] + jobs[i].skillCount);
+        }
+
+        // Step 4: Calculate weighted scores
+        for (int i = 0; i < jobCount; i++) {
+            Job jobOrig = jobs[i];
+
             for (int j = 0; j < resumeCount; j++) {
-                Resume resume = resumes[j];
-                
+                Resume resumeOrig = resumes[j];
+
+                string* resumeSkillsCopy = new string[resumeOrig.skillCount];
+                for (int k = 0; k < resumeOrig.skillCount; k++)
+                    resumeSkillsCopy[k] = resumeOrig.skills[k];
+                sort(resumeSkillsCopy, resumeSkillsCopy + resumeOrig.skillCount);
+
                 double score = calculateWeightedScore(
-                    job.skills, job.skillCount,
-                    resume.skills, resume.skillCount,
+                    sortedJobSkills[i], jobOrig.skillCount,
+                    resumeSkillsCopy, resumeOrig.skillCount,
                     *weightList
                 );
-                
+
+                delete[] resumeSkillsCopy;
+
                 if (score >= minScore) {
-                    results->append(MatchResult(job.id, resume.id, score));
+                    addMatchUnique(jobOrig.id, resumeOrig.id, score);
                 }
             }
         }
-        
+
+        // Cleanup
+        for (int i = 0; i < jobCount; i++)
+            delete[] sortedJobSkills[i];
+        delete[] sortedJobSkills;
         delete[] jobs;
         delete[] resumes;
-        
+
     } else {
         // FIND_RESUME mode
         Job* jobPtr = nullptr;
         switch (dataStruct) {
-            case ARRAY:
-                jobPtr = jobArray->findById(jobId);
-                break;
-            case SINGLY_LINKED_LIST:
-                jobPtr = jobLinkedList->findById(jobId);
-                break;
-            case CIRCULAR_LINKED_LIST:
-                jobPtr = jobCircular->findById(jobId);
-                break;
+            case ARRAY: jobPtr = jobArray->findById(jobId); break;
+            case SINGLY_LINKED_LIST: jobPtr = jobLinkedList->findById(jobId); break;
+            case CIRCULAR_LINKED_LIST: jobPtr = jobCircular->findById(jobId); break;
         }
-        
+
         if (!jobPtr) {
             cout << "Job not found.\n";
             delete weightList;
             return results;
         }
-        
-        cout << "Processing resumes for Job ID " << jobId << "..." << endl;
-        
-        // Get ALL resumes
+
+        string* sortedJobSkills = new string[jobPtr->skillCount];
+        for (int k = 0; k < jobPtr->skillCount; k++)
+            sortedJobSkills[k] = jobPtr->skills[k];
+        sort(sortedJobSkills, sortedJobSkills + jobPtr->skillCount);
+
         int resumeCount = 0;
         Resume* resumes = getAllResumesAsArray(resumeCount);
-        
+
         if (resumes && resumeCount > 0) {
             for (int j = 0; j < resumeCount; j++) {
-                Resume resume = resumes[j];
-                
+                Resume resumeOrig = resumes[j];
+
+                string* resumeSkillsCopy = new string[resumeOrig.skillCount];
+                for (int k = 0; k < resumeOrig.skillCount; k++)
+                    resumeSkillsCopy[k] = resumeOrig.skills[k];
+                sort(resumeSkillsCopy, resumeSkillsCopy + resumeOrig.skillCount);
+
                 double score = calculateWeightedScore(
-                    jobPtr->skills, jobPtr->skillCount,
-                    resume.skills, resume.skillCount,
+                    sortedJobSkills, jobPtr->skillCount,
+                    resumeSkillsCopy, resumeOrig.skillCount,
                     *weightList
                 );
-                
+
+                delete[] resumeSkillsCopy;
+
                 if (score >= minScore) {
-                    results->append(MatchResult(jobPtr->id, resume.id, score));
+                    addMatchUnique(jobPtr->id, resumeOrig.id, score);
                 }
             }
         }
-        
+
+        delete[] sortedJobSkills;
         if (resumes) delete[] resumes;
     }
 
-    cout << "Matching complete. Found " << results->getLength() << " matches above " 
-         << minScore << "% threshold." << endl;
+    cout << "Matching complete. Found " << results->getLength() 
+         << " matches above " << minScore << "% threshold." << endl;
 
     delete weightList;
     return results;
@@ -755,9 +774,6 @@ MatchResultList* JobMatching::runMatching(const string* skillSet, int skillCount
     // Store results for later reference or printing
     matchTime = perf.timeTakenMs;
     memoryUsed = perf.memoryUsedBytes;
-
-    cout << "\n--- PERFORMANCE SUMMARY ---" << endl;
-    perf.printPerformance("Matching Execution");
 
     return matchResults;
 }

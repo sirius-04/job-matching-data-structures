@@ -36,6 +36,10 @@ MatchResultList::~MatchResultList() {
     length = 0;
 }
 
+MatchResultNode* MatchResultList::getHead() {
+    return head;
+}
+
 void MatchResultList::printSlice() {
 
     if (!head || length == 0) {
