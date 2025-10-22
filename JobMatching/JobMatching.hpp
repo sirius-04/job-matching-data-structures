@@ -9,7 +9,7 @@
 #include "../Array/ResumeArray/ResumeArray.hpp"
 #include "../models/MatchResult/MatchResult.hpp"
 #include "../models/SkillWeight/SkillWeight.hpp"
-#include "../utils/MemoryUsageGetter/MemoryUsageGetter.hpp"
+#include "../models/PerformanceTracker/PerformanceTracker.hpp"
 #include <iostream>
 #include <windows.h>
 #include <psapi.h>

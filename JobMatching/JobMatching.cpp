@@ -716,15 +716,16 @@ MatchResultList* JobMatching::weightedScoringMatch(const string* skillSet, int s
     return results;
 }
 
-MatchResultList* JobMatching::runMatching(const string* skillSet, int skillCount, bool matchAll) {
+MatchResultList* JobMatching::runMatching(const string* skillSet, int skillCount, bool matchAll)
+{
     cout << "===== Running Match =====" << endl;
-
-    auto startTime = high_resolution_clock::now();
-    size_t startMem = getCurrentMemoryUsage();
 
     MatchResultList* matchResults = nullptr;
 
-    switch (matchStrategy) {
+    // Use PerformanceTracker to measure
+    PerformanceResult perf = PerformanceTracker::measure([&]() {
+        switch (matchStrategy)
+        {
         case RULE_BASED:
             cout << "[Strategy] Rule-Based Matching" << endl;
             matchResults = ruleBasedMatch(skillSet, skillCount, matchAll);
@@ -737,17 +738,21 @@ MatchResultList* JobMatching::runMatching(const string* skillSet, int skillCount
 
         default:
             cerr << "❌ Invalid match strategy!" << endl;
-            return nullptr;
-    }
+            matchResults = nullptr;
+            break;
+        }
+    });
 
-    auto endTime = high_resolution_clock::now();
-    size_t endMem = getCurrentMemoryUsage();
+    // Store results for later reference or printing
+    matchTime = perf.timeTakenMs;
+    memoryUsed = perf.memoryUsedBytes;
 
-    matchTime = duration_cast<milliseconds>(endTime - startTime).count();
-    memoryUsed = (endMem > startMem) ? (endMem - startMem) : 0;
+    cout << "\n--- PERFORMANCE SUMMARY ---" << endl;
+    perf.printPerformance("Matching Execution");
 
     return matchResults;
 }
+
 
 void JobMatching::printPerformance() const {
     cout << "\n===== 🧩 Matching Configuration & Performance =====" << endl;
