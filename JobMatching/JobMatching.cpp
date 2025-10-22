@@ -147,297 +147,184 @@ void* JobMatching::searchJobsByPosition(string position) {
     }
 }
 
-MatchResultList* JobMatching::ruleBasedMatch(const string* skillSet, int skillCount, bool matchAll) {
-    delete results;
-    results = new MatchResultList();
-
-    cout << "\n===== Running Rule-Based Match (Filtered Evaluation) =====" << endl;
-    bool findJobMode = (matchMode == FIND_JOB);
-
-    string keyword;
-    int jobId;
-
-    if (findJobMode) {
-        cout << "Enter position keyword to filter jobs: ";
-        cin >> ws;
-        getline(cin, keyword);
-    } else {
-        cout << "Enter Job ID to find matching resumes: ";
-        cin >> jobId;
-    }
-
-    // ========== ARRAY MODE ==========
-    if (dataStruct == ARRAY) {
-        if (findJobMode) {
-            JobArray* filteredJobs = (JobArray*)searchJobsByPosition(keyword);
+// ==================== Helper: Convert search results to array ====================
+Job* JobMatching::convertJobsToArray(void* searchResult, int& outCount) {
+    outCount = 0;
+    
+    if (!searchResult) return nullptr;
+    
+    switch (dataStruct) {
+        case ARRAY: {
+            JobArray* jobArr = (JobArray*)searchResult;
+            outCount = jobArr->getSize();
+            if (outCount == 0) return nullptr;
             
-            if (filteredJobs && filteredJobs->getSize() > 0) {
-                cout << "Processing " << filteredJobs->getSize() << " jobs..." << endl;
-                
-                for (int i = 0; i < filteredJobs->getSize(); i++) {
-                    Job job = filteredJobs->getJob(i);
-                    
-                    for (int j = 0; j < resumeArray->getSize(); j++) {
-                        Resume resume = resumeArray->getResume(j);
-                        
-                        int matchedSkills = 0;
-                        for (int a = 0; a < job.skillCount; a++) {
-                            for (int b = 0; b < resume.skillCount; b++) {
-                                if (job.skills[a] == resume.skills[b]) {
-                                    matchedSkills++;
-                                    break;
-                                }
-                            }
-                        }
-
-                        bool isMatch = matchAll ? (matchedSkills == job.skillCount)
-                                                : (matchedSkills > 0);
-                        if (isMatch) {
-                            double score = (static_cast<double>(matchedSkills) / job.skillCount) * 100.0;
-                            results->append(MatchResult(job.id, resume.id, score));
-                        }
-                    }
-                }
-            } else {
-                cout << "No jobs found matching keyword: " << keyword << endl;
+            Job* jobs = new Job[outCount];
+            for (int i = 0; i < outCount; i++) {
+                jobs[i] = jobArr->getJob(i);
             }
-            delete filteredJobs;
-            
-        } else {
-            // FIND_RESUME mode
-            Job* jobPtr = jobArray->findById(jobId);
-            if (!jobPtr) {
-                cout << "Job not found.\n";
-                return results;
-            }
-            
-            cout << "Processing resumes for Job ID " << jobId << "..." << endl;
-            
-            for (int j = 0; j < resumeArray->getSize(); j++) {
-                Resume resume = resumeArray->getResume(j);
-                
-                int matchedSkills = 0;
-                for (int a = 0; a < jobPtr->skillCount; a++) {
-                    for (int b = 0; b < resume.skillCount; b++) {
-                        if (jobPtr->skills[a] == resume.skills[b]) {
-                            matchedSkills++;
-                            break;
-                        }
-                    }
-                }
-                
-                bool isMatch = matchAll ? (matchedSkills == jobPtr->skillCount)
-                                        : (matchedSkills > 0);
-                if (isMatch) {
-                    double score = (static_cast<double>(matchedSkills) / jobPtr->skillCount) * 100.0;
-                    results->append(MatchResult(jobPtr->id, resume.id, score));
-                }
-            }
+            return jobs;
         }
-    }
+        
+        case SINGLY_LINKED_LIST: {
+            JobLinkedList* jobList = (JobLinkedList*)searchResult;
+            if (!jobList->getHead()) return nullptr;
 
-    // ========== SINGLY LINKED LIST ==========
-    else if (dataStruct == SINGLY_LINKED_LIST) {
-        if (findJobMode) {
-            JobLinkedList* filteredJobs = (JobLinkedList*)searchJobsByPosition(keyword);
+            JobNode* node = jobList->getHead();
+            outCount = jobList->getLength();
             
-            if (filteredJobs && filteredJobs->getHead()) {
-                // Count jobs
-                JobNode* jobNode = filteredJobs->getHead();
-                int jobCount = 0;
-                JobNode* temp = jobNode;
-                
-                while (temp) {
-                    jobCount++;
-                    temp = temp->next;
-                }
-                
-                cout << "Processing " << jobCount << " jobs..." << endl;
-                
-                // Copy jobs to array for safe processing
-                Job* jobsToProcess = new Job[jobCount];
-                temp = jobNode;
-                for (int i = 0; i < jobCount && temp; i++) {
-                    jobsToProcess[i] = temp->data;
-                    temp = temp->next;
-                }
-                
-                // Process each job
-                for (int i = 0; i < jobCount; i++) {
-                    Job job = jobsToProcess[i];
-                    
-                    ResumeNode* resumeNode = resumeLinkedList->getHead();
-                    while (resumeNode) {
-                        Resume resume = resumeNode->data;
-                        
-                        int matchedSkills = 0;
-                        for (int a = 0; a < job.skillCount; a++) {
-                            for (int b = 0; b < resume.skillCount; b++) {
-                                if (job.skills[a] == resume.skills[b]) {
-                                    matchedSkills++;
-                                    break;
-                                }
-                            }
-                        }
-
-                        bool isMatch = matchAll ? (matchedSkills == job.skillCount)
-                                                : (matchedSkills > 0);
-                        if (isMatch) {
-                            double score = (static_cast<double>(matchedSkills) / job.skillCount) * 100.0;
-                            results->append(MatchResult(job.id, resume.id, score));
-                        }
-                        
-                        resumeNode = resumeNode->next;
-                    }
-                }
-                
-                delete[] jobsToProcess;
-            } else {
-                cout << "No jobs found matching keyword: " << keyword << endl;
+            // Copy to array
+            Job* jobs = new Job[outCount];
+            node = jobList->getHead();
+            for (int i = 0; i < outCount && node; i++) {
+                jobs[i] = node->data;
+                node = node->next;
             }
-            delete filteredJobs;
-            
-        } else {
-            // FIND_RESUME mode
-            Job* jobPtr = jobLinkedList->findById(jobId);
-            if (!jobPtr) {
-                cout << "Job not found.\n";
-                return results;
-            }
-            
-            cout << "Processing resumes for Job ID " << jobId << "..." << endl;
-            
-            ResumeNode* resumeNode = resumeLinkedList->getHead();
-            while (resumeNode) {
-                Resume resume = resumeNode->data;
-                
-                int matchedSkills = 0;
-                for (int a = 0; a < jobPtr->skillCount; a++) {
-                    for (int b = 0; b < resume.skillCount; b++) {
-                        if (jobPtr->skills[a] == resume.skills[b]) {
-                            matchedSkills++;
-                            break;
-                        }
-                    }
-                }
-                
-                bool isMatch = matchAll ? (matchedSkills == jobPtr->skillCount)
-                                        : (matchedSkills > 0);
-                if (isMatch) {
-                    double score = (static_cast<double>(matchedSkills) / jobPtr->skillCount) * 100.0;
-                    results->append(MatchResult(jobPtr->id, resume.id, score));
-                }
-                
-                resumeNode = resumeNode->next;
-            }
+            return jobs;
         }
-    }
-
-    // ========== CIRCULAR LINKED LIST ==========
-    else if (dataStruct == CIRCULAR_LINKED_LIST) {
-        if (findJobMode) {
-            JobCircularLinkedList* filteredJobs = (JobCircularLinkedList*)searchJobsByPosition(keyword);
+        
+        case CIRCULAR_LINKED_LIST: {
+            JobCircularLinkedList* jobCirc = (JobCircularLinkedList*)searchResult;
+            if (!jobCirc->getHead()) return nullptr;
             
-            if (filteredJobs && filteredJobs->getHead()) {
-                JobNode* jobNode = filteredJobs->getHead();
-                JobNode* start = jobNode;
-                
-                // Count jobs in circular list
-                int jobCount = 0;
-                do {
-                    jobCount++;
-                    jobNode = jobNode->next;
-                } while (jobNode != start);
-                
-                cout << "Processing " << jobCount << " jobs..." << endl;
-                
-                // Copy jobs to array
-                Job* jobsToProcess = new Job[jobCount];
-                jobNode = start;
-                for (int i = 0; i < jobCount; i++) {
-                    jobsToProcess[i] = jobNode->data;
-                    jobNode = jobNode->next;
-                }
-                
-                // Process each job
-                for (int i = 0; i < jobCount; i++) {
-                    Job job = jobsToProcess[i];
-                    
-                    ResumeNode* resumeNode = resumeCircular->getHead();
-                    if (resumeNode) {
-                        ResumeNode* rStart = resumeNode;
-                        do {
-                            Resume resume = resumeNode->data;
-                            
-                            int matchedSkills = 0;
-                            for (int a = 0; a < job.skillCount; a++) {
-                                for (int b = 0; b < resume.skillCount; b++) {
-                                    if (job.skills[a] == resume.skills[b]) {
-                                        matchedSkills++;
-                                        break;
-                                    }
-                                }
-                            }
-
-                            bool isMatch = matchAll ? (matchedSkills == job.skillCount)
-                                                    : (matchedSkills > 0);
-                            if (isMatch) {
-                                double score = (static_cast<double>(matchedSkills) / job.skillCount) * 100.0;
-                                results->append(MatchResult(job.id, resume.id, score));
-                            }
-                            
-                            resumeNode = resumeNode->next;
-                        } while (resumeNode != rStart);
-                    }
-                }
-                
-                delete[] jobsToProcess;
-            } else {
-                cout << "No jobs found matching keyword: " << keyword << endl;
+            // Count nodes
+            JobNode* start = jobCirc->getHead();
+            JobNode* node = start;
+            do {
+                outCount++;
+                node = node->next;
+            } while (node != start);
+            
+            // Copy to array
+            Job* jobs = new Job[outCount];
+            node = start;
+            for (int i = 0; i < outCount; i++) {
+                jobs[i] = node->data;
+                node = node->next;
             }
-            delete filteredJobs;
-            
-        } else {
-            // FIND_RESUME mode
-            Job* jobPtr = jobCircular->findById(jobId);
-            if (!jobPtr) {
-                cout << "Job not found.\n";
-                return results;
-            }
-            
-            cout << "Processing resumes for Job ID " << jobId << "..." << endl;
-            
-            ResumeNode* resumeNode = resumeCircular->getHead();
-            if (resumeNode) {
-                ResumeNode* start = resumeNode;
-                do {
-                    Resume resume = resumeNode->data;
-                    
-                    int matchedSkills = 0;
-                    for (int a = 0; a < jobPtr->skillCount; a++) {
-                        for (int b = 0; b < resume.skillCount; b++) {
-                            if (jobPtr->skills[a] == resume.skills[b]) {
-                                matchedSkills++;
-                                break;
-                            }
-                        }
-                    }
-                    
-                    bool isMatch = matchAll ? (matchedSkills == jobPtr->skillCount)
-                                            : (matchedSkills > 0);
-                    if (isMatch) {
-                        double score = (static_cast<double>(matchedSkills) / jobPtr->skillCount) * 100.0;
-                        results->append(MatchResult(jobPtr->id, resume.id, score));
-                    }
-                    
-                    resumeNode = resumeNode->next;
-                } while (resumeNode != start);
-            }
+            return jobs;
         }
+        
+        default:
+            return nullptr;
     }
+}
 
-    cout << "Matching complete. Found " << results->getLength() << " matches." << endl;
-    return results;
+Resume* JobMatching::convertResumesToArray(void* searchResult, int& outCount) {
+    outCount = 0;
+    
+    if (!searchResult) return nullptr;
+    
+    switch (dataStruct) {
+        case ARRAY: {
+            ResumeArray* resArr = (ResumeArray*)searchResult;
+            outCount = resArr->getSize();
+            if (outCount == 0) return nullptr;
+            
+            Resume* resumes = new Resume[outCount];
+            for (int i = 0; i < outCount; i++) {
+                resumes[i] = resArr->getResume(i);
+            }
+            return resumes;
+        }
+        
+        case SINGLY_LINKED_LIST: {
+            ResumeLinkedList* resList = (ResumeLinkedList*)searchResult;
+            if (!resList->getHead()) return nullptr;
+            
+            // Count nodes
+            ResumeNode* node = resList->getHead();
+            outCount = resList->getLength();
+            
+            // Copy to array
+            Resume* resumes = new Resume[outCount];
+            node = resList->getHead();
+            for (int i = 0; i < outCount && node; i++) {
+                resumes[i] = node->data;
+                node = node->next;
+            }
+            return resumes;
+        }
+        
+        case CIRCULAR_LINKED_LIST: {
+            ResumeCircularLinkedList* resCirc = (ResumeCircularLinkedList*)searchResult;
+            if (!resCirc->getHead()) return nullptr;
+            
+            // Count nodes
+            ResumeNode* start = resCirc->getHead();
+            ResumeNode* node = start;
+            do {
+                outCount++;
+                node = node->next;
+            } while (node != start);
+            
+            // Copy to array
+            Resume* resumes = new Resume[outCount];
+            node = start;
+            for (int i = 0; i < outCount; i++) {
+                resumes[i] = node->data;
+                node = node->next;
+            }
+            return resumes;
+        }
+        
+        default:
+            return nullptr;
+    }
+}
+
+Resume* JobMatching::getAllResumesAsArray(int& outCount) {
+    outCount = 0;
+    
+    switch (dataStruct) {
+        case ARRAY: {
+            outCount = resumeArray->getSize();
+            if (outCount == 0) return nullptr;
+            
+            Resume* resumes = new Resume[outCount];
+            for (int i = 0; i < outCount; i++) {
+                resumes[i] = resumeArray->getResume(i);
+            }
+            return resumes;
+        }
+        
+        case SINGLY_LINKED_LIST: {
+            if (!resumeLinkedList->getHead()) return nullptr;
+            
+            ResumeNode* node = resumeLinkedList->getHead();
+            outCount = resumeLinkedList->getLength();
+            
+            Resume* resumes = new Resume[outCount];
+            node = resumeLinkedList->getHead();
+            for (int i = 0; i < outCount && node; i++) {
+                resumes[i] = node->data;
+                node = node->next;
+            }
+            return resumes;
+        }
+        
+        case CIRCULAR_LINKED_LIST: {
+            if (!resumeCircular->getHead()) return nullptr;
+            
+            ResumeNode* start = resumeCircular->getHead();
+            ResumeNode* node = start;
+            do {
+                outCount++;
+                node = node->next;
+            } while (node != start);
+            
+            Resume* resumes = new Resume[outCount];
+            node = start;
+            for (int i = 0; i < outCount; i++) {
+                resumes[i] = node->data;
+                node = node->next;
+            }
+            return resumes;
+        }
+        
+        default:
+            return nullptr;
+    }
 }
 
 SkillWeightList* JobMatching::promptSkillWeights(const string* skillSet, int skillCount) {
@@ -518,16 +405,20 @@ double JobMatching::calculateWeightedScore(
     return score;
 }
 
-MatchResultList* JobMatching::weightedScoringMatch(const string* skillSet, int skillCount, bool matchAll) {
+MatchResultList* JobMatching::ruleBasedMatch(const string* skillSet, int skillCount, bool matchAll) {
     delete results;
     results = new MatchResultList();
 
-    cout << "\n===== Weighted Scoring Match (Pure Scoring) =====" << endl;
+    cout << "\n===== Running Rule-Based Match (Filtered Evaluation) =====" << endl;
+    if (dataStruct == ARRAY) cout << "ARRAY";
+    else if (dataStruct == SINGLY_LINKED_LIST) cout << "SINGLY_LINKED_LIST";
+    else if (dataStruct == CIRCULAR_LINKED_LIST) cout << "CIRCULAR_LINKED_LIST";
+    cout << endl;
+    
     bool findJobMode = (matchMode == FIND_JOB);
 
     string keyword;
     int jobId;
-    double minScore = 30.0;  // Default threshold
 
     if (findJobMode) {
         cout << "Enter position keyword to filter jobs: ";
@@ -538,7 +429,180 @@ MatchResultList* JobMatching::weightedScoringMatch(const string* skillSet, int s
         cin >> jobId;
     }
 
-    // Ask for minimum score threshold
+    if (findJobMode) {
+        // Step 1: Search and convert jobs to array
+        void* searchResult = searchJobsByPosition(keyword);
+        int jobCount = 0;
+        Job* jobs = convertJobsToArray(searchResult, jobCount);
+        
+        // Clean up search result based on data structure
+        if (dataStruct == ARRAY) {
+            delete (JobArray*)searchResult;
+        } else if (dataStruct == SINGLY_LINKED_LIST) {
+            delete (JobLinkedList*)searchResult;
+        } else if (dataStruct == CIRCULAR_LINKED_LIST) {
+            delete (JobCircularLinkedList*)searchResult;
+        }
+        
+        if (!jobs || jobCount == 0) {
+            cout << "No jobs found matching keyword: " << keyword << endl;
+            if (jobs) delete[] jobs;
+            return results;
+        }
+        
+        cout << "Processing " << jobCount << " jobs..." << endl;
+        
+        // Step 2: For each job, search matching resumes and convert to array
+        for (int i = 0; i < jobCount; i++) {
+            Job job = jobs[i];
+            
+            // Search for matching resumes using dedicated function
+            void* resumeSearchResult = nullptr;
+            switch (dataStruct) {
+                case ARRAY:
+                    resumeSearchResult = resumeArray->linearSearchBySkills(job.skills, job.skillCount, matchAll);
+                    break;
+                case SINGLY_LINKED_LIST:
+                    resumeSearchResult = resumeLinkedList->linearSearchResumeBySkills(job.skills, job.skillCount, matchAll);
+                    break;
+                case CIRCULAR_LINKED_LIST:
+                    resumeSearchResult = resumeCircular->linearSearchResumeBySkills(job.skills, job.skillCount, matchAll);
+                    break;
+            }
+            
+            int resumeCount = 0;
+            Resume* resumes = convertResumesToArray(resumeSearchResult, resumeCount);
+            
+            // Clean up resume search result
+            if (dataStruct == ARRAY) {
+                delete (ResumeArray*)resumeSearchResult;
+            } else if (dataStruct == SINGLY_LINKED_LIST) {
+                delete (ResumeLinkedList*)resumeSearchResult;
+            } else if (dataStruct == CIRCULAR_LINKED_LIST) {
+                delete (ResumeCircularLinkedList*)resumeSearchResult;
+            }
+            
+            // Step 3: Calculate scores and add to results
+            if (resumes && resumeCount > 0) {
+                for (int j = 0; j < resumeCount; j++) {
+                    Resume resume = resumes[j];
+                    
+                    // Calculate matched skills
+                    int matchedSkills = 0;
+                    for (int a = 0; a < job.skillCount; a++) {
+                        for (int b = 0; b < resume.skillCount; b++) {
+                            if (job.skills[a] == resume.skills[b]) {
+                                matchedSkills++;
+                                break;
+                            }
+                        }
+                    }
+                    
+                    double score = (static_cast<double>(matchedSkills) / job.skillCount) * 100.0;
+                    results->append(MatchResult(job.id, resume.id, score));
+                }
+            }
+            
+            if (resumes) delete[] resumes;
+        }
+        
+        delete[] jobs;
+        
+    } else {
+        // FIND_RESUME mode: Find one job, then search matching resumes
+        Job* jobPtr = nullptr;
+        switch (dataStruct) {
+            case ARRAY:
+                jobPtr = jobArray->findById(jobId);
+                break;
+            case SINGLY_LINKED_LIST:
+                jobPtr = jobLinkedList->findById(jobId);
+                break;
+            case CIRCULAR_LINKED_LIST:
+                jobPtr = jobCircular->findById(jobId);
+                break;
+        }
+        
+        if (!jobPtr) {
+            cout << "Job not found.\n";
+            return results;
+        }
+        
+        cout << "Processing resumes for Job ID " << jobId << "..." << endl;
+        
+        // Search for matching resumes
+        void* resumeSearchResult = nullptr;
+        switch (dataStruct) {
+            case ARRAY:
+                resumeSearchResult = resumeArray->linearSearchBySkills(jobPtr->skills, jobPtr->skillCount, matchAll);
+                break;
+            case SINGLY_LINKED_LIST:
+                resumeSearchResult = resumeLinkedList->linearSearchResumeBySkills(jobPtr->skills, jobPtr->skillCount, matchAll);
+                break;
+            case CIRCULAR_LINKED_LIST:
+                resumeSearchResult = resumeCircular->linearSearchResumeBySkills(jobPtr->skills, jobPtr->skillCount, matchAll);
+                break;
+        }
+        
+        int resumeCount = 0;
+        Resume* resumes = convertResumesToArray(resumeSearchResult, resumeCount);
+        
+        // Clean up search result
+        if (dataStruct == ARRAY) {
+            delete (ResumeArray*)resumeSearchResult;
+        } else if (dataStruct == SINGLY_LINKED_LIST) {
+            delete (ResumeLinkedList*)resumeSearchResult;
+        } else if (dataStruct == CIRCULAR_LINKED_LIST) {
+            delete (ResumeCircularLinkedList*)resumeSearchResult;
+        }
+        
+        // Calculate scores
+        if (resumes && resumeCount > 0) {
+            for (int j = 0; j < resumeCount; j++) {
+                Resume resume = resumes[j];
+                
+                int matchedSkills = 0;
+                for (int a = 0; a < jobPtr->skillCount; a++) {
+                    for (int b = 0; b < resume.skillCount; b++) {
+                        if (jobPtr->skills[a] == resume.skills[b]) {
+                            matchedSkills++;
+                            break;
+                        }
+                    }
+                }
+                
+                double score = (static_cast<double>(matchedSkills) / jobPtr->skillCount) * 100.0;
+                results->append(MatchResult(jobPtr->id, resume.id, score));
+            }
+        }
+        
+        if (resumes) delete[] resumes;
+    }
+
+    cout << "Matching complete. Found " << results->getLength() << " matches." << endl;
+    return results;
+}
+
+MatchResultList* JobMatching::weightedScoringMatch(const string* skillSet, int skillCount, bool matchAll) {
+    delete results;
+    results = new MatchResultList();
+
+    cout << "\n===== Weighted Scoring Match (Pure Scoring) =====" << endl;
+    bool findJobMode = (matchMode == FIND_JOB);
+
+    string keyword;
+    int jobId;
+    double minScore = 30.0;
+
+    if (findJobMode) {
+        cout << "Enter position keyword to filter jobs: ";
+        cin >> ws;
+        getline(cin, keyword);
+    } else {
+        cout << "Enter Job ID to find matching resumes: ";
+        cin >> jobId;
+    }
+
     cout << "Enter minimum match score (0-100, default 30): ";
     cin >> minScore;
     if (cin.fail() || minScore < 0 || minScore > 100) {
@@ -550,48 +614,94 @@ MatchResultList* JobMatching::weightedScoringMatch(const string* skillSet, int s
 
     SkillWeightList* weightList = promptSkillWeights(skillSet, skillCount);
 
-    // ========== ARRAY MODE ==========
-    if (dataStruct == ARRAY) {
-        if (findJobMode) {
-            JobArray* filteredJobs = (JobArray*)searchJobsByPosition(keyword);
+    if (findJobMode) {
+        // Step 1: Search and convert jobs to array
+        void* searchResult = searchJobsByPosition(keyword);
+        int jobCount = 0;
+        Job* jobs = convertJobsToArray(searchResult, jobCount);
+        
+        // Clean up search result
+        if (dataStruct == ARRAY) {
+            delete (JobArray*)searchResult;
+        } else if (dataStruct == SINGLY_LINKED_LIST) {
+            delete (JobLinkedList*)searchResult;
+        } else if (dataStruct == CIRCULAR_LINKED_LIST) {
+            delete (JobCircularLinkedList*)searchResult;
+        }
+        
+        if (!jobs || jobCount == 0) {
+            cout << "No jobs found matching keyword: " << keyword << endl;
+            if (jobs) delete[] jobs;
+            delete weightList;
+            return results;
+        }
+        
+        cout << "Processing " << jobCount << " jobs..." << endl;
+        
+        // Step 2: Get ALL resumes as array (no filtering by skills)
+        int resumeCount = 0;
+        Resume* resumes = getAllResumesAsArray(resumeCount);
+        
+        if (!resumes || resumeCount == 0) {
+            cout << "No resumes found." << endl;
+            delete[] jobs;
+            if (resumes) delete[] resumes;
+            delete weightList;
+            return results;
+        }
+        
+        // Step 3: Calculate weighted scores for all job-resume combinations
+        for (int i = 0; i < jobCount; i++) {
+            Job job = jobs[i];
             
-            if (filteredJobs && filteredJobs->getSize() > 0) {
-                cout << "Processing " << filteredJobs->getSize() << " jobs..." << endl;
+            for (int j = 0; j < resumeCount; j++) {
+                Resume resume = resumes[j];
                 
-                for (int i = 0; i < filteredJobs->getSize(); i++) {
-                    Job job = filteredJobs->getJob(i);
-                    
-                    for (int j = 0; j < resumeArray->getSize(); j++) {
-                        Resume resume = resumeArray->getResume(j);
-                        
-                        double score = calculateWeightedScore(
-                            job.skills, job.skillCount,
-                            resume.skills, resume.skillCount,
-                            *weightList
-                        );
-                        
-                        if (score >= minScore)
-                            results->append(MatchResult(job.id, resume.id, score));
-                    }
+                double score = calculateWeightedScore(
+                    job.skills, job.skillCount,
+                    resume.skills, resume.skillCount,
+                    *weightList
+                );
+                
+                if (score >= minScore) {
+                    results->append(MatchResult(job.id, resume.id, score));
                 }
-            } else {
-                cout << "No jobs found matching keyword: " << keyword << endl;
             }
-            delete filteredJobs;
-            
-        } else {
-            // FIND_RESUME mode
-            Job* jobPtr = jobArray->findById(jobId);
-            if (!jobPtr) {
-                cout << "Job not found.\n";
-                delete weightList;
-                return results;
-            }
-            
-            cout << "Processing resumes for Job ID " << jobId << "..." << endl;
-            
-            for (int j = 0; j < resumeArray->getSize(); j++) {
-                Resume resume = resumeArray->getResume(j);
+        }
+        
+        delete[] jobs;
+        delete[] resumes;
+        
+    } else {
+        // FIND_RESUME mode
+        Job* jobPtr = nullptr;
+        switch (dataStruct) {
+            case ARRAY:
+                jobPtr = jobArray->findById(jobId);
+                break;
+            case SINGLY_LINKED_LIST:
+                jobPtr = jobLinkedList->findById(jobId);
+                break;
+            case CIRCULAR_LINKED_LIST:
+                jobPtr = jobCircular->findById(jobId);
+                break;
+        }
+        
+        if (!jobPtr) {
+            cout << "Job not found.\n";
+            delete weightList;
+            return results;
+        }
+        
+        cout << "Processing resumes for Job ID " << jobId << "..." << endl;
+        
+        // Get ALL resumes
+        int resumeCount = 0;
+        Resume* resumes = getAllResumesAsArray(resumeCount);
+        
+        if (resumes && resumeCount > 0) {
+            for (int j = 0; j < resumeCount; j++) {
+                Resume resume = resumes[j];
                 
                 double score = calculateWeightedScore(
                     jobPtr->skills, jobPtr->skillCount,
@@ -599,180 +709,13 @@ MatchResultList* JobMatching::weightedScoringMatch(const string* skillSet, int s
                     *weightList
                 );
                 
-                if (score >= minScore)
+                if (score >= minScore) {
                     results->append(MatchResult(jobPtr->id, resume.id, score));
+                }
             }
         }
-    }
-
-    // ========== SINGLY LINKED LIST ==========
-    else if (dataStruct == SINGLY_LINKED_LIST) {
-        if (findJobMode) {
-            JobLinkedList* filteredJobs = (JobLinkedList*)searchJobsByPosition(keyword);
-            
-            if (filteredJobs && filteredJobs->getHead()) {
-                // Count jobs
-                JobNode* jobNode = filteredJobs->getHead();
-                int jobCount = 0;
-                JobNode* temp = jobNode;
-                
-                while (temp) {
-                    jobCount++;
-                    temp = temp->next;
-                }
-                
-                cout << "Processing " << jobCount << " jobs..." << endl;
-                
-                // Copy jobs to array for safe processing
-                Job* jobsToProcess = new Job[jobCount];
-                temp = jobNode;
-                for (int i = 0; i < jobCount && temp; i++) {
-                    jobsToProcess[i] = temp->data;
-                    temp = temp->next;
-                }
-                
-                // Process each job
-                for (int i = 0; i < jobCount; i++) {
-                    Job job = jobsToProcess[i];
-                    
-                    ResumeNode* resumeNode = resumeLinkedList->getHead();
-                    while (resumeNode) {
-                        Resume resume = resumeNode->data;
-                        
-                        double score = calculateWeightedScore(
-                            job.skills, job.skillCount,
-                            resume.skills, resume.skillCount,
-                            *weightList
-                        );
-                        
-                        if (score >= minScore)
-                            results->append(MatchResult(job.id, resume.id, score));
-                        
-                        resumeNode = resumeNode->next;
-                    }
-                }
-                
-                delete[] jobsToProcess;
-            } else {
-                cout << "No jobs found matching keyword: " << keyword << endl;
-            }
-            delete filteredJobs;
-            
-        } else {
-            // FIND_RESUME mode
-            Job* jobPtr = jobLinkedList->findById(jobId);
-            if (!jobPtr) {
-                cout << "Job not found.\n";
-                delete weightList;
-                return results;
-            }
-            
-            cout << "Processing resumes for Job ID " << jobId << "..." << endl;
-            
-            ResumeNode* resumeNode = resumeLinkedList->getHead();
-            while (resumeNode) {
-                Resume resume = resumeNode->data;
-                
-                double score = calculateWeightedScore(
-                    jobPtr->skills, jobPtr->skillCount,
-                    resume.skills, resume.skillCount,
-                    *weightList
-                );
-                
-                if (score >= minScore)
-                    results->append(MatchResult(jobPtr->id, resume.id, score));
-                
-                resumeNode = resumeNode->next;
-            }
-        }
-    }
-
-    // ========== CIRCULAR LINKED LIST ==========
-    else if (dataStruct == CIRCULAR_LINKED_LIST) {
-        if (findJobMode) {
-            JobCircularLinkedList* filteredJobs = (JobCircularLinkedList*)searchJobsByPosition(keyword);
-            
-            if (filteredJobs && filteredJobs->getHead()) {
-                JobNode* jobNode = filteredJobs->getHead();
-                JobNode* start = jobNode;
-                
-                // Count jobs in circular list
-                int jobCount = 0;
-                do {
-                    jobCount++;
-                    jobNode = jobNode->next;
-                } while (jobNode != start);
-                
-                cout << "Processing " << jobCount << " jobs..." << endl;
-                
-                // Copy jobs to array
-                Job* jobsToProcess = new Job[jobCount];
-                jobNode = start;
-                for (int i = 0; i < jobCount; i++) {
-                    jobsToProcess[i] = jobNode->data;
-                    jobNode = jobNode->next;
-                }
-                
-                // Process each job
-                for (int i = 0; i < jobCount; i++) {
-                    Job job = jobsToProcess[i];
-                    
-                    ResumeNode* resumeNode = resumeCircular->getHead();
-                    if (resumeNode) {
-                        ResumeNode* rStart = resumeNode;
-                        do {
-                            Resume resume = resumeNode->data;
-                            
-                            double score = calculateWeightedScore(
-                                job.skills, job.skillCount,
-                                resume.skills, resume.skillCount,
-                                *weightList
-                            );
-                            
-                            if (score >= minScore)
-                                results->append(MatchResult(job.id, resume.id, score));
-                            
-                            resumeNode = resumeNode->next;
-                        } while (resumeNode != rStart);
-                    }
-                }
-                
-                delete[] jobsToProcess;
-            } else {
-                cout << "No jobs found matching keyword: " << keyword << endl;
-            }
-            delete filteredJobs;
-            
-        } else {
-            // FIND_RESUME mode
-            Job* jobPtr = jobCircular->findById(jobId);
-            if (!jobPtr) {
-                cout << "Job not found.\n";
-                delete weightList;
-                return results;
-            }
-            
-            cout << "Processing resumes for Job ID " << jobId << "..." << endl;
-            
-            ResumeNode* resumeNode = resumeCircular->getHead();
-            if (resumeNode) {
-                ResumeNode* start = resumeNode;
-                do {
-                    Resume resume = resumeNode->data;
-                    
-                    double score = calculateWeightedScore(
-                        jobPtr->skills, jobPtr->skillCount,
-                        resume.skills, resume.skillCount,
-                        *weightList
-                    );
-                    
-                    if (score >= minScore)
-                        results->append(MatchResult(jobPtr->id, resume.id, score));
-                    
-                    resumeNode = resumeNode->next;
-                } while (resumeNode != start);
-            }
-        }
+        
+        if (resumes) delete[] resumes;
     }
 
     cout << "Matching complete. Found " << results->getLength() << " matches above " 

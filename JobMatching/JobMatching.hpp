@@ -83,6 +83,10 @@ public:
     void *searchBySkills(const string *skillSet, int skillCount, bool matchAll);
     void *searchJobsByPosition(string position);
 
+    Job* convertJobsToArray(void* searchResult, int& outCount);
+    Resume* convertResumesToArray(void* searchResult, int& outCount);
+    Resume* getAllResumesAsArray(int& outCount);
+
     // algorithms
     MatchResultList *ruleBasedMatch(const string *skillSet, int skillCount, bool matchAll);
 

@@ -15,8 +15,6 @@ inline std::string normalizeString(std::string s)
     return s;
 }
 
-// ======================= ResumeArray Implementation =======================
-
 ResumeArray::ResumeArray()
 {
     capacity = 50;
@@ -26,6 +24,10 @@ ResumeArray::ResumeArray()
 
 ResumeArray::~ResumeArray()
 {
+    for (int i = 0; i < size; i++)
+    {
+        delete[] resumes[i].skills;
+    }
     delete[] resumes;
 }
 
@@ -38,14 +40,24 @@ void ResumeArray::resize()
     {
         newResumes[i].id = resumes[i].id;
         newResumes[i].skillCount = resumes[i].skillCount;
-        newResumes[i].skills = new string[resumes[i].skillCount];
-        for (int j = 0; j < resumes[i].skillCount; j++)
-        {
-            newResumes[i].skills[j] = resumes[i].skills[j];
+        
+        if (resumes[i].skills && resumes[i].skillCount > 0) {
+            newResumes[i].skills = new string[resumes[i].skillCount];
+            for (int j = 0; j < resumes[i].skillCount; j++)
+            {
+                newResumes[i].skills[j] = resumes[i].skills[j];
+            }
+        } else {
+            newResumes[i].skills = nullptr;
         }
     }
 
+    for (int i = 0; i < size; i++)
+    {
+        delete[] resumes[i].skills;
+    }
     delete[] resumes;
+    
     resumes = newResumes;
 }
 
@@ -68,11 +80,15 @@ void ResumeArray::addResume(int id, string *skills, int skillCount)
 
     resumes[size].id = id;
     resumes[size].skillCount = skillCount;
-    resumes[size].skills = new string[skillCount];
-
-    for (int i = 0; i < skillCount; i++)
-    {
-        resumes[size].skills[i] = skills[i];
+    
+    if (skills && skillCount > 0) {
+        resumes[size].skills = new string[skillCount];
+        for (int i = 0; i < skillCount; i++)
+        {
+            resumes[size].skills[i] = skills[i];
+        }
+    } else {
+        resumes[size].skills = nullptr;
     }
 
     size++;
