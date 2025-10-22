@@ -315,6 +315,16 @@ double JobMatching::calculateWeightedScore(
     return (score > 100.0) ? 100.0 : score;
 }
 
+void JobMatching::addUniqueMatch(int jobId, int resumeId, double score) {
+    MatchResultNode* node = results->getHead();
+    while (node) {
+        if (node->data.jobId == jobId && node->data.resumeId == resumeId)
+            return;
+        node = node->next;
+    }
+    results->append(MatchResult(jobId, resumeId, score));
+}
+
 MatchResultList* JobMatching::ruleBasedMatch(const string* skillSet, int skillCount, bool matchAll) {
     delete results;
     results = new MatchResultList();
@@ -373,7 +383,7 @@ MatchResultList* JobMatching::ruleBasedMatch(const string* skillSet, int skillCo
                 }
                 
                 double score = (static_cast<double>(matchedSkills) / job.skillCount) * 100.0;
-                results->append(MatchResult(job.id, resume.id, score));
+                addUniqueMatch(job.id, resume.id, score);  // Changed from results->append
             });
             
             cleanupResumeSearchResult(resumeSearchResult);
@@ -424,7 +434,7 @@ MatchResultList* JobMatching::ruleBasedMatch(const string* skillSet, int skillCo
             }
             
             double score = (static_cast<double>(matchedSkills) / jobPtr->skillCount) * 100.0;
-            results->append(MatchResult(jobPtr->id, resume.id, score));
+            addUniqueMatch(jobPtr->id, resume.id, score);  // Changed from results->append
         });
         
         cleanupResumeSearchResult(resumeSearchResult);
@@ -433,8 +443,6 @@ MatchResultList* JobMatching::ruleBasedMatch(const string* skillSet, int skillCo
     cout << "Matching complete. Found " << results->getLength() << " matches." << endl;
     return results;
 }
-
-// ==================== Refactored Weighted Scoring Match ====================
 
 MatchResultList* JobMatching::weightedScoringMatch(const string* skillSet, int skillCount, bool matchAll) {
     delete results;
@@ -466,16 +474,6 @@ MatchResultList* JobMatching::weightedScoringMatch(const string* skillSet, int s
     }
 
     SkillWeightList* weightList = promptSkillWeights(skillSet, skillCount);
-
-    auto addMatchUnique = [this](int jobId, int resumeId, double score) {
-        MatchResultNode* node = results->getHead();
-        while (node) {
-            if (node->data.jobId == jobId && node->data.resumeId == resumeId)
-                return;
-            node = node->next;
-        }
-        results->append(MatchResult(jobId, resumeId, score));
-    };
 
     if (findJobMode) {
         // FIND_JOB mode
@@ -514,7 +512,7 @@ MatchResultList* JobMatching::weightedScoringMatch(const string* skillSet, int s
                 delete[] sortedResumeSkills;
                 
                 if (score >= minScore) {
-                    addMatchUnique(job.id, resume.id, score);
+                    addUniqueMatch(job.id, resume.id, score);  // Changed from lambda
                 }
             });
             
@@ -562,7 +560,7 @@ MatchResultList* JobMatching::weightedScoringMatch(const string* skillSet, int s
             delete[] sortedResumeSkills;
             
             if (score >= minScore) {
-                addMatchUnique(jobPtr->id, resume.id, score);
+                addUniqueMatch(jobPtr->id, resume.id, score);  // Changed from lambda
             }
         });
         

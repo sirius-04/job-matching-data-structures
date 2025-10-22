@@ -25,8 +25,7 @@ void displayMenu(JobArray &jobArray, ResumeArray &resumeArray, JobLinkedList &jo
         cout << "[1] Array" << endl;
         cout << "[2] Linked List" << endl;
         cout << "[3] Circular Linked List" << endl;
-        cout << "[4] Summary" << endl;
-        cout << "[5] Exit" << endl;
+        cout << "[4] Exit" << endl;
         cout << "Enter choice: ";
 
         if (!(cin >> userChoice))
@@ -49,9 +48,6 @@ void displayMenu(JobArray &jobArray, ResumeArray &resumeArray, JobLinkedList &jo
             runCircularLinkedList(jobCircularLinkedList, resumeCircularLinkedList);
             break;
         case 4:
-            summary();
-            break;
-        case 5:
             cout << "Exiting program..." << endl;
             return;
         default:

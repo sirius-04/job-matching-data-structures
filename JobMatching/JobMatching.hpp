@@ -61,17 +61,6 @@ private:
     double matchTime;
     size_t memoryUsed;
 
-public:
-    JobMatching(JobArray *jobArray, ResumeArray *resumeArray);
-    JobMatching(JobLinkedList *jobLinkedList, ResumeLinkedList *resumeLinkedList);
-    JobMatching(JobCircularLinkedList *jobCircular, ResumeCircularLinkedList *resumeCircular);
-    ~JobMatching();
-
-    void setMatchMode(MatchMode matchMode);
-    void setDataStruct(DataStruct dataStruct);
-    void setMatchStrategy(MatchStrategy strategy);
-    void setSearchAlgorithm(SearchAlgorithm searchAlgo);
-
     // unified search function
     void *searchBySkills(const string *skillSet, int skillCount, bool matchAll);
     void *searchJobsByPosition(string position);
@@ -85,12 +74,24 @@ public:
     void cleanupJobSearchResult(void* searchResult);
     void cleanupResumeSearchResult(void* searchResult);
 
-    // algorithms
-    MatchResultList *ruleBasedMatch(const string *skillSet, int skillCount, bool matchAll);
-
     SkillWeightList *promptSkillWeights(const string *skillSet, int skillCount);
     double calculateWeightedScore(const string *inputSkills, int inputCount, const string *targetSkills, int targetCount, const SkillWeightList &weightList);
+    void addUniqueMatch(int jobId, int resumeId, double score);
+
+    // algorithms
+    MatchResultList *ruleBasedMatch(const string *skillSet, int skillCount, bool matchAll);
     MatchResultList *weightedScoringMatch(const string *skillSet, int skillCount, bool matchAll);
+
+public:
+    JobMatching(JobArray *jobArray, ResumeArray *resumeArray);
+    JobMatching(JobLinkedList *jobLinkedList, ResumeLinkedList *resumeLinkedList);
+    JobMatching(JobCircularLinkedList *jobCircular, ResumeCircularLinkedList *resumeCircular);
+    ~JobMatching();
+
+    void setMatchMode(MatchMode matchMode);
+    void setDataStruct(DataStruct dataStruct);
+    void setMatchStrategy(MatchStrategy strategy);
+    void setSearchAlgorithm(SearchAlgorithm searchAlgo);
 
     MatchResultList *runMatching(const string *skillSet, int skillCount, bool matchAll);
     void printPerformance() const;

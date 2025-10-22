@@ -1050,10 +1050,3 @@ void runCircularLinkedList(JobCircularLinkedList &jobCircularLinkedList, ResumeC
         }
     }
 }
-
-// Summary Report
-
-void summary()
-{
-    cout << "summary" << endl;
-}
