@@ -167,13 +167,17 @@ JobArray *JobArray::linearSearchBySkills(const string *skillSet, int skillCount,
 JobArray *JobArray::linearSearchByPosition(const string &position)
 {
     JobArray *result = new JobArray();
+    string target = normalizeString(position);
+
     for (int i = 0; i < size; i++)
     {
-        if (jobs[i].position == position)
+        string jobPos = normalizeString(jobs[i].position);
+        if (jobPos == target)
         {
             result->addJob(jobs[i].id, jobs[i].position, jobs[i].skills, jobs[i].skillCount);
         }
     }
+
     return result;
 }
 
@@ -297,13 +301,9 @@ void JobArray::quickSortByPosition()
 
 void JobArray::quickSortBySkill()
 {
-    for (int i = 0; i < size; i++)
-    {
-        if (jobs[i].skillCount > 1)
-        {
-            sort(jobs[i].skills, jobs[i].skills + jobs[i].skillCount);
-        }
-    }
+    auto cmp = [](const Job &a, const Job &b)
+    { return a.skills[0] < b.skills[0]; };
+    quickSortHelper(0, size - 1, cmp);
 }
 
 void JobArray::quickSortBySkillCount()
@@ -314,25 +314,53 @@ void JobArray::quickSortBySkillCount()
         quickSortHelper(0, size - 1, cmp);
 }
 
+void JobArray::quickSort(const std::string &criteria)
+{
+    if (size <= 1)
+        return;
+
+    if (criteria == "position")
+    {
+        quickSortByPosition();
+        std::cout << "Jobs sorted by position.\n";
+    }
+    else if (criteria == "skill")
+    {
+        quickSortBySkill();
+        std::cout << "Jobs sorted by skill.\n";
+    }
+    else if (criteria == "skillCount")
+    {
+        quickSortBySkillCount();
+        std::cout << "Jobs sorted by skill count.\n";
+    }
+    else
+    {
+        std::cout << "Unknown sort criteria: " << criteria << std::endl;
+    }
+}
+
 // binary search
 JobArray *JobArray::binarySearchByPosition(const string &position)
 {
     quickSortByPosition();
     JobArray *result = new JobArray();
 
+    string target = normalizeString(position); // normalize input
     int left = 0, right = size - 1;
     int foundIndex = -1;
 
     while (left <= right)
     {
         int mid = (left + right) / 2;
+        string midPos = normalizeString(jobs[mid].position);
 
-        if (jobs[mid].position == position)
+        if (midPos == target)
         {
             foundIndex = mid;
             break;
         }
-        else if (jobs[mid].position < position)
+        else if (midPos < target)
             left = mid + 1;
         else
             right = mid - 1;
@@ -341,15 +369,15 @@ JobArray *JobArray::binarySearchByPosition(const string &position)
     if (foundIndex == -1)
         return result;
 
-    int i = foundIndex;
-    while (i >= 0 && jobs[i].position == position)
+    int i = foundIndex - 1;
+    while (i >= 0 && normalizeString(jobs[i].position) == target)
     {
         result->addJob(jobs[i].id, jobs[i].position, jobs[i].skills, jobs[i].skillCount);
         i--;
     }
 
-    i = foundIndex + 1;
-    while (i < size && jobs[i].position == position)
+    i = foundIndex;
+    while (i < size && normalizeString(jobs[i].position) == target)
     {
         result->addJob(jobs[i].id, jobs[i].position, jobs[i].skills, jobs[i].skillCount);
         i++;
@@ -364,8 +392,7 @@ JobArray *JobArray::binarySearchBySkills(const string *skillSet, int skillCount,
 
     for (int i = 0; i < size; i++)
     {
-        sort(jobs[i].skills, jobs[i].skills + jobs[i].skillCount, [](string a, string b)
-             { return normalizeString(a) < normalizeString(b); });
+        quickSortBySkill();
 
         int matches = 0;
 

@@ -93,11 +93,19 @@ int main()
     createResumeArray(resumeArray);
 
     // jobArray.quickSortByPosition();
-    // JobArray *result = jobArray.linearSearchByPosition("Data Analyst");
-    // JobArray *result = jobArray.binarySearchByPosition("Data Analyst");
-    // string skills[] = {"Python", "Pandas"};
+    // JobArray *result = jobArray.linearSearchByPosition("data analyst");
+    // JobArray *result = jobArray.binarySearchByPosition("data analyst");
+    // string skills[] = {"python", "pandas"};
     // JobArray *result = jobArray.linearSearchBySkills(skills, 2, false);
     // JobArray *result = jobArray.binarySearchBySkills(skills, 2, false);
+    // jobArray.mergeSort(jobArray.compareByPosition);
+    // jobArray.compareByFirstSkill();
+    // jobArray.quickSortByPosition();
+    // jobArray.quickSort("position");
+    // jobArray.printJobs();
+    // resumeArray.quickSort("skillCount");
+    resumeArray.mergeSort(resumeArray.compareBySkillCount);
+    resumeArray.printResumes();
     // result->printJobs();
 
     // const string skills[] = {"Python", "Pandas"};
@@ -105,5 +113,5 @@ int main()
     // ResumeArray *resumeResult = resumeArray.binarySearchBySkills(skills, 2, false);
     // resumeResult->printResumes();
 
-    displayMenu(jobArray, resumeArray, jobLinkedList, resumelinkedList, jobCircularLinkedList, resumeCircularLinkedList);
+    // displayMenu(jobArray, resumeArray, jobLinkedList, resumelinkedList, jobCircularLinkedList, resumeCircularLinkedList);
 }
