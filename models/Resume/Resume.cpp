@@ -59,8 +59,10 @@ Resume &Resume::operator=(const Resume &other)
 
 Resume::~Resume()
 {
-    delete[] skills;
-    skills = nullptr;
+    if (skills != nullptr) {
+        delete[] skills;
+        skills = nullptr;
+    }
 }
 
 ResumeNode::ResumeNode(Resume data)

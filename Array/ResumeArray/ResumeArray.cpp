@@ -47,31 +47,19 @@ int ResumeArray::getSize() const
     return size;
 }
 
-Resume ResumeArray::getResume(int index) const
+const Resume& ResumeArray::getResume(int index) const
 {
     if (index >= 0 && index < size)
         return resumes[index];
     throw out_of_range("Index out of bounds in getResume()");
 }
 
-void ResumeArray::addResume(int id, string *skills, int skillCount)
+void ResumeArray::addResume(const Resume& resume)
 {
     if (size >= capacity)
         resize();
-
-    resumes[size].id = id;
-    resumes[size].skillCount = skillCount;
     
-    if (skills && skillCount > 0) {
-        resumes[size].skills = new string[skillCount];
-        for (int i = 0; i < skillCount; i++)
-        {
-            resumes[size].skills[i] = skills[i];
-        }
-    } else {
-        resumes[size].skills = nullptr;
-    }
-
+    resumes[size] = resume;
     size++;
 }
 
@@ -161,7 +149,7 @@ ResumeArray *ResumeArray::linearSearchBySkills(const string *skillSet, int skill
 
         if (isMatch)
         {
-            result->addResume(resumes[i].id, resumes[i].skills, resumes[i].skillCount);
+            result->addResume(resumes[i]);
         }
     }
 
@@ -366,7 +354,7 @@ ResumeArray *ResumeArray::binarySearchBySkills(const string *skillSet, int skill
 
         if (isMatch)
         {
-            result->addResume(resumes[i].id, resumes[i].skills, resumes[i].skillCount);
+            result->addResume(resumes[i]);
         }
     }
 

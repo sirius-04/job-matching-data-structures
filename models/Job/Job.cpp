@@ -56,8 +56,10 @@ Job &Job::operator=(const Job &other)
 
 Job::~Job()
 {
-    delete[] skills;
-    skills = nullptr;
+    if (skills != nullptr) {
+        delete[] skills;
+        skills = nullptr;
+    }
 }
 
 JobNode::JobNode(Job data)

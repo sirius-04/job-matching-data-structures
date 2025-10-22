@@ -1,7 +1,11 @@
 #include "JobMatching.hpp"
-
-#include "JobMatching.hpp"
+#include "../models/PerformanceTracker/PerformanceTracker.hpp"
+#include <iostream>
+#include <chrono>
+#include <cstdlib>
 #include <algorithm>
+using namespace std;
+using namespace std::chrono;
 
 JobMatching::JobMatching(JobArray* jobArray, ResumeArray* resumeArray) {
     this->jobArray = jobArray;
@@ -16,7 +20,7 @@ JobMatching::JobMatching(JobArray* jobArray, ResumeArray* resumeArray) {
     this->memoryUsed = 0;
     this->matchMode = FIND_RESUME;
     this->dataStruct = ARRAY;
-    this->matchStrategy = RULE_BASED;
+    this->matchStrategy = KEYWORD_BASED;
     this->searchAlgo = LINEAR;
 }
 
@@ -33,7 +37,7 @@ JobMatching::JobMatching(JobLinkedList* jobLinkedList, ResumeLinkedList* resumeL
     this->memoryUsed = 0;
     this->matchMode = FIND_RESUME;
     this->dataStruct = SINGLY_LINKED_LIST;
-    this->matchStrategy = RULE_BASED;
+    this->matchStrategy = KEYWORD_BASED;
     this->searchAlgo = LINEAR;
 }
 
@@ -50,7 +54,7 @@ JobMatching::JobMatching(JobCircularLinkedList* jobCircular, ResumeCircularLinke
     this->memoryUsed = 0;
     this->matchMode = FIND_RESUME;
     this->dataStruct = CIRCULAR_LINKED_LIST;
-    this->matchStrategy = RULE_BASED;
+    this->matchStrategy = KEYWORD_BASED;
     this->searchAlgo = LINEAR;
 }
 
@@ -325,11 +329,11 @@ void JobMatching::addUniqueMatch(int jobId, int resumeId, double score) {
     results->append(MatchResult(jobId, resumeId, score));
 }
 
-MatchResultList* JobMatching::ruleBasedMatch(const string* skillSet, int skillCount, bool matchAll) {
+MatchResultList* JobMatching::keywordBasedMatch(const string* skillSet, int skillCount, bool matchAll) {
     delete results;
     results = new MatchResultList();
 
-    cout << "\n===== Running Rule-Based Match (No Conversion) =====" << endl;
+    cout << "\n===== Running Keyword-Based Match (No Conversion) =====" << endl;
     bool findJobMode = (matchMode == FIND_JOB);
 
     string keyword;
@@ -560,9 +564,9 @@ MatchResultList* JobMatching::runMatching(const string* skillSet, int skillCount
     PerformanceResult perf = PerformanceTracker::measure([&]() {
         switch (matchStrategy)
         {
-        case RULE_BASED:
-            cout << "[Strategy] Rule-Based Matching" << endl;
-            matchResults = ruleBasedMatch(skillSet, skillCount, matchAll);
+        case KEYWORD_BASED:
+            cout << "[Strategy] Keyword-Based Matching" << endl;
+            matchResults = keywordBasedMatch(skillSet, skillCount, matchAll);
             break;
 
         case WEIGHTED_SCORING:
@@ -600,7 +604,7 @@ void JobMatching::printPerformance() const {
     // --- Match Strategy ---
     cout << "🧠 Match Strategy: ";
     switch (matchStrategy) {
-        case RULE_BASED: cout << "Rule-Based"; break;
+        case KEYWORD_BASED: cout << "Keyword-Based"; break;
         case WEIGHTED_SCORING: cout << "Weighted Scoring"; break;
         default: cout << "Unknown"; break;
     }

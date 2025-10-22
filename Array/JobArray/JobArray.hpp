@@ -19,11 +19,11 @@ public:
     JobArray();
     ~JobArray();
     int getSize() const;
-    Job getJob(int index) const;
+    const Job& getJob(int index) const;
     Job *findById(int id);
 
     // Core
-    void addJob(int id, string position, string *skills, int skillCount);
+    void addJob(const Job& job);
     void printJobs();
 
     // Linear search

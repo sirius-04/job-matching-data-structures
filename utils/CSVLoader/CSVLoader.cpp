@@ -297,7 +297,8 @@ void createJobArray(JobArray &jobArray)
         // Handle empty skills string
         if (skillsStr.empty())
         {
-            jobArray.addJob(id, position, nullptr, 0);
+            Job emptyJob(id, position, nullptr, 0);
+            jobArray.addJob(emptyJob);
             continue;
         }
 
@@ -314,7 +315,8 @@ void createJobArray(JobArray &jobArray)
         // Check again after cleaning
         if (skillsStr.empty())
         {
-            jobArray.addJob(id, position, nullptr, 0);
+            Job jobObj(id, position, nullptr, 0);
+            jobArray.addJob(jobObj);
             continue;
         }
 
@@ -335,7 +337,8 @@ void createJobArray(JobArray &jobArray)
         }
         skillsArr[index++] = skillsStr.substr(start); // last skill
 
-        jobArray.addJob(id, position, skillsArr, skillCount);
+        Job jobIns(id, position, skillsArr, skillCount);
+        jobArray.addJob(jobIns);
         delete[] skillsArr;
     }
 
@@ -382,7 +385,8 @@ void createResumeArray(ResumeArray &resumeArray)
         // Handle empty skills string
         if (skillsStr.empty())
         {
-            resumeArray.addResume(id, nullptr, 0);
+            Resume emptyResume(id, nullptr, 0);
+            resumeArray.addResume(emptyResume);
             continue;
         }
 
@@ -399,7 +403,8 @@ void createResumeArray(ResumeArray &resumeArray)
         // Check again after cleaning
         if (skillsStr.empty())
         {
-            resumeArray.addResume(id, nullptr, 0);
+            Resume emptyResume(id, nullptr, 0);
+            resumeArray.addResume(emptyResume);
             continue;
         }
 
@@ -420,7 +425,8 @@ void createResumeArray(ResumeArray &resumeArray)
         }
         skillsArr[index++] = skillsStr.substr(start); // last skill
 
-        resumeArray.addResume(id, skillsArr, skillCount);
+        Resume resumeObj(id, skillsArr, skillCount);
+        resumeArray.addResume(resumeObj);
         delete[] skillsArr;
     }
 

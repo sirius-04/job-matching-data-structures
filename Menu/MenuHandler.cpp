@@ -118,7 +118,7 @@ void handleMatch(JobMatching* matcher, DataStruct dataStruct)
 
     // --- Select Match Strategy ---
     cout << "\n--- SELECT MATCH STRATEGY ---" << endl;
-    cout << "[1] Rule-Based Matching" << endl;
+    cout << "[1] Keyword-Based Matching" << endl;
     cout << "[2] Weighted Scoring Matching" << endl;
     cout << "[3] Back" << endl;
 
@@ -126,7 +126,7 @@ void handleMatch(JobMatching* matcher, DataStruct dataStruct)
     if (strategyChoice == 3)
         return;
 
-    MatchStrategy matchStrategy = (strategyChoice == 1) ? RULE_BASED : WEIGHTED_SCORING;
+    MatchStrategy matchStrategy = (strategyChoice == 1) ? KEYWORD_BASED : WEIGHTED_SCORING;
     matcher->setMatchStrategy(matchStrategy);
 
     // --- Select Search Algorithm ---

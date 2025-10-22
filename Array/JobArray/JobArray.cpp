@@ -45,16 +45,6 @@ int JobArray::getSize() const
     return size;
 }
 
-Job JobArray::getJob(int index) const
-{
-    if (index < 0 || index >= size)
-    {
-        cerr << "Error: Job index out of bounds: " << index << endl;
-        return Job();
-    }
-    return jobs[index];
-}
-
 Job *JobArray::findById(int id)
 {
     for (int i = 0; i < size; i++)
@@ -65,18 +55,19 @@ Job *JobArray::findById(int id)
     return nullptr; // not found
 }
 
-void JobArray::addJob(int id, string position, string *skills, int skillCount)
+const Job& JobArray::getJob(int index) const
+{
+    if (index >= 0 && index < size)
+        return jobs[index];
+    throw out_of_range("Index out of bounds in getJob()");
+}
+
+void JobArray::addJob(const Job& job)
 {
     if (size >= capacity)
         resize();
-
-    jobs[size].id = id;
-    jobs[size].position = position;
-    jobs[size].skillCount = skillCount;
-    jobs[size].skills = new string[skillCount];
-    for (int i = 0; i < skillCount; i++)
-        jobs[size].skills[i] = skills[i];
-
+    
+    jobs[size] = job;
     size++;
 }
 
@@ -161,7 +152,7 @@ JobArray *JobArray::linearSearchBySkills(const string *skillSet, int skillCount,
 
         if (isMatch)
         {
-            result->addJob(jobs[i].id, jobs[i].position, jobs[i].skills, jobs[i].skillCount);
+            result->addJob(jobs[i]);
         }
     }
 
@@ -178,7 +169,7 @@ JobArray *JobArray::linearSearchByPosition(const string &position)
         string jobPos = normalizeString(jobs[i].position);
         if (jobPos == target)
         {
-            result->addJob(jobs[i].id, jobs[i].position, jobs[i].skills, jobs[i].skillCount);
+            result->addJob(jobs[i]);
         }
     }
 
@@ -373,14 +364,14 @@ JobArray *JobArray::binarySearchByPosition(const string &position)
     int i = foundIndex - 1;
     while (i >= 0 && normalizeString(jobs[i].position) == target)
     {
-        result->addJob(jobs[i].id, jobs[i].position, jobs[i].skills, jobs[i].skillCount);
+        result->addJob(jobs[i]);
         i--;
     }
 
     i = foundIndex;
     while (i < size && normalizeString(jobs[i].position) == target)
     {
-        result->addJob(jobs[i].id, jobs[i].position, jobs[i].skills, jobs[i].skillCount);
+        result->addJob(jobs[i]);
         i++;
     }
 
@@ -430,7 +421,7 @@ JobArray *JobArray::binarySearchBySkills(const string *skillSet, int skillCount,
         bool isMatch = matchAll ? (matches == skillCount) : (matches > 0);
         if (isMatch)
         {
-            result->addJob(jobs[i].id, jobs[i].position, jobs[i].skills, jobs[i].skillCount);
+            result->addJob(jobs[i]);
         }
     }
 

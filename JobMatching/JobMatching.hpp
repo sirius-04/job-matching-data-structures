@@ -9,12 +9,6 @@
 #include "../Array/ResumeArray/ResumeArray.hpp"
 #include "../models/MatchResult/MatchResult.hpp"
 #include "../models/SkillWeight/SkillWeight.hpp"
-#include "../models/PerformanceTracker/PerformanceTracker.hpp"
-#include <iostream>
-#include <chrono>
-#include <cstdlib>
-using namespace std;
-using namespace std::chrono;
 
 enum MatchMode
 {
@@ -31,7 +25,7 @@ enum DataStruct
 
 enum MatchStrategy
 {
-    RULE_BASED,
+    KEYWORD_BASED,
     WEIGHTED_SCORING
 };
 
@@ -79,7 +73,7 @@ private:
     void addUniqueMatch(int jobId, int resumeId, double score);
 
     // algorithms
-    MatchResultList *ruleBasedMatch(const string *skillSet, int skillCount, bool matchAll);
+    MatchResultList *keywordBasedMatch(const string *skillSet, int skillCount, bool matchAll);
     MatchResultList *weightedScoringMatch(const string *skillSet, int skillCount, bool matchAll);
 
 public:
