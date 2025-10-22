@@ -355,19 +355,7 @@ MatchResultList* JobMatching::ruleBasedMatch(const string* skillSet, int skillCo
         
         // Process each job directly without conversion
         processJobs(jobSearchResult, [&](const Job& job) {
-            // Search for matching resumes for this job
-            void* resumeSearchResult = nullptr;
-            switch (dataStruct) {
-                case ARRAY:
-                    resumeSearchResult = resumeArray->linearSearchBySkills(job.skills, job.skillCount, matchAll);
-                    break;
-                case SINGLY_LINKED_LIST:
-                    resumeSearchResult = resumeLinkedList->linearSearchResumeBySkills(job.skills, job.skillCount, matchAll);
-                    break;
-                case CIRCULAR_LINKED_LIST:
-                    resumeSearchResult = resumeCircular->linearSearchResumeBySkills(job.skills, job.skillCount, matchAll);
-                    break;
-            }
+            void* resumeSearchResult = searchBySkills(job.skills, job.skillCount, matchAll);
             
             // Process each matching resume directly
             processResumes(resumeSearchResult, [&](const Resume& resume) {
@@ -383,7 +371,7 @@ MatchResultList* JobMatching::ruleBasedMatch(const string* skillSet, int skillCo
                 }
                 
                 double score = (static_cast<double>(matchedSkills) / job.skillCount) * 100.0;
-                addUniqueMatch(job.id, resume.id, score);  // Changed from results->append
+                addUniqueMatch(job.id, resume.id, score);
             });
             
             cleanupResumeSearchResult(resumeSearchResult);
@@ -407,19 +395,7 @@ MatchResultList* JobMatching::ruleBasedMatch(const string* skillSet, int skillCo
         
         cout << "Processing resumes for Job ID " << jobId << "..." << endl;
         
-        // Search for matching resumes
-        void* resumeSearchResult = nullptr;
-        switch (dataStruct) {
-            case ARRAY:
-                resumeSearchResult = resumeArray->linearSearchBySkills(jobPtr->skills, jobPtr->skillCount, matchAll);
-                break;
-            case SINGLY_LINKED_LIST:
-                resumeSearchResult = resumeLinkedList->linearSearchResumeBySkills(jobPtr->skills, jobPtr->skillCount, matchAll);
-                break;
-            case CIRCULAR_LINKED_LIST:
-                resumeSearchResult = resumeCircular->linearSearchResumeBySkills(jobPtr->skills, jobPtr->skillCount, matchAll);
-                break;
-        }
+        void* resumeSearchResult = searchBySkills(jobPtr->skills, jobPtr->skillCount, matchAll);
         
         // Process resumes directly
         processResumes(resumeSearchResult, [&](const Resume& resume) {
@@ -434,7 +410,7 @@ MatchResultList* JobMatching::ruleBasedMatch(const string* skillSet, int skillCo
             }
             
             double score = (static_cast<double>(matchedSkills) / jobPtr->skillCount) * 100.0;
-            addUniqueMatch(jobPtr->id, resume.id, score);  // Changed from results->append
+            addUniqueMatch(jobPtr->id, resume.id, score);
         });
         
         cleanupResumeSearchResult(resumeSearchResult);
@@ -512,7 +488,7 @@ MatchResultList* JobMatching::weightedScoringMatch(const string* skillSet, int s
                 delete[] sortedResumeSkills;
                 
                 if (score >= minScore) {
-                    addUniqueMatch(job.id, resume.id, score);  // Changed from lambda
+                    addUniqueMatch(job.id, resume.id, score);
                 }
             });
             
@@ -560,7 +536,7 @@ MatchResultList* JobMatching::weightedScoringMatch(const string* skillSet, int s
             delete[] sortedResumeSkills;
             
             if (score >= minScore) {
-                addUniqueMatch(jobPtr->id, resume.id, score);  // Changed from lambda
+                addUniqueMatch(jobPtr->id, resume.id, score);
             }
         });
         
