@@ -24,10 +24,6 @@ ResumeArray::ResumeArray()
 
 ResumeArray::~ResumeArray()
 {
-    for (int i = 0; i < size; i++)
-    {
-        delete[] resumes[i].skills;
-    }
     delete[] resumes;
 }
 
@@ -38,24 +34,9 @@ void ResumeArray::resize()
 
     for (int i = 0; i < size; i++)
     {
-        newResumes[i].id = resumes[i].id;
-        newResumes[i].skillCount = resumes[i].skillCount;
-        
-        if (resumes[i].skills && resumes[i].skillCount > 0) {
-            newResumes[i].skills = new string[resumes[i].skillCount];
-            for (int j = 0; j < resumes[i].skillCount; j++)
-            {
-                newResumes[i].skills[j] = resumes[i].skills[j];
-            }
-        } else {
-            newResumes[i].skills = nullptr;
-        }
+        newResumes[i] = resumes[i];
     }
 
-    for (int i = 0; i < size; i++)
-    {
-        delete[] resumes[i].skills;
-    }
     delete[] resumes;
     
     resumes = newResumes;
@@ -260,7 +241,7 @@ void ResumeArray::mergeSort(CompareFn compare)
 // quick sort
 int ResumeArray::partition(int low, int high, bool (*cmp)(const Resume &, const Resume &))
 {
-    Resume pivot = resumes[high];
+    const Resume& pivot = resumes[high];
     int i = low - 1;
 
     for (int j = low; j < high; j++)

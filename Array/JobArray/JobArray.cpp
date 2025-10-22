@@ -22,11 +22,6 @@ JobArray::JobArray()
 
 JobArray::~JobArray()
 {
-    for (int i = 0; i < size; i++)
-    {
-        delete[] jobs[i].skills;
-    }
-
     delete[] jobs;
 }
 
@@ -35,32 +30,11 @@ void JobArray::resize()
     capacity *= 2;
     Job *newJobs = new Job[capacity];
     
-    // Deep copy each job
     for (int i = 0; i < size; i++)
     {
-        newJobs[i].id = jobs[i].id;
-        newJobs[i].position = jobs[i].position;
-        newJobs[i].skillCount = jobs[i].skillCount;
-        
-        // Deep copy skills
-        if (jobs[i].skillCount > 0)
-        {
-            newJobs[i].skills = new string[jobs[i].skillCount];
-            for (int j = 0; j < jobs[i].skillCount; j++)
-            {
-                newJobs[i].skills[j] = jobs[i].skills[j];
-            }
-        }
-        else
-        {
-            newJobs[i].skills = nullptr;
-        }
+        newJobs[i] = jobs[i];
     }
     
-    for (int i = 0; i < size; i++)
-    {
-        delete[] jobs[i].skills;
-    }
     delete[] jobs;
     
     jobs = newJobs;
@@ -282,7 +256,7 @@ void JobArray::mergeSort(CompareFn compare)
 // quick sort
 int JobArray::partition(int low, int high, bool (*cmp)(const Job &, const Job &))
 {
-    Job pivot = jobs[high];
+    const Job& pivot = jobs[high];
     int i = low - 1;
 
     for (int j = low; j < high; j++)
