@@ -20,23 +20,24 @@ public:
     ~JobArray();
     int getSize() const;
     Job getJob(int index) const;
-    Job* findById(int id);
+    Job *findById(int id);
 
     // Core
     void addJob(int id, string position, string *skills, int skillCount);
     void printJobs();
 
     // Linear search
-    JobArray* linearSearchBySkills(const string *skillSet, int skillCount, bool matchAll);
-    JobArray* linearSearchByPosition(const string &position);
+    JobArray *linearSearchBySkills(const string *skillSet, int skillCount, bool matchAll);
+    JobArray *linearSearchByPosition(const string &position);
 
     // binary search
-    JobArray* binarySearchByPosition(const string &position);
-    JobArray* binarySearchBySkills(const string *skillSet, int skillCount, bool matchAll);
+    JobArray *binarySearchByPosition(const string &position);
+    JobArray *binarySearchBySkills(const string *skillSet, int skillCount, bool matchAll);
 
     // quick sort
     int partition(int low, int high, bool (*cmp)(const Job &, const Job &));
     void quickSortHelper(int low, int high, bool (*cmp)(const Job &, const Job &));
+    void quickSort(const string &criteria);
     void quickSortById();
     void quickSortByPosition();
     void quickSortBySkill();

@@ -89,7 +89,7 @@ void ResumeArray::printResumes()
                 if (j < resumes[i].skillCount - 1)
                     cout << ",";
             }
-            cout << endl;
+            cout << " | Total Skills: " << resumes[i].skillCount << endl;
         }
     }
     else
@@ -104,7 +104,7 @@ void ResumeArray::printResumes()
                 if (j < resumes[i].skillCount - 1)
                     cout << ",";
             }
-            cout << endl;
+            cout << " | Total Skills: " << resumes[i].skillCount << endl;
         }
 
         cout << "...\n... (skipping " << (size - 20) << " resumes) ...\n...\n";
@@ -119,7 +119,7 @@ void ResumeArray::printResumes()
                 if (j < resumes[i].skillCount - 1)
                     cout << ",";
             }
-            cout << endl;
+            cout << " | Total Skills: " << resumes[i].skillCount << endl;
         }
     }
 
@@ -278,13 +278,16 @@ void ResumeArray::quickSortById()
 
 void ResumeArray::quickSortBySkill()
 {
-    for (int i = 0; i < size; i++)
+    auto cmp = [](const Resume &a, const Resume &b)
     {
-        if (resumes[i].skillCount > 1)
-        {
-            sort(resumes[i].skills, resumes[i].skills + resumes[i].skillCount);
-        }
-    }
+        if (a.skillCount == 0)
+            return true;
+        if (b.skillCount == 0)
+            return false;
+        return a.skills[0] < b.skills[0];
+    };
+    if (size > 1)
+        quickSortHelper(0, size - 1, cmp);
 }
 
 void ResumeArray::quickSortBySkillCount()
@@ -293,6 +296,29 @@ void ResumeArray::quickSortBySkillCount()
     { return a.skillCount < b.skillCount; };
     if (size > 1)
         quickSortHelper(0, size - 1, cmp);
+}
+
+void ResumeArray::quickSort(const std::string &criteria)
+{
+    if (size <= 1)
+        return;
+
+    if (criteria == "id")
+    {
+        quickSortById();
+    }
+    else if (criteria == "skill")
+    {
+        quickSortBySkill();
+    }
+    else if (criteria == "skillCount")
+    {
+        quickSortBySkillCount();
+    }
+    else
+    {
+        cout << "Unknown sort criteria: " << criteria << endl;
+    }
 }
 
 // binary search
