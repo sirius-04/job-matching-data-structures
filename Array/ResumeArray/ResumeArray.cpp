@@ -4,6 +4,16 @@
 #include <iostream>
 using namespace std;
 
+// normalize string
+inline std::string normalizeString(std::string s)
+{
+    // Trim whitespace
+    s.erase(remove_if(s.begin(), s.end(), ::isspace), s.end());
+    // Convert to lowercase
+    std::transform(s.begin(), s.end(), s.begin(), ::tolower);
+    return s;
+}
+
 // ======================= ResumeArray Implementation =======================
 
 ResumeArray::ResumeArray()
@@ -69,45 +79,89 @@ void ResumeArray::addResume(int id, string *skills, int skillCount)
 
 void ResumeArray::printResumes()
 {
-    cout << "\n--- Resume Data ---\n";
-    for (int i = 0; i < size; i++)
+    cout << "\n--- Resume for Array ---\n";
+    if (size <= 20)
     {
-        cout << resumes[i].id << " | ";
-        for (int j = 0; j < resumes[i].skillCount; j++)
+        for (int i = 0; i < size; i++)
         {
-            cout << resumes[i].skills[j];
-            if (j < resumes[i].skillCount - 1)
-                cout << ",";
+            cout << resumes[i].id << " | ";
+            for (int j = 0; j < resumes[i].skillCount; j++)
+            {
+                cout << resumes[i].skills[j];
+                if (j < resumes[i].skillCount - 1)
+                    cout << ",";
+            }
+            cout << endl;
         }
-        cout << endl;
     }
-    cout << "\n Total resumes printed: " << size << endl;
+    else
+    {
+        // Print first 10
+        for (int i = 0; i < 10; i++)
+        {
+            cout << resumes[i].id << " | ";
+            for (int j = 0; j < resumes[i].skillCount; j++)
+            {
+                cout << resumes[i].skills[j];
+                if (j < resumes[i].skillCount - 1)
+                    cout << ",";
+            }
+            cout << endl;
+        }
+
+        cout << "...\n... (skipping " << (size - 20) << " resumes) ...\n...\n";
+
+        // Print last 10
+        for (int i = size - 10; i < size; i++)
+        {
+            cout << resumes[i].id << " | ";
+            for (int j = 0; j < resumes[i].skillCount; j++)
+            {
+                cout << resumes[i].skills[j];
+                if (j < resumes[i].skillCount - 1)
+                    cout << ",";
+            }
+            cout << endl;
+        }
+    }
+
+    cout << "\nTotal resumes printed: " << (size <= 20 ? size : 20) << " out of " << size << endl;
 }
 
 // ======================= Linear Search =======================
 
-ResumeArray* ResumeArray::linearSearchBySkills(const string *skillSet, int skillCount, bool matchAll)
+ResumeArray *ResumeArray::linearSearchBySkills(const string *skillSet, int skillCount, bool matchAll)
 {
-    ResumeArray* result = new ResumeArray();
+    ResumeArray *result = new ResumeArray();
 
     for (int i = 0; i < size; i++)
     {
         int matchCount = 0;
 
-        // check each skill in resume against each search skill
-        for (int j = 0; j < resumes[i].skillCount; j++)
+        for (int k = 0; k < skillCount; k++)
         {
-            for (int k = 0; k < skillCount; k++)
+            string target = normalizeString(skillSet[k]);
+            bool found = false;
+
+            for (int j = 0; j < resumes[i].skillCount; j++)
             {
-                if (resumes[i].skills[j] == skillSet[k])
+                string resumeSkill = normalizeString(resumes[i].skills[j]);
+
+                if (resumeSkill == target)
                 {
+                    found = true;
                     matchCount++;
-                    break; // avoid counting same resume skill twice
+                    break;
                 }
             }
+
+            if (matchAll && !found)
+                break;
         }
 
-        if ((matchAll && matchCount == skillCount) || (!matchAll && matchCount > 0))
+        bool isMatch = matchAll ? (matchCount == skillCount) : (matchCount > 0);
+
+        if (isMatch)
         {
             result->addResume(resumes[i].id, resumes[i].skills, resumes[i].skillCount);
         }
@@ -226,14 +280,13 @@ void ResumeArray::quickSortById()
 
 void ResumeArray::quickSortBySkill()
 {
-    auto cmp = [](const Resume &a, const Resume &b)
+    for (int i = 0; i < size; i++)
     {
-        string skillA = (a.skillCount > 0) ? a.skills[0] : "";
-        string skillB = (b.skillCount > 0) ? b.skills[0] : "";
-        return skillA < skillB;
-    };
-    if (size > 1)
-        quickSortHelper(0, size - 1, cmp);
+        if (resumes[i].skillCount > 1)
+        {
+            sort(resumes[i].skills, resumes[i].skills + resumes[i].skillCount);
+        }
+    }
 }
 
 void ResumeArray::quickSortBySkillCount()
@@ -245,30 +298,35 @@ void ResumeArray::quickSortBySkillCount()
 }
 
 // binary search
-ResumeArray* ResumeArray::binarySearchBySkills(const string *skillSet, int skillCount, bool matchAll)
+ResumeArray *ResumeArray::binarySearchBySkills(const string *skillSet, int skillCount, bool matchAll)
 {
-    ResumeArray* result = new ResumeArray();
+    ResumeArray *result = new ResumeArray();
 
     for (int i = 0; i < size; i++)
     {
+        sort(resumes[i].skills, resumes[i].skills + resumes[i].skillCount,
+             [](const string &a, const string &b)
+             { return normalizeString(a) < normalizeString(b); });
+
         int matches = 0;
 
         for (int k = 0; k < skillCount; k++)
         {
-            string skill = skillSet[k];
-
+            string target = normalizeString(skillSet[k]);
             int left = 0, right = resumes[i].skillCount - 1;
             bool found = false;
 
             while (left <= right)
             {
                 int mid = (left + right) / 2;
-                if (resumes[i].skills[mid] == skill)
+                string midSkill = normalizeString(resumes[i].skills[mid]);
+
+                if (midSkill == target)
                 {
                     found = true;
                     break;
                 }
-                else if (resumes[i].skills[mid] < skill)
+                else if (midSkill < target)
                     left = mid + 1;
                 else
                     right = mid - 1;
@@ -276,9 +334,13 @@ ResumeArray* ResumeArray::binarySearchBySkills(const string *skillSet, int skill
 
             if (found)
                 matches++;
+            else if (matchAll)
+                break;
         }
 
-        if ((matchAll && matches == skillCount) || (!matchAll && matches > 0))
+        bool isMatch = matchAll ? (matches == skillCount) : (matches > 0);
+
+        if (isMatch)
         {
             result->addResume(resumes[i].id, resumes[i].skills, resumes[i].skillCount);
         }

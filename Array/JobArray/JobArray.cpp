@@ -2,6 +2,16 @@
 #include <fstream>
 #include <sstream>
 
+// normalize string
+inline std::string normalizeString(std::string s)
+{
+    // Trim whitespace
+    s.erase(remove_if(s.begin(), s.end(), ::isspace), s.end());
+    // Convert to lowercase
+    std::transform(s.begin(), s.end(), s.begin(), ::tolower);
+    return s;
+}
+
 // ======================= JobArray Implementation =======================
 
 JobArray::JobArray()
@@ -21,7 +31,7 @@ void JobArray::resize()
     capacity *= 2;
     Job *newJobs = new Job[capacity];
     for (int i = 0; i < size; i++)
-        newJobs[i] = jobs[i]; // safe with copy constructor
+        newJobs[i] = jobs[i];
     delete[] jobs;
     jobs = newJobs;
 }
@@ -36,12 +46,12 @@ Job JobArray::getJob(int index) const
     if (index < 0 || index >= size)
     {
         cerr << "Error: Job index out of bounds: " << index << endl;
-        return Job(); // return a default Job object
+        return Job();
     }
     return jobs[index];
 }
 
-Job* JobArray::findById(int id)
+Job *JobArray::findById(int id)
 {
     for (int i = 0; i < size; i++)
     {
@@ -50,7 +60,6 @@ Job* JobArray::findById(int id)
     }
     return nullptr; // not found
 }
-
 
 void JobArray::addJob(int id, string position, string *skills, int skillCount)
 {
@@ -69,25 +78,60 @@ void JobArray::addJob(int id, string position, string *skills, int skillCount)
 
 void JobArray::printJobs()
 {
-    cout << "\n--- Job Descriptions ---\n";
-    for (int i = 0; i < size; i++)
+    cout << "\n--- Job Descriptions for Array ---\n";
+
+    if (size <= 20)
     {
-        cout << jobs[i].id << " | " << jobs[i].position << " | ";
-        for (int j = 0; j < jobs[i].skillCount; j++)
+        for (int i = 0; i < size; i++)
         {
-            cout << jobs[i].skills[j];
-            if (j < jobs[i].skillCount - 1)
-                cout << ",";
+            cout << jobs[i].id << " | " << jobs[i].position << " | ";
+            for (int j = 0; j < jobs[i].skillCount; j++)
+            {
+                cout << jobs[i].skills[j];
+                if (j < jobs[i].skillCount - 1)
+                    cout << ",";
+            }
+            cout << endl;
         }
-        cout << endl;
     }
-    cout << "\n Total jobs printed: " << size << endl;
+    else
+    {
+        // Print first 10
+        for (int i = 0; i < 10; i++)
+        {
+            cout << jobs[i].id << " | " << jobs[i].position << " | ";
+            for (int j = 0; j < jobs[i].skillCount; j++)
+            {
+                cout << jobs[i].skills[j];
+                if (j < jobs[i].skillCount - 1)
+                    cout << ",";
+            }
+            cout << endl;
+        }
+
+        cout << "...\n... (skipping " << (size - 20) << " jobs) ...\n...\n";
+
+        // Print last 10
+        for (int i = size - 10; i < size; i++)
+        {
+            cout << jobs[i].id << " | " << jobs[i].position << " | ";
+            for (int j = 0; j < jobs[i].skillCount; j++)
+            {
+                cout << jobs[i].skills[j];
+                if (j < jobs[i].skillCount - 1)
+                    cout << ",";
+            }
+            cout << endl;
+        }
+    }
+
+    cout << "\nTotal jobs printed: " << (size <= 20 ? size : 20) << " out of " << size << endl;
 }
 
 // ======================= Linear Search =======================
-JobArray* JobArray::linearSearchBySkills(const string *skillSet, int skillCount, bool matchAll)
+JobArray *JobArray::linearSearchBySkills(const string *skillSet, int skillCount, bool matchAll)
 {
-    JobArray* result = new JobArray();
+    JobArray *result = new JobArray();
 
     for (int i = 0; i < size; i++)
     {
@@ -95,9 +139,13 @@ JobArray* JobArray::linearSearchBySkills(const string *skillSet, int skillCount,
 
         for (int j = 0; j < skillCount; j++)
         {
+            string target = normalizeString(skillSet[j]);
+
             for (int k = 0; k < jobs[i].skillCount; k++)
             {
-                if (jobs[i].skills[k] == skillSet[j])
+                string jobSkill = normalizeString(jobs[i].skills[k]);
+
+                if (jobSkill == target)
                 {
                     matchedSkills++;
                     break;
@@ -105,9 +153,9 @@ JobArray* JobArray::linearSearchBySkills(const string *skillSet, int skillCount,
             }
         }
 
-        bool addThis = matchAll ? (matchedSkills == skillCount) : (matchedSkills > 0);
+        bool isMatch = matchAll ? (matchedSkills == skillCount) : (matchedSkills > 0);
 
-        if (addThis)
+        if (isMatch)
         {
             result->addJob(jobs[i].id, jobs[i].position, jobs[i].skills, jobs[i].skillCount);
         }
@@ -116,9 +164,9 @@ JobArray* JobArray::linearSearchBySkills(const string *skillSet, int skillCount,
     return result;
 }
 
-JobArray* JobArray::linearSearchByPosition(const string &position)
+JobArray *JobArray::linearSearchByPosition(const string &position)
 {
-    JobArray* result = new JobArray();
+    JobArray *result = new JobArray();
     for (int i = 0; i < size; i++)
     {
         if (jobs[i].position == position)
@@ -249,14 +297,13 @@ void JobArray::quickSortByPosition()
 
 void JobArray::quickSortBySkill()
 {
-    auto cmp = [](const Job &a, const Job &b)
+    for (int i = 0; i < size; i++)
     {
-        string skillA = (a.skillCount > 0) ? a.skills[0] : "";
-        string skillB = (b.skillCount > 0) ? b.skills[0] : "";
-        return skillA < skillB;
-    };
-    if (size > 1)
-        quickSortHelper(0, size - 1, cmp);
+        if (jobs[i].skillCount > 1)
+        {
+            sort(jobs[i].skills, jobs[i].skills + jobs[i].skillCount);
+        }
+    }
 }
 
 void JobArray::quickSortBySkillCount()
@@ -268,9 +315,10 @@ void JobArray::quickSortBySkillCount()
 }
 
 // binary search
-JobArray* JobArray::binarySearchByPosition(const string &position)
+JobArray *JobArray::binarySearchByPosition(const string &position)
 {
-    JobArray* result = new JobArray();
+    quickSortByPosition();
+    JobArray *result = new JobArray();
 
     int left = 0, right = size - 1;
     int foundIndex = -1;
@@ -310,30 +358,34 @@ JobArray* JobArray::binarySearchByPosition(const string &position)
     return result;
 }
 
-JobArray* JobArray::binarySearchBySkills(const string *skillSet, int skillCount, bool matchAll)
+JobArray *JobArray::binarySearchBySkills(const string *skillSet, int skillCount, bool matchAll)
 {
-    JobArray* result = new JobArray();
+    JobArray *result = new JobArray();
 
     for (int i = 0; i < size; i++)
     {
+        sort(jobs[i].skills, jobs[i].skills + jobs[i].skillCount, [](string a, string b)
+             { return normalizeString(a) < normalizeString(b); });
+
         int matches = 0;
 
         for (int k = 0; k < skillCount; k++)
         {
-            string skill = skillSet[k];
-
+            string target = normalizeString(skillSet[k]);
             int left = 0, right = jobs[i].skillCount - 1;
             bool found = false;
 
             while (left <= right)
             {
                 int mid = (left + right) / 2;
-                if (jobs[i].skills[mid] == skill)
+                string midSkill = normalizeString(jobs[i].skills[mid]);
+
+                if (midSkill == target)
                 {
                     found = true;
                     break;
                 }
-                else if (jobs[i].skills[mid] < skill)
+                else if (midSkill < target)
                     left = mid + 1;
                 else
                     right = mid - 1;
@@ -341,8 +393,12 @@ JobArray* JobArray::binarySearchBySkills(const string *skillSet, int skillCount,
 
             if (found)
                 matches++;
+            else if (matchAll)
+                break;
         }
-        if ((matchAll && matches == skillCount) || (!matchAll && matches > 0))
+
+        bool isMatch = matchAll ? (matches == skillCount) : (matches > 0);
+        if (isMatch)
         {
             result->addJob(jobs[i].id, jobs[i].position, jobs[i].skills, jobs[i].skillCount);
         }
