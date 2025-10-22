@@ -91,7 +91,7 @@ void ResumeArray::printResumes()
                 if (j < resumes[i].skillCount - 1)
                     cout << ",";
             }
-            cout << endl;
+            cout << " | Total Skills: " << resumes[i].skillCount << endl;
         }
     }
     else

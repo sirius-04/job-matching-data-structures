@@ -91,7 +91,7 @@ void JobArray::printJobs()
                 if (j < jobs[i].skillCount - 1)
                     cout << ",";
             }
-            cout << endl;
+            cout << " | Total Skills: " << jobs[i].skillCount << endl;
         }
     }
     else
@@ -106,7 +106,7 @@ void JobArray::printJobs()
                 if (j < jobs[i].skillCount - 1)
                     cout << ",";
             }
-            cout << endl;
+            cout << " | Total Skills: " << jobs[i].skillCount << endl;
         }
 
         cout << "...\n... (skipping " << (size - 20) << " jobs) ...\n...\n";
@@ -121,7 +121,7 @@ void JobArray::printJobs()
                 if (j < jobs[i].skillCount - 1)
                     cout << ",";
             }
-            cout << endl;
+            cout << " | Total Skills: " << jobs[i].skillCount << endl;
         }
     }
 
@@ -322,21 +322,18 @@ void JobArray::quickSort(const std::string &criteria)
     if (criteria == "position")
     {
         quickSortByPosition();
-        std::cout << "Jobs sorted by position.\n";
     }
     else if (criteria == "skill")
     {
         quickSortBySkill();
-        std::cout << "Jobs sorted by skill.\n";
     }
     else if (criteria == "skillCount")
     {
         quickSortBySkillCount();
-        std::cout << "Jobs sorted by skill count.\n";
     }
     else
     {
-        std::cout << "Unknown sort criteria: " << criteria << std::endl;
+        cout << "Unknown sort criteria: " << criteria << endl;
     }
 }
 
@@ -392,7 +389,9 @@ JobArray *JobArray::binarySearchBySkills(const string *skillSet, int skillCount,
 
     for (int i = 0; i < size; i++)
     {
-        quickSortBySkill();
+        sort(jobs[i].skills, jobs[i].skills + jobs[i].skillCount,
+             [](const string &a, const string &b)
+             { return normalizeString(a) < normalizeString(b); });
 
         int matches = 0;
 
