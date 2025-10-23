@@ -497,71 +497,66 @@ MatchResultList* JobMatching::keywordBasedMatch(const string* skillSet, int skil
     bool findJobMode = (matchMode == FIND_JOB);
 
     string keyword;
-    int jobId;
+    int resumeId, jobId;
 
     if (findJobMode) {
-        cout << "Enter position keyword to filter jobs: ";
-        cin >> ws;
-        getline(cin, keyword);
+        cout << "Enter Resume ID to find matching jobs: ";
+        cin >> resumeId;
     } else {
         cout << "Enter Job ID to find matching resumes: ";
         cin >> jobId;
     }
 
     if (findJobMode) {
-        // FIND_JOB mode: Filter jobs by position and skills, then for each job search its matching resumes
+        // FIND_JOB mode: Find one resume, then search matching jobs
+        Resume* resumePtr = nullptr;
+        switch (dataStruct) {
+            case ARRAY: resumePtr = resumeArray->findById(resumeId); break;
+            case SINGLY_LINKED_LIST: resumePtr = resumeLinkedList->findById(resumeId); break;
+            case CIRCULAR_LINKED_LIST: resumePtr = resumeCircular->findById(resumeId); break;
+        }
         
-        sortJobsByPosition();
-
+        if (!resumePtr) {
+            cout << "Resume not found.\n";
+            return results;
+        }
+        
+        cout << "Enter position keyword to filter jobs: ";
+        cin >> ws;
+        getline(cin, keyword);
+        
+        cout << "Processing jobs for Resume ID " << resumeId << "..." << endl;
+        
         // Step 1: Search jobs by position keyword
+        sortJobsByPosition();
         void* jobsByPosition = searchJobsByPosition(keyword);
         if (!jobsByPosition) {
             cout << "No jobs found matching keyword: " << keyword << endl;
             return results;
         }
         
+        // Step 2: Filter jobs by resume's skills
         sortJobsBySkill();
-
-        // Step 2: Filter those jobs by user's input skills
-        void* filteredJobs = searchBySkills(skillSet, skillCount, matchAll, jobsByPosition, SEARCH_JOB);
+        void* jobSearchResult = searchBySkills(resumePtr->skills, resumePtr->skillCount, matchAll, jobsByPosition, SEARCH_JOB);
         
-        // Step 3: For EACH filtered job, search resumes matching THAT JOB'S skills
-        int jobCount = 0;
-        sortResumesBySkill();
-        processJobs(filteredJobs, [&](const Job& job) {
-            jobCount++;
-            cout << "Processing job " << jobCount << " (ID: " << job.id << ")..." << endl;
-            
-            // Search resumes by THIS JOB'S skills (not user input skills!)
-            void* matchingResumes = searchBySkills(job.skills, job.skillCount, false, nullptr, SEARCH_RESUME);
-            
-            int resumeCount = 0;
-            processResumes(matchingResumes, [&](const Resume& resume) {
-                resumeCount++;
-                if (resumeCount % 100 == 0) {  // Print every 100 resumes
-                    cout << "  Checked " << resumeCount << " resumes..." << endl;
-                }
-                // Calculate matched skills between job and resume
-                int matchedSkills = 0;
-                for (int a = 0; a < job.skillCount; a++) {
-                    for (int b = 0; b < resume.skillCount; b++) {
-                        if (job.skills[a] == resume.skills[b]) {
-                            matchedSkills++;
-                            break;
-                        }
+        // Process jobs directly
+        processJobs(jobSearchResult, [&](const Job& job) {
+            int matchedSkills = 0;
+            for (int a = 0; a < job.skillCount; a++) {
+                for (int b = 0; b < resumePtr->skillCount; b++) {
+                    if (job.skills[a] == resumePtr->skills[b]) {
+                        matchedSkills++;
+                        break;
                     }
                 }
-                
-                double score = (static_cast<double>(matchedSkills) / job.skillCount) * 100.0;
-                addUniqueMatch(job.id, resume.id, score);
-            });
+            }
             
-            cleanupResumeSearchResult(matchingResumes);
+            double score = (static_cast<double>(matchedSkills) / job.skillCount) * 100.0;
+            addUniqueMatch(job.id, resumePtr->id, score);
         });
         
-        // Cleanup
         cleanupJobSearchResult(jobsByPosition);
-        cleanupJobSearchResult(filteredJobs);
+        cleanupJobSearchResult(jobSearchResult);
         
     } else {
         // FIND_RESUME mode: Find one job, then search matching resumes
@@ -613,13 +608,12 @@ MatchResultList* JobMatching::weightedScoringMatch(const string* skillSet, int s
     bool findJobMode = (matchMode == FIND_JOB);
 
     string keyword;
-    int jobId;
+    int resumeId, jobId;
     double minScore = 30.0;
 
     if (findJobMode) {
-        cout << "Enter position keyword to filter jobs: ";
-        cin >> ws;
-        getline(cin, keyword);
+        cout << "Enter Resume ID to find matching jobs: ";
+        cin >> resumeId;
     } else {
         cout << "Enter Job ID to find matching resumes: ";
         cin >> jobId;
@@ -637,10 +631,28 @@ MatchResultList* JobMatching::weightedScoringMatch(const string* skillSet, int s
     SkillWeightList* weightList = promptSkillWeights(skillSet, skillCount);
 
     if (findJobMode) {
-        // FIND_JOB mode: Filter jobs by position and skills, then for each job search its matching resumes
+        // FIND_JOB mode: Find one resume, then search matching jobs
+        Resume* resumePtr = nullptr;
+        switch (dataStruct) {
+            case ARRAY: resumePtr = resumeArray->findById(resumeId); break;
+            case SINGLY_LINKED_LIST: resumePtr = resumeLinkedList->findById(resumeId); break;
+            case CIRCULAR_LINKED_LIST: resumePtr = resumeCircular->findById(resumeId); break;
+        }
         
-        sortJobsByPosition();
+        if (!resumePtr) {
+            cout << "Resume not found.\n";
+            delete weightList;
+            return results;
+        }
+        
+        cout << "Enter position keyword to filter jobs: ";
+        cin >> ws;
+        getline(cin, keyword);
+        
+        cout << "Processing jobs for Resume ID " << resumeId << "..." << endl;
+        
         // Step 1: Search jobs by position keyword
+        sortJobsByPosition();
         void* jobsByPosition = searchJobsByPosition(keyword);
         if (!jobsByPosition) {
             cout << "No jobs found matching keyword: " << keyword << endl;
@@ -648,42 +660,28 @@ MatchResultList* JobMatching::weightedScoringMatch(const string* skillSet, int s
             return results;
         }
         
+        // Step 2: Filter jobs by resume's skills
         sortJobsBySkill();
-        // Step 2: Filter those jobs by user's input skills
-        void* filteredJobs = searchBySkills(skillSet, skillCount, matchAll, jobsByPosition, SEARCH_JOB);
+        void* filteredJobs = searchBySkills(resumePtr->skills, resumePtr->skillCount, matchAll, jobsByPosition, SEARCH_JOB);
         
-        // Step 3: For EACH filtered job, search resumes matching THAT JOB'S skills
-        int jobCount = 0;
-        sortResumesBySkill();
+        // Process filtered jobs
         processJobs(filteredJobs, [&](const Job& job) {
-            jobCount++;
-            cout << "Processing job " << jobCount << " (ID: " << job.id << ")..." << endl;
+            double score = calculateWeightedScore(
+                job.skills, job.skillCount,
+                resumePtr->skills, resumePtr->skillCount,
+                *weightList
+            );
             
-            // Search resumes by THIS JOB'S skills (not user input skills!)
-            void* matchingResumes = searchBySkills(job.skills, job.skillCount, false, nullptr, SEARCH_RESUME);
-            
-            // Process matching resumes for this job with weighted scoring
-            processResumes(matchingResumes, [&](const Resume& resume) {
-                double score = calculateWeightedScore(
-                    job.skills, job.skillCount,
-                    resume.skills, resume.skillCount,
-                    *weightList
-                );
-                
-                if (score >= minScore) {
-                    addUniqueMatch(job.id, resume.id, score);
-                }
-            });
-            
-            cleanupResumeSearchResult(matchingResumes);
+            if (score >= minScore) {
+                addUniqueMatch(job.id, resumePtr->id, score);
+            }
         });
         
-        // Cleanup
         cleanupJobSearchResult(jobsByPosition);
         cleanupJobSearchResult(filteredJobs);
         
     } else {
-        // FIND_RESUME mode
+        // FIND_RESUME mode: Find one job, then search matching resumes
         Job* jobPtr = nullptr;
         switch (dataStruct) {
             case ARRAY: jobPtr = jobArray->findById(jobId); break;

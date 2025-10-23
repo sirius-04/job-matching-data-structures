@@ -116,6 +116,21 @@ void ResumeLinkedList::deleteLast()
     length--;
 }
 
+Resume* ResumeLinkedList::findById(int id) {
+    if (!head) {
+        return nullptr;
+    }
+    
+    ResumeNode* current = head;
+    while (current) {
+        if (current->data.id == id) {
+            return &(current->data);
+        }
+        current = current->next;
+    }
+    return nullptr;  // Not found
+}
+
 ResumeNode *ResumeLinkedList::get(int index)
 {
     if (index < 0 || index >= length)

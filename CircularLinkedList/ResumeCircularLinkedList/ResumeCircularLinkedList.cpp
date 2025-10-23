@@ -123,6 +123,22 @@ void ResumeCircularLinkedList::deleteLast()
     length--;
 }
 
+Resume* ResumeCircularLinkedList::findById(int id) {
+    if (!head) {
+        return nullptr;
+    }
+    
+    ResumeNode* current = head;
+    do {
+        if (current->data.id == id) {
+            return &(current->data);
+        }
+        current = current->next;
+    } while (current != head);  // Stop when we circle back to head
+    
+    return nullptr;  // Not found
+}
+
 ResumeNode *ResumeCircularLinkedList::get(int index)
 {
     if (index < 0 || index >= length || length == 0)

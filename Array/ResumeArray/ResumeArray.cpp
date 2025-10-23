@@ -47,6 +47,15 @@ int ResumeArray::getSize() const
     return size;
 }
 
+Resume* ResumeArray::findById(int id) {
+    for (int i = 0; i < size; i++) {
+        if (resumes[i].id == id) {
+            return &resumes[i];
+        }
+    }
+    return nullptr;
+}
+
 Resume ResumeArray::getResume(int index) const
 {
     if (index >= 0 && index < size)

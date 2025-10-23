@@ -30,6 +30,7 @@ public:
     void deleteFirst();
     void deleteLast();
     ResumeNode *get(int index);
+    Resume* findById(int id);
     bool set(int index, const string *skills, int skillCount);
     bool insert(int index, Resume data);
     void deleteNode(int index);

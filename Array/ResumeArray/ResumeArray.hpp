@@ -25,6 +25,7 @@ public:
     ResumeArray();
     ~ResumeArray();
     int getSize() const;
+    Resume *findById(int id);
     Resume getResume(int index) const;
 
     void addResume(int id, string *skills, int skillCount);
