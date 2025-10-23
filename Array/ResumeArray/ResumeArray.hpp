@@ -19,9 +19,9 @@ public:
     ResumeArray();
     ~ResumeArray();
     int getSize() const;
-    const Resume& getResume(int index) const;
+    Resume getResume(int index) const;
 
-    void addResume(const Resume& resume);
+    void addResume(int id, string *skills, int skillCount);
     void printResumes();
 
     ResumeArray *linearSearchBySkills(const string *skillSet, int skillCount, bool matchAll);

@@ -22,6 +22,7 @@ JobMatching::JobMatching(JobArray* jobArray, ResumeArray* resumeArray) {
     this->dataStruct = ARRAY;
     this->matchStrategy = KEYWORD_BASED;
     this->searchAlgo = LINEAR;
+    this->sortAlgo = MERGE;
 }
 
 JobMatching::JobMatching(JobLinkedList* jobLinkedList, ResumeLinkedList* resumeLinkedList) {
@@ -39,6 +40,7 @@ JobMatching::JobMatching(JobLinkedList* jobLinkedList, ResumeLinkedList* resumeL
     this->dataStruct = SINGLY_LINKED_LIST;
     this->matchStrategy = KEYWORD_BASED;
     this->searchAlgo = LINEAR;
+    this->sortAlgo = MERGE;
 }
 
 JobMatching::JobMatching(JobCircularLinkedList* jobCircular, ResumeCircularLinkedList* resumeCircular) {
@@ -56,6 +58,7 @@ JobMatching::JobMatching(JobCircularLinkedList* jobCircular, ResumeCircularLinke
     this->dataStruct = CIRCULAR_LINKED_LIST;
     this->matchStrategy = KEYWORD_BASED;
     this->searchAlgo = LINEAR;
+    this->sortAlgo = MERGE;
 }
 
 JobMatching::~JobMatching() {
@@ -76,6 +79,10 @@ void JobMatching::setMatchStrategy(MatchStrategy matchStrategy) {
 
 void JobMatching::setSearchAlgorithm(SearchAlgorithm searchAlgo) {
     this->searchAlgo = searchAlgo;
+}
+
+void JobMatching::setSortAlgorithm(SortAlgorithm sortAlgo) {
+    this->sortAlgo = sortAlgo;
 }
 
 void* JobMatching::searchBySkills(const string* skillSet, int skillCount, bool matchAll) {

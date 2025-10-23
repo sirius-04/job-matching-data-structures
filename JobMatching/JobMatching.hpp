@@ -35,6 +35,11 @@ enum SearchAlgorithm
     BINARY
 };
 
+enum SortAlgorithm {
+    MERGE,
+    QUICK
+};
+
 class JobMatching
 {
 private:
@@ -50,6 +55,7 @@ private:
     DataStruct dataStruct;
     MatchStrategy matchStrategy;
     SearchAlgorithm searchAlgo;
+    SortAlgorithm sortAlgo;
 
     MatchResultList *results;
     double matchTime;
@@ -86,6 +92,7 @@ public:
     void setDataStruct(DataStruct dataStruct);
     void setMatchStrategy(MatchStrategy strategy);
     void setSearchAlgorithm(SearchAlgorithm searchAlgo);
+    void setSortAlgorithm(SortAlgorithm sortAlgo);
 
     MatchResultList *runMatching(const string *skillSet, int skillCount, bool matchAll);
     void printPerformance() const;
