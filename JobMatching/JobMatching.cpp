@@ -85,54 +85,105 @@ void JobMatching::setSortAlgorithm(SortAlgorithm sortAlgo) {
     this->sortAlgo = sortAlgo;
 }
 
-void* JobMatching::searchBySkills(const string* skillSet, int skillCount, bool matchAll) {
-    if (matchMode == FIND_RESUME) {
-        switch (dataStruct) {
-            case ARRAY:
-                return (searchAlgo == LINEAR)
-                    ? (void*)resumeArray->linearSearchBySkills(skillSet, skillCount, matchAll)
-                    : (void*)resumeArray->binarySearchBySkills(skillSet, skillCount, matchAll);
+void* JobMatching::searchBySkills(const string* skillSet, int skillCount, bool matchAll, void* dataSource, SearchTarget target) {
+    if (target == SEARCH_RESUME) {
+        // If dataSource is provided, search within that resume collection
+        if (dataSource) {
+            switch (dataStruct) {
+                case ARRAY:
+                    return (searchAlgo == LINEAR)
+                        ? (void*)((ResumeArray*)dataSource)->linearSearchBySkills(skillSet, skillCount, matchAll)
+                        : (void*)((ResumeArray*)dataSource)->binarySearchBySkills(skillSet, skillCount, matchAll);
+                        
+                case SINGLY_LINKED_LIST:
+                    return (searchAlgo == LINEAR)
+                        ? (void*)((ResumeLinkedList*)dataSource)->linearSearchResumeBySkills(skillSet, skillCount, matchAll)
+                        : (void*)((ResumeLinkedList*)dataSource)->binarySearchResumeBySkills(skillSet, skillCount, matchAll);
+                        
+                case CIRCULAR_LINKED_LIST:
+                    return (searchAlgo == LINEAR)
+                        ? (void*)((ResumeCircularLinkedList*)dataSource)->linearSearchResumeBySkills(skillSet, skillCount, matchAll)
+                        : (void*)((ResumeCircularLinkedList*)dataSource)->binarySearchResumeBySkills(skillSet, skillCount, matchAll);
+                        
+                default:
+                    cerr << "❌ Unknown data structure for resume search!" << endl;
+                    return nullptr;
+            }
+        }
+        // Otherwise, search from main resume data structures
+        else {
+            switch (dataStruct) {
+                case ARRAY:
+                    return (searchAlgo == LINEAR)
+                        ? (void*)resumeArray->linearSearchBySkills(skillSet, skillCount, matchAll)
+                        : (void*)resumeArray->binarySearchBySkills(skillSet, skillCount, matchAll);
 
-            case SINGLY_LINKED_LIST:
-                return (searchAlgo == LINEAR)
-                    ? (void*)resumeLinkedList->linearSearchResumeBySkills(skillSet, skillCount, matchAll)
-                    : (void*)resumeLinkedList->binarySearchResumeBySkills(skillSet, skillCount, matchAll);
+                case SINGLY_LINKED_LIST:
+                    return (searchAlgo == LINEAR)
+                        ? (void*)resumeLinkedList->linearSearchResumeBySkills(skillSet, skillCount, matchAll)
+                        : (void*)resumeLinkedList->binarySearchResumeBySkills(skillSet, skillCount, matchAll);
 
-            case CIRCULAR_LINKED_LIST:
-                return (searchAlgo == LINEAR)
-                    ? (void*)resumeCircular->linearSearchResumeBySkills(skillSet, skillCount, matchAll)
-                    : (void*)resumeCircular->binarySearchResumeBySkills(skillSet, skillCount, matchAll);
+                case CIRCULAR_LINKED_LIST:
+                    return (searchAlgo == LINEAR)
+                        ? (void*)resumeCircular->linearSearchResumeBySkills(skillSet, skillCount, matchAll)
+                        : (void*)resumeCircular->binarySearchResumeBySkills(skillSet, skillCount, matchAll);
 
-            default:
-                cerr << "❌ Unknown data structure for resume search!" << endl;
-                return nullptr;
+                default:
+                    cerr << "❌ Unknown data structure for resume search!" << endl;
+                    return nullptr;
+            }
+        }
+    }
+    else if (target == SEARCH_JOB) {
+        // If dataSource is provided, search within that job collection
+        if (dataSource) {
+            switch (dataStruct) {
+                case ARRAY:
+                    return (searchAlgo == LINEAR)
+                        ? (void*)((JobArray*)dataSource)->linearSearchBySkills(skillSet, skillCount, matchAll)
+                        : (void*)((JobArray*)dataSource)->binarySearchBySkills(skillSet, skillCount, matchAll);
+                        
+                case SINGLY_LINKED_LIST:
+                    return (searchAlgo == LINEAR)
+                        ? (void*)((JobLinkedList*)dataSource)->linearSearchJobBySkills(skillSet, skillCount, matchAll)
+                        : (void*)((JobLinkedList*)dataSource)->binarySearchJobBySkills(skillSet, skillCount, matchAll);
+                        
+                case CIRCULAR_LINKED_LIST:
+                    return (searchAlgo == LINEAR)
+                        ? (void*)((JobCircularLinkedList*)dataSource)->linearSearchJobBySkills(skillSet, skillCount, matchAll)
+                        : (void*)((JobCircularLinkedList*)dataSource)->binarySearchJobBySkills(skillSet, skillCount, matchAll);
+                        
+                default:
+                    cerr << "❌ Unknown data structure for job search!" << endl;
+                    return nullptr;
+            }
+        }
+        // Otherwise, search from main job data structures
+        else {
+            switch (dataStruct) {
+                case ARRAY:
+                    return (searchAlgo == LINEAR)
+                        ? (void*)jobArray->linearSearchBySkills(skillSet, skillCount, matchAll)
+                        : (void*)jobArray->binarySearchBySkills(skillSet, skillCount, matchAll);
+
+                case SINGLY_LINKED_LIST:
+                    return (searchAlgo == LINEAR)
+                        ? (void*)jobLinkedList->linearSearchJobBySkills(skillSet, skillCount, matchAll)
+                        : (void*)jobLinkedList->binarySearchJobBySkills(skillSet, skillCount, matchAll);
+
+                case CIRCULAR_LINKED_LIST:
+                    return (searchAlgo == LINEAR)
+                        ? (void*)jobCircular->linearSearchJobBySkills(skillSet, skillCount, matchAll)
+                        : (void*)jobCircular->binarySearchJobBySkills(skillSet, skillCount, matchAll);
+
+                default:
+                    cerr << "❌ Unknown data structure for job search!" << endl;
+                    return nullptr;
+            }
         }
     }
 
-    else if (matchMode == FIND_JOB) {
-        switch (dataStruct) {
-            case ARRAY:
-                return (searchAlgo == LINEAR)
-                    ? (void*)jobArray->linearSearchBySkills(skillSet, skillCount, matchAll)
-                    : (void*)jobArray->binarySearchBySkills(skillSet, skillCount, matchAll);
-
-            case SINGLY_LINKED_LIST:
-                return (searchAlgo == LINEAR)
-                    ? (void*)jobLinkedList->linearSearchJobBySkills(skillSet, skillCount, matchAll)
-                    : (void*)jobLinkedList->binarySearchJobBySkills(skillSet, skillCount, matchAll);
-
-            case CIRCULAR_LINKED_LIST:
-                return (searchAlgo == LINEAR)
-                    ? (void*)jobCircular->linearSearchJobBySkills(skillSet, skillCount, matchAll)
-                    : (void*)jobCircular->binarySearchJobBySkills(skillSet, skillCount, matchAll);
-
-            default:
-                cerr << "❌ Unknown data structure for job search!" << endl;
-                return nullptr;
-        }
-    }
-
-    cerr << "❌ Invalid search configuration!" << endl;
+    cerr << "❌ Invalid search target!" << endl;
     return nullptr;
 }
 
@@ -356,21 +407,34 @@ MatchResultList* JobMatching::keywordBasedMatch(const string* skillSet, int skil
     }
 
     if (findJobMode) {
-        // FIND_JOB mode: Search jobs, then for each job find matching resumes
-        void* jobSearchResult = searchJobsByPosition(keyword);
+        // FIND_JOB mode: Filter jobs by position and skills, then for each job search its matching resumes
         
-        if (!jobSearchResult) {
+        // Step 1: Search jobs by position keyword
+        void* jobsByPosition = searchJobsByPosition(keyword);
+        if (!jobsByPosition) {
             cout << "No jobs found matching keyword: " << keyword << endl;
             return results;
         }
         
-        // Process each job directly without conversion
-        processJobs(jobSearchResult, [&](const Job& job) {
-            void* resumeSearchResult = searchBySkills(job.skills, job.skillCount, matchAll);
+        // Step 2: Filter those jobs by user's input skills
+        void* filteredJobs = searchBySkills(skillSet, skillCount, matchAll, jobsByPosition, SEARCH_JOB);
+        
+        // Step 3: For EACH filtered job, search resumes matching THAT JOB'S skills
+        int jobCount = 0;
+        processJobs(filteredJobs, [&](const Job& job) {
+            jobCount++;
+            cout << "Processing job " << jobCount << " (ID: " << job.id << ")..." << endl;
             
-            // Process each matching resume directly
-            processResumes(resumeSearchResult, [&](const Resume& resume) {
-                // Calculate matched skills
+            // Search resumes by THIS JOB'S skills (not user input skills!)
+            void* matchingResumes = searchBySkills(job.skills, job.skillCount, matchAll, nullptr, SEARCH_RESUME);
+            
+            int resumeCount = 0;
+            processResumes(matchingResumes, [&](const Resume& resume) {
+                resumeCount++;
+                if (resumeCount % 100 == 0) {  // Print every 100 resumes
+                    cout << "  Checked " << resumeCount << " resumes..." << endl;
+                }
+                // Calculate matched skills between job and resume
                 int matchedSkills = 0;
                 for (int a = 0; a < job.skillCount; a++) {
                     for (int b = 0; b < resume.skillCount; b++) {
@@ -385,10 +449,12 @@ MatchResultList* JobMatching::keywordBasedMatch(const string* skillSet, int skil
                 addUniqueMatch(job.id, resume.id, score);
             });
             
-            cleanupResumeSearchResult(resumeSearchResult);
+            cleanupResumeSearchResult(matchingResumes);
         });
         
-        cleanupJobSearchResult(jobSearchResult);
+        // Cleanup
+        cleanupJobSearchResult(jobsByPosition);
+        cleanupJobSearchResult(filteredJobs);
         
     } else {
         // FIND_RESUME mode: Find one job, then search matching resumes
@@ -406,7 +472,7 @@ MatchResultList* JobMatching::keywordBasedMatch(const string* skillSet, int skil
         
         cout << "Processing resumes for Job ID " << jobId << "..." << endl;
         
-        void* resumeSearchResult = searchBySkills(jobPtr->skills, jobPtr->skillCount, matchAll);
+        void* resumeSearchResult = searchBySkills(jobPtr->skills, jobPtr->skillCount, matchAll, nullptr, SEARCH_RESUME);
         
         // Process resumes directly
         processResumes(resumeSearchResult, [&](const Resume& resume) {
@@ -463,50 +529,47 @@ MatchResultList* JobMatching::weightedScoringMatch(const string* skillSet, int s
     SkillWeightList* weightList = promptSkillWeights(skillSet, skillCount);
 
     if (findJobMode) {
-        // FIND_JOB mode
-        void* jobSearchResult = searchJobsByPosition(keyword);
+        // FIND_JOB mode: Filter jobs by position and skills, then for each job search its matching resumes
         
-        if (!jobSearchResult) {
+        // Step 1: Search jobs by position keyword
+        void* jobsByPosition = searchJobsByPosition(keyword);
+        if (!jobsByPosition) {
             cout << "No jobs found matching keyword: " << keyword << endl;
             delete weightList;
             return results;
         }
         
-        void* allResumes = getAllResumes();
+        // Step 2: Filter those jobs by user's input skills
+        void* filteredJobs = searchBySkills(skillSet, skillCount, matchAll, jobsByPosition, SEARCH_JOB);
         
-        // Process each job
-        processJobs(jobSearchResult, [&](const Job& job) {
-            // Sort job skills once per job
-            string* sortedJobSkills = new string[job.skillCount];
-            for (int k = 0; k < job.skillCount; k++)
-                sortedJobSkills[k] = job.skills[k];
-            sort(sortedJobSkills, sortedJobSkills + job.skillCount);
+        // Step 3: For EACH filtered job, search resumes matching THAT JOB'S skills
+        int jobCount = 0;
+        processJobs(filteredJobs, [&](const Job& job) {
+            jobCount++;
+            cout << "Processing job " << jobCount << " (ID: " << job.id << ")..." << endl;
             
-            // Process all resumes for this job
-            processResumes(allResumes, [&](const Resume& resume) {
-                // Sort resume skills
-                string* sortedResumeSkills = new string[resume.skillCount];
-                for (int k = 0; k < resume.skillCount; k++)
-                    sortedResumeSkills[k] = resume.skills[k];
-                sort(sortedResumeSkills, sortedResumeSkills + resume.skillCount);
-                
+            // Search resumes by THIS JOB'S skills (not user input skills!)
+            void* matchingResumes = searchBySkills(job.skills, job.skillCount, matchAll, nullptr, SEARCH_RESUME);
+            
+            // Process matching resumes for this job with weighted scoring
+            processResumes(matchingResumes, [&](const Resume& resume) {
                 double score = calculateWeightedScore(
-                    sortedJobSkills, job.skillCount,
-                    sortedResumeSkills, resume.skillCount,
+                    job.skills, job.skillCount,
+                    resume.skills, resume.skillCount,
                     *weightList
                 );
-                
-                delete[] sortedResumeSkills;
                 
                 if (score >= minScore) {
                     addUniqueMatch(job.id, resume.id, score);
                 }
             });
             
-            delete[] sortedJobSkills;
+            cleanupResumeSearchResult(matchingResumes);
         });
         
-        cleanupJobSearchResult(jobSearchResult);
+        // Cleanup
+        cleanupJobSearchResult(jobsByPosition);
+        cleanupJobSearchResult(filteredJobs);
         
     } else {
         // FIND_RESUME mode
@@ -523,35 +586,25 @@ MatchResultList* JobMatching::weightedScoringMatch(const string* skillSet, int s
             return results;
         }
         
-        // Sort job skills once
-        string* sortedJobSkills = new string[jobPtr->skillCount];
-        for (int k = 0; k < jobPtr->skillCount; k++)
-            sortedJobSkills[k] = jobPtr->skills[k];
-        sort(sortedJobSkills, sortedJobSkills + jobPtr->skillCount);
+        cout << "Processing resumes for Job ID " << jobId << "..." << endl;
         
-        void* allResumes = getAllResumes();
+        // Search resumes by job's skills
+        void* filteredResumes = searchBySkills(jobPtr->skills, jobPtr->skillCount, matchAll, nullptr, SEARCH_RESUME);
         
-        // Process all resumes
-        processResumes(allResumes, [&](const Resume& resume) {
-            string* sortedResumeSkills = new string[resume.skillCount];
-            for (int k = 0; k < resume.skillCount; k++)
-                sortedResumeSkills[k] = resume.skills[k];
-            sort(sortedResumeSkills, sortedResumeSkills + resume.skillCount);
-            
+        // Process filtered resumes
+        processResumes(filteredResumes, [&](const Resume& resume) {
             double score = calculateWeightedScore(
-                sortedJobSkills, jobPtr->skillCount,
-                sortedResumeSkills, resume.skillCount,
+                jobPtr->skills, jobPtr->skillCount,
+                resume.skills, resume.skillCount,
                 *weightList
             );
-            
-            delete[] sortedResumeSkills;
             
             if (score >= minScore) {
                 addUniqueMatch(jobPtr->id, resume.id, score);
             }
         });
         
-        delete[] sortedJobSkills;
+        cleanupResumeSearchResult(filteredResumes);
     }
 
     cout << "Matching complete. Found " << results->getLength() 

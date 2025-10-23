@@ -35,6 +35,11 @@ enum SearchAlgorithm
     BINARY
 };
 
+enum SearchTarget {
+    SEARCH_JOB,
+    SEARCH_RESUME
+};
+
 enum SortAlgorithm {
     MERGE,
     QUICK
@@ -62,7 +67,7 @@ private:
     size_t memoryUsed;
 
     // unified search function
-    void *searchBySkills(const string *skillSet, int skillCount, bool matchAll);
+    void *searchBySkills(const string* skillSet, int skillCount, bool matchAll, void* dataSource, SearchTarget target);
     void *searchJobsByPosition(string position);
 
     template<typename Func>
