@@ -42,7 +42,8 @@ int selectSortAlgorithm()
     cout << "\n--- SELECT SORTING ALGORITHM ---" << endl;
     cout << "[1] Merge Sort" << endl;
     cout << "[2] Quick Sort" << endl;
-    cout << "[3] Back" << endl;
+    cout << "[3] None" << endl;
+    cout << "[4] Back" << endl;
     return getUserChoice(1, 3);
 }
 
@@ -99,7 +100,7 @@ void performKeywordSearch(SearchFunc searchFunc, const string &label)
     searchFunc(keywords);
 }
 
-void handleMatch(JobMatching* matcher, DataStruct dataStruct)
+void handleMatch(JobMatching *matcher, DataStruct dataStruct)
 {
     cout << "\n========== MATCHING CONFIGURATION ==========" << endl;
 
@@ -129,6 +130,14 @@ void handleMatch(JobMatching* matcher, DataStruct dataStruct)
     MatchStrategy matchStrategy = (strategyChoice == 1) ? KEYWORD_BASED : WEIGHTED_SCORING;
     matcher->setMatchStrategy(matchStrategy);
 
+    // --- Select Sort Algorithm ---
+    int sortChoice = selectSortAlgorithm();
+    if (sortChoice == 4)
+        return;
+
+    SortAlgorithm sortAlgo = (sortChoice == 1) ? MERGE : QUICK;
+    matcher->setSortAlgorithm(sortAlgo);
+
     // --- Select Search Algorithm ---
     int algoChoice = selectSearchAlgorithm();
     if (algoChoice == 3)
@@ -152,7 +161,7 @@ void handleMatch(JobMatching* matcher, DataStruct dataStruct)
         return;
     }
 
-    string* skills = new string[skillCount];
+    string *skills = new string[skillCount];
     for (int i = 0; i < skillCount; i++)
     {
         cout << "Enter skill " << (i + 1) << ": ";
@@ -171,7 +180,7 @@ void handleMatch(JobMatching* matcher, DataStruct dataStruct)
     }
 
     // --- Run Matching ---
-    MatchResultList* results = matcher->runMatching(skills, skillCount, matchAll);
+    MatchResultList *results = matcher->runMatching(skills, skillCount, matchAll);
 
     // --- Print Results ---
     cout << "\n=====  MATCH RESULTS =====" << endl;
@@ -249,18 +258,18 @@ void handleSearchArray(JobArray &jobArray, ResumeArray &resumeArray)
                     cout << ((algo == 1) ? "Linear" : "Binary") << " Search by position\n";
 
                     // 🕒 Measure performance
-                    PerformanceResult result = PerformanceTracker::measure([&]() {
+                    PerformanceResult result = PerformanceTracker::measure([&]()
+                                                                           {
                         JobArray *searchResult = (algo == 1)
                                                      ? jobArray.linearSearchByPosition(keyword1)
-                                                     : jobArray.binarySearchByPosition(keyword1);
+                                                     : jobArray.binarySearchByPosition(keyword1, QUICK);
 
                         if (searchResult && searchResult->getSize() > 0)
                             searchResult->printJobs();
                         else
                             cout << "No matching jobs found.\n";
 
-                        delete searchResult;
-                    });
+                        delete searchResult; });
 
                     result.printPerformance("Search Job by Position");
                 }
@@ -271,18 +280,18 @@ void handleSearchArray(JobArray &jobArray, ResumeArray &resumeArray)
                     cout << ((algo == 1) ? "Linear" : "Binary") << " Search by skills\n";
 
                     // 🕒 Measure performance
-                    PerformanceResult result = PerformanceTracker::measure([&]() {
+                    PerformanceResult result = PerformanceTracker::measure([&]()
+                                                                           {
                         JobArray *searchResult = (algo == 1)
                                                      ? jobArray.linearSearchBySkills(skills, 2, false)
-                                                     : jobArray.binarySearchBySkills(skills, 2, false);
+                                                     : jobArray.binarySearchBySkills(skills, 2, false, QUICK);
 
                         if (searchResult && searchResult->getSize() > 0)
                             searchResult->printJobs();
                         else
                             cout << "No matching jobs found.\n";
 
-                        delete searchResult;
-                    });
+                        delete searchResult; });
 
                     result.printPerformance("Search Job by Skills");
                 }
@@ -307,18 +316,18 @@ void handleSearchArray(JobArray &jobArray, ResumeArray &resumeArray)
             cout << ((algo == 1) ? "Linear" : "Binary") << " Search by skills\n";
 
             // 🕒 Measure performance
-            PerformanceResult result = PerformanceTracker::measure([&]() {
+            PerformanceResult result = PerformanceTracker::measure([&]()
+                                                                   {
                 ResumeArray *searchResult = (algo == 1)
                                                 ? resumeArray.linearSearchBySkills(skills, 2, false)
-                                                : resumeArray.binarySearchBySkills(skills, 2, false);
+                                                : resumeArray.binarySearchBySkills(skills, 2, false, QUICK);
 
                 if (searchResult && searchResult->getSize() > 0)
                     searchResult->printResumes();
                 else
                     cout << "No matching resumes found.\n";
 
-                delete searchResult;
-            });
+                delete searchResult; });
 
             result.printPerformance("Search Resume by Skills");
             break;
@@ -356,7 +365,8 @@ void handleSortArray(JobArray &jobArray, ResumeArray &resumeArray)
             string label;
 
             // 🕒 Measure performance for the selected algorithm
-            PerformanceResult result = PerformanceTracker::measure([&]() {
+            PerformanceResult result = PerformanceTracker::measure([&]()
+                                                                   {
                 if (algo == 1) // Merge Sort
                 {
                     label = "Merge Sort";
@@ -394,8 +404,7 @@ void handleSortArray(JobArray &jobArray, ResumeArray &resumeArray)
                         jobArray.quickSortBySkillCount();
                         break;
                     }
-                }
-            });
+                } });
 
             jobArray.printJobs();
             result.printPerformance(label + " (Jobs)");
@@ -420,7 +429,8 @@ void handleSortArray(JobArray &jobArray, ResumeArray &resumeArray)
             string label;
 
             // 🕒 Measure performance for resume sorting
-            PerformanceResult result = PerformanceTracker::measure([&]() {
+            PerformanceResult result = PerformanceTracker::measure([&]()
+                                                                   {
                 if (algo == 1)
                 {
                     label = "Merge Sort";
@@ -452,8 +462,7 @@ void handleSortArray(JobArray &jobArray, ResumeArray &resumeArray)
                         resumeArray.quickSortBySkillCount();
                         break;
                     }
-                }
-            });
+                } });
 
             resumeArray.printResumes();
             result.printPerformance(label + " (Resumes)");
@@ -562,18 +571,18 @@ void handleLinkedListSearch(JobLinkedList &jobLinkedList, ResumeLinkedList &resu
                     cout << ((algo == 1) ? "\nLinear" : "\nBinary") << " Search by position\n";
 
                     // 🕒 Measure performance
-                    PerformanceResult result = PerformanceTracker::measure([&]() {
+                    PerformanceResult result = PerformanceTracker::measure([&]()
+                                                                           {
                         JobLinkedList *searchResult = (algo == 1)
                                                           ? jobLinkedList.linearSearchJobByPosition(keyword)
-                                                          : jobLinkedList.binarySearchJobByPosition(keyword);
+                                                          : jobLinkedList.binarySearchJobByPosition(keyword, MERGE);
 
                         if (searchResult && searchResult->getLength() > 0)
                             searchResult->printSlice();
                         else
                             cout << "No matching jobs found.\n";
 
-                        delete searchResult;
-                    });
+                        delete searchResult; });
 
                     result.printPerformance("Search Job by Position");
                 }
@@ -589,18 +598,18 @@ void handleLinkedListSearch(JobLinkedList &jobLinkedList, ResumeLinkedList &resu
                     cout << ((algo == 1) ? "\nLinear" : "\nBinary") << " Search by skills\n";
 
                     // 🕒 Measure performance
-                    PerformanceResult result = PerformanceTracker::measure([&]() {
+                    PerformanceResult result = PerformanceTracker::measure([&]()
+                                                                           {
                         JobLinkedList *searchResult = (algo == 1)
                                                           ? jobLinkedList.linearSearchJobBySkills(skills, 2, false)
-                                                          : jobLinkedList.binarySearchJobBySkills(skills, 2, false);
+                                                          : jobLinkedList.binarySearchJobBySkills(skills, 2, false, MERGE);
 
                         if (searchResult && searchResult->getLength() > 0)
                             searchResult->printSlice();
                         else
                             cout << "No matching jobs found.\n";
 
-                        delete searchResult;
-                    });
+                        delete searchResult; });
 
                     result.printPerformance("Search Job by Skills");
                 }
@@ -624,18 +633,18 @@ void handleLinkedListSearch(JobLinkedList &jobLinkedList, ResumeLinkedList &resu
             cout << ((algo == 1) ? "\nLinear" : "\nBinary") << " Search by skills\n";
 
             // 🕒 Measure performance
-            PerformanceResult result = PerformanceTracker::measure([&]() {
+            PerformanceResult result = PerformanceTracker::measure([&]()
+                                                                   {
                 ResumeLinkedList *searchResult = (algo == 1)
                                                      ? resumeLinkedList.linearSearchResumeBySkills(skills, 2, false)
-                                                     : resumeLinkedList.binarySearchResumeBySkills(skills, 2, false);
+                                                     : resumeLinkedList.binarySearchResumeBySkills(skills, 2, false, MERGE);
 
                 if (searchResult && searchResult->getLength() > 0)
                     searchResult->printSlice();
                 else
                     cout << "No matching resumes found.\n";
 
-                delete searchResult;
-            });
+                delete searchResult; });
 
             result.printPerformance("Search Resume by Skills");
             break;
@@ -672,7 +681,8 @@ void handleLinkedListSort(JobLinkedList &jobLinkedList, ResumeLinkedList &resume
             cout << ((algo == 1) ? "\nPerforming Merge Sort\n" : "\nPerforming Quick Sort\n");
 
             // 🕒 Measure performance
-            PerformanceResult result = PerformanceTracker::measure([&]() {
+            PerformanceResult result = PerformanceTracker::measure([&]()
+                                                                   {
                 if (choice == 1)
                 {
                     (algo == 1)
@@ -692,8 +702,7 @@ void handleLinkedListSort(JobLinkedList &jobLinkedList, ResumeLinkedList &resume
                         : jobLinkedList.quickSortBySkillCount();
                 }
 
-                jobLinkedList.printSlice();
-            });
+                jobLinkedList.printSlice(); });
 
             result.printPerformance("Sort Jobs (LinkedList)");
             break;
@@ -716,7 +725,8 @@ void handleLinkedListSort(JobLinkedList &jobLinkedList, ResumeLinkedList &resume
             cout << ((algo == 1) ? "\nPerforming Merge Sort\n" : "\nPerforming Quick Sort\n");
 
             // 🕒 Measure performance
-            PerformanceResult result = PerformanceTracker::measure([&]() {
+            PerformanceResult result = PerformanceTracker::measure([&]()
+                                                                   {
                 if (choice == 1)
                 {
                     (algo == 1)
@@ -730,8 +740,7 @@ void handleLinkedListSort(JobLinkedList &jobLinkedList, ResumeLinkedList &resume
                         : resumeLinkedList.quickSortBySkillCount();
                 }
 
-                resumeLinkedList.printSlice();
-            });
+                resumeLinkedList.printSlice(); });
 
             result.printPerformance("Sort Resumes (LinkedList)");
             break;
@@ -838,18 +847,18 @@ void handleCircularLinkedListSearch(JobCircularLinkedList &jobCircularLinkedList
                     cout << ((algo == 1) ? "\nLinear Search..." : "\nBinary Search...") << endl;
 
                     // 🕒 Measure performance
-                    PerformanceResult result = PerformanceTracker::measure([&]() {
+                    PerformanceResult result = PerformanceTracker::measure([&]()
+                                                                           {
                         JobCircularLinkedList *searchResult = (algo == 1)
                                                                  ? jobCircularLinkedList.linearSearchJobByPosition(keyword)
-                                                                 : jobCircularLinkedList.binarySearchJobByPosition(keyword);
+                                                                 : jobCircularLinkedList.binarySearchJobByPosition(keyword, MERGE);
 
                         if (searchResult)
                             searchResult->printSlice();
                         else
                             cout << "No jobs found.\n";
 
-                        delete searchResult;
-                    });
+                        delete searchResult; });
 
                     result.printPerformance("Search Job by Position (CircularLinkedList)");
                 }
@@ -865,18 +874,18 @@ void handleCircularLinkedListSearch(JobCircularLinkedList &jobCircularLinkedList
                     cout << ((algo == 1) ? "\nLinear Search..." : "\nBinary Search...") << endl;
 
                     // 🕒 Measure performance
-                    PerformanceResult result = PerformanceTracker::measure([&]() {
+                    PerformanceResult result = PerformanceTracker::measure([&]()
+                                                                           {
                         JobCircularLinkedList *searchResult = (algo == 1)
                                                                  ? jobCircularLinkedList.linearSearchJobBySkills(skills, 2, false)
-                                                                 : jobCircularLinkedList.binarySearchJobBySkills(skills, 2, false);
+                                                                 : jobCircularLinkedList.binarySearchJobBySkills(skills, 2, false, MERGE);
 
                         if (searchResult)
                             searchResult->printSlice();
                         else
                             cout << "No jobs found.\n";
 
-                        delete searchResult;
-                    });
+                        delete searchResult; });
 
                     result.printPerformance("Search Job by Skills (CircularLinkedList)");
                 }
@@ -900,18 +909,18 @@ void handleCircularLinkedListSearch(JobCircularLinkedList &jobCircularLinkedList
             cout << ((algo == 1) ? "\nLinear Search..." : "\nBinary Search...") << endl;
 
             // 🕒 Measure performance
-            PerformanceResult result = PerformanceTracker::measure([&]() {
+            PerformanceResult result = PerformanceTracker::measure([&]()
+                                                                   {
                 ResumeCircularLinkedList *searchResult = (algo == 1)
                                                              ? resumeCircularLinkedList.linearSearchResumeBySkills(skills, 2, false)
-                                                             : resumeCircularLinkedList.binarySearchResumeBySkills(skills, 2, false);
+                                                             : resumeCircularLinkedList.binarySearchResumeBySkills(skills, 2, false, MERGE);
 
                 if (searchResult)
                     searchResult->printSlice();
                 else
                     cout << "No resume found.\n";
 
-                delete searchResult;
-            });
+                delete searchResult; });
 
             result.printPerformance("Search Resume by Skills (CircularLinkedList)");
             break;
@@ -948,7 +957,8 @@ void handleCircularLinkedListSort(JobCircularLinkedList &jobCircularLinkedList, 
             cout << ((algo == 1) ? "\nPerforming Merge Sort\n" : "\nPerforming Quick Sort\n");
 
             // 🕒 Measure performance
-            PerformanceResult result = PerformanceTracker::measure([&]() {
+            PerformanceResult result = PerformanceTracker::measure([&]()
+                                                                   {
                 if (choice == 1)
                 {
                     (algo == 1)
@@ -968,8 +978,7 @@ void handleCircularLinkedListSort(JobCircularLinkedList &jobCircularLinkedList, 
                         : jobCircularLinkedList.quickSortBySkillCount();
                 }
 
-                jobCircularLinkedList.printSlice();
-            });
+                jobCircularLinkedList.printSlice(); });
 
             result.printPerformance("Sort Jobs (CircularLinkedList)");
             break;
@@ -992,7 +1001,8 @@ void handleCircularLinkedListSort(JobCircularLinkedList &jobCircularLinkedList, 
             cout << ((algo == 1) ? "\nPerforming Merge Sort\n" : "\nPerforming Quick Sort\n");
 
             // 🕒 Measure performance
-            PerformanceResult result = PerformanceTracker::measure([&]() {
+            PerformanceResult result = PerformanceTracker::measure([&]()
+                                                                   {
                 if (choice == 1)
                 {
                     (algo == 1)
@@ -1006,8 +1016,7 @@ void handleCircularLinkedListSort(JobCircularLinkedList &jobCircularLinkedList, 
                         : resumeCircularLinkedList.quickSortBySkillCount();
                 }
 
-                resumeCircularLinkedList.printSlice();
-            });
+                resumeCircularLinkedList.printSlice(); });
 
             result.printPerformance("Sort Resumes (CircularLinkedList)");
             break;

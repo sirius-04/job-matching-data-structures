@@ -9,41 +9,7 @@
 #include "../Array/ResumeArray/ResumeArray.hpp"
 #include "../models/MatchResult/MatchResult.hpp"
 #include "../models/SkillWeight/SkillWeight.hpp"
-
-enum MatchMode
-{
-    FIND_JOB,
-    FIND_RESUME
-};
-
-enum DataStruct
-{
-    ARRAY,
-    SINGLY_LINKED_LIST,
-    CIRCULAR_LINKED_LIST
-};
-
-enum MatchStrategy
-{
-    KEYWORD_BASED,
-    WEIGHTED_SCORING
-};
-
-enum SearchAlgorithm
-{
-    LINEAR,
-    BINARY
-};
-
-enum SearchTarget {
-    SEARCH_JOB,
-    SEARCH_RESUME
-};
-
-enum SortAlgorithm {
-    MERGE,
-    QUICK
-};
+#include "../models/ConfigEnum/ConfigEnum.hpp"
 
 class JobMatching
 {
@@ -65,6 +31,8 @@ private:
     MatchResultList *results;
     double matchTime;
     size_t memoryUsed;
+
+    void sortDataStructures();
 
     // unified search function
     void *searchBySkills(const string* skillSet, int skillCount, bool matchAll, void* dataSource, SearchTarget target);

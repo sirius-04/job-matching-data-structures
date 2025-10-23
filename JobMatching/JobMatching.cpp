@@ -85,6 +85,55 @@ void JobMatching::setSortAlgorithm(SortAlgorithm sortAlgo) {
     this->sortAlgo = sortAlgo;
 }
 
+void JobMatching::sortDataStructures() {
+    // Only sort if using LINEAR search algorithm
+    if (searchAlgo != LINEAR) {
+        return;
+    }
+    
+    cout << "Sorting data structures for optimized linear search..." << endl;
+    
+    switch (dataStruct) {
+        case ARRAY:
+            if (sortAlgo == QUICK) {
+                jobArray->quickSortByPosition();
+                jobArray->quickSortBySkill();
+                resumeArray->quickSortBySkill();
+            } else if (sortAlgo == MERGE) {
+                jobArray->mergeSort(JobArray::compareByPosition);
+                jobArray->mergeSort(JobArray::compareByFirstSkill);
+                resumeArray->mergeSort(ResumeArray::compareByFirstSkill);
+            }
+            break;
+            
+        case SINGLY_LINKED_LIST:
+            if (sortAlgo == QUICK) {
+                jobLinkedList->quickSortByPosition();
+                jobLinkedList->quickSortBySkill();
+                resumeLinkedList->quickSortBySkill();
+            } else if (sortAlgo == MERGE) {
+                jobLinkedList->mergeSortBy("position");
+                jobLinkedList->mergeSortBy("skill");
+                resumeLinkedList->mergeSortBy("skill");
+            }
+            break;
+            
+        case CIRCULAR_LINKED_LIST:
+            if (sortAlgo == QUICK) {
+                jobCircular->quickSortByPosition();
+                jobCircular->quickSortBySkill();
+                resumeCircular->quickSortBySkill();
+            } else if (sortAlgo == MERGE) {
+                jobCircular->mergeSortBy("position");
+                jobCircular->mergeSortBy("skill");
+                resumeCircular->mergeSortBy("skill");
+            }
+            break;
+    }
+    
+    cout << "Sorting complete." << endl;
+}
+
 void* JobMatching::searchBySkills(const string* skillSet, int skillCount, bool matchAll, void* dataSource, SearchTarget target) {
     if (target == SEARCH_RESUME) {
         // If dataSource is provided, search within that resume collection
@@ -93,17 +142,17 @@ void* JobMatching::searchBySkills(const string* skillSet, int skillCount, bool m
                 case ARRAY:
                     return (searchAlgo == LINEAR)
                         ? (void*)((ResumeArray*)dataSource)->linearSearchBySkills(skillSet, skillCount, matchAll)
-                        : (void*)((ResumeArray*)dataSource)->binarySearchBySkills(skillSet, skillCount, matchAll);
+                        : (void*)((ResumeArray*)dataSource)->binarySearchBySkills(skillSet, skillCount, matchAll, sortAlgo);
                         
                 case SINGLY_LINKED_LIST:
                     return (searchAlgo == LINEAR)
                         ? (void*)((ResumeLinkedList*)dataSource)->linearSearchResumeBySkills(skillSet, skillCount, matchAll)
-                        : (void*)((ResumeLinkedList*)dataSource)->binarySearchResumeBySkills(skillSet, skillCount, matchAll);
+                        : (void*)((ResumeLinkedList*)dataSource)->binarySearchResumeBySkills(skillSet, skillCount, matchAll, sortAlgo);
                         
                 case CIRCULAR_LINKED_LIST:
                     return (searchAlgo == LINEAR)
                         ? (void*)((ResumeCircularLinkedList*)dataSource)->linearSearchResumeBySkills(skillSet, skillCount, matchAll)
-                        : (void*)((ResumeCircularLinkedList*)dataSource)->binarySearchResumeBySkills(skillSet, skillCount, matchAll);
+                        : (void*)((ResumeCircularLinkedList*)dataSource)->binarySearchResumeBySkills(skillSet, skillCount, matchAll, sortAlgo);
                         
                 default:
                     cerr << "❌ Unknown data structure for resume search!" << endl;
@@ -116,17 +165,17 @@ void* JobMatching::searchBySkills(const string* skillSet, int skillCount, bool m
                 case ARRAY:
                     return (searchAlgo == LINEAR)
                         ? (void*)resumeArray->linearSearchBySkills(skillSet, skillCount, matchAll)
-                        : (void*)resumeArray->binarySearchBySkills(skillSet, skillCount, matchAll);
+                        : (void*)resumeArray->binarySearchBySkills(skillSet, skillCount, matchAll, sortAlgo);
 
                 case SINGLY_LINKED_LIST:
                     return (searchAlgo == LINEAR)
                         ? (void*)resumeLinkedList->linearSearchResumeBySkills(skillSet, skillCount, matchAll)
-                        : (void*)resumeLinkedList->binarySearchResumeBySkills(skillSet, skillCount, matchAll);
+                        : (void*)resumeLinkedList->binarySearchResumeBySkills(skillSet, skillCount, matchAll, sortAlgo);
 
                 case CIRCULAR_LINKED_LIST:
                     return (searchAlgo == LINEAR)
                         ? (void*)resumeCircular->linearSearchResumeBySkills(skillSet, skillCount, matchAll)
-                        : (void*)resumeCircular->binarySearchResumeBySkills(skillSet, skillCount, matchAll);
+                        : (void*)resumeCircular->binarySearchResumeBySkills(skillSet, skillCount, matchAll, sortAlgo);
 
                 default:
                     cerr << "❌ Unknown data structure for resume search!" << endl;
@@ -141,17 +190,17 @@ void* JobMatching::searchBySkills(const string* skillSet, int skillCount, bool m
                 case ARRAY:
                     return (searchAlgo == LINEAR)
                         ? (void*)((JobArray*)dataSource)->linearSearchBySkills(skillSet, skillCount, matchAll)
-                        : (void*)((JobArray*)dataSource)->binarySearchBySkills(skillSet, skillCount, matchAll);
+                        : (void*)((JobArray*)dataSource)->binarySearchBySkills(skillSet, skillCount, matchAll, sortAlgo);
                         
                 case SINGLY_LINKED_LIST:
                     return (searchAlgo == LINEAR)
                         ? (void*)((JobLinkedList*)dataSource)->linearSearchJobBySkills(skillSet, skillCount, matchAll)
-                        : (void*)((JobLinkedList*)dataSource)->binarySearchJobBySkills(skillSet, skillCount, matchAll);
+                        : (void*)((JobLinkedList*)dataSource)->binarySearchJobBySkills(skillSet, skillCount, matchAll, sortAlgo);
                         
                 case CIRCULAR_LINKED_LIST:
                     return (searchAlgo == LINEAR)
                         ? (void*)((JobCircularLinkedList*)dataSource)->linearSearchJobBySkills(skillSet, skillCount, matchAll)
-                        : (void*)((JobCircularLinkedList*)dataSource)->binarySearchJobBySkills(skillSet, skillCount, matchAll);
+                        : (void*)((JobCircularLinkedList*)dataSource)->binarySearchJobBySkills(skillSet, skillCount, matchAll, sortAlgo);
                         
                 default:
                     cerr << "❌ Unknown data structure for job search!" << endl;
@@ -164,17 +213,17 @@ void* JobMatching::searchBySkills(const string* skillSet, int skillCount, bool m
                 case ARRAY:
                     return (searchAlgo == LINEAR)
                         ? (void*)jobArray->linearSearchBySkills(skillSet, skillCount, matchAll)
-                        : (void*)jobArray->binarySearchBySkills(skillSet, skillCount, matchAll);
+                        : (void*)jobArray->binarySearchBySkills(skillSet, skillCount, matchAll, sortAlgo);
 
                 case SINGLY_LINKED_LIST:
                     return (searchAlgo == LINEAR)
                         ? (void*)jobLinkedList->linearSearchJobBySkills(skillSet, skillCount, matchAll)
-                        : (void*)jobLinkedList->binarySearchJobBySkills(skillSet, skillCount, matchAll);
+                        : (void*)jobLinkedList->binarySearchJobBySkills(skillSet, skillCount, matchAll, sortAlgo);
 
                 case CIRCULAR_LINKED_LIST:
                     return (searchAlgo == LINEAR)
                         ? (void*)jobCircular->linearSearchJobBySkills(skillSet, skillCount, matchAll)
-                        : (void*)jobCircular->binarySearchJobBySkills(skillSet, skillCount, matchAll);
+                        : (void*)jobCircular->binarySearchJobBySkills(skillSet, skillCount, matchAll, sortAlgo);
 
                 default:
                     cerr << "❌ Unknown data structure for job search!" << endl;
@@ -192,17 +241,17 @@ void* JobMatching::searchJobsByPosition(string position) {
         case ARRAY:
             return (searchAlgo == LINEAR)
                 ? (void*)jobArray->linearSearchByPosition(position)
-                : (void*)jobArray->binarySearchByPosition(position);
+                : (void*)jobArray->binarySearchByPosition(position, sortAlgo);
 
         case SINGLY_LINKED_LIST:
             return (searchAlgo == LINEAR)
                 ? (void*)jobLinkedList->linearSearchJobByPosition(position)
-                : (void*)jobLinkedList->binarySearchJobByPosition(position);
+                : (void*)jobLinkedList->binarySearchJobByPosition(position, sortAlgo);
 
         case CIRCULAR_LINKED_LIST:
             return (searchAlgo == LINEAR)
                 ? (void*)jobCircular->linearSearchJobByPosition(position)
-                : (void*)jobCircular->binarySearchJobByPosition(position);
+                : (void*)jobCircular->binarySearchJobByPosition(position, sortAlgo);
 
         default:
             cerr << "❌ Unknown data structure for job position search!" << endl;
@@ -617,6 +666,8 @@ MatchResultList* JobMatching::weightedScoringMatch(const string* skillSet, int s
 MatchResultList* JobMatching::runMatching(const string* skillSet, int skillCount, bool matchAll)
 {
     cout << "===== Running Match =====" << endl;
+
+    sortDataStructures();
 
     MatchResultList* matchResults = nullptr;
 

@@ -4,6 +4,7 @@
 #include <iostream>
 #include <string>
 #include "../../models/Job/Job.hpp"
+#include "../../models/ConfigEnum/ConfigEnum.hpp"
 using namespace std;
 
 class JobArray
@@ -14,6 +15,11 @@ private:
     int capacity;
 
     void resize();
+
+    static void mergeSortSkills(string *skills, int left, int right);
+    static void mergeSkills(string *skills, int left, int mid, int right);
+    static void quickSortSkills(string *skills, int low, int high);
+    static int partitionSkills(string *skills, int low, int high);
 
 public:
     JobArray();
@@ -31,8 +37,8 @@ public:
     JobArray *linearSearchByPosition(const string &position);
 
     // binary search
-    JobArray *binarySearchByPosition(const string &position);
-    JobArray *binarySearchBySkills(const string *skillSet, int skillCount, bool matchAll);
+    JobArray *binarySearchByPosition(const string &position, SortAlgorithm sortAlgo);
+    JobArray *binarySearchBySkills(const string *skillSet, int skillCount, bool matchAll, SortAlgorithm sortAlgo);
 
     // quick sort
     int partition(int low, int high, bool (*cmp)(const Job &, const Job &));

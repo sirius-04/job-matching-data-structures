@@ -341,10 +341,95 @@ void JobArray::quickSort(const std::string &criteria)
     }
 }
 
+// Merge Sort for skills array
+void JobArray::mergeSortSkills(string *skills, int left, int right) {
+    if (left < right) {
+        int mid = left + (right - left) / 2;
+        mergeSortSkills(skills, left, mid);
+        mergeSortSkills(skills, mid + 1, right);
+        mergeSkills(skills, left, mid, right);
+    }
+}
+
+void JobArray::mergeSkills(string *skills, int left, int mid, int right) {
+    int n1 = mid - left + 1;
+    int n2 = right - mid;
+    
+    string *L = new string[n1];
+    string *R = new string[n2];
+    
+    for (int i = 0; i < n1; i++)
+        L[i] = skills[left + i];
+    for (int j = 0; j < n2; j++)
+        R[j] = skills[mid + 1 + j];
+    
+    int i = 0, j = 0, k = left;
+    
+    while (i < n1 && j < n2) {
+        if (normalizeString(L[i]) <= normalizeString(R[j])) {
+            skills[k] = L[i];
+            i++;
+        } else {
+            skills[k] = R[j];
+            j++;
+        }
+        k++;
+    }
+    
+    while (i < n1) {
+        skills[k] = L[i];
+        i++;
+        k++;
+    }
+    
+    while (j < n2) {
+        skills[k] = R[j];
+        j++;
+        k++;
+    }
+    
+    delete[] L;
+    delete[] R;
+}
+
+// Quick Sort for skills array
+void JobArray::quickSortSkills(string *skills, int low, int high) {
+    if (low < high) {
+        int pi = partitionSkills(skills, low, high);
+        quickSortSkills(skills, low, pi - 1);
+        quickSortSkills(skills, pi + 1, high);
+    }
+}
+
+int JobArray::partitionSkills(string *skills, int low, int high) {
+    string pivot = normalizeString(skills[high]);
+    int i = low - 1;
+    
+    for (int j = low; j < high; j++) {
+        if (normalizeString(skills[j]) < pivot) {
+            i++;
+            string temp = skills[i];
+            skills[i] = skills[j];
+            skills[j] = temp;
+        }
+    }
+    
+    string temp = skills[i + 1];
+    skills[i + 1] = skills[high];
+    skills[high] = temp;
+    
+    return i + 1;
+}
+
 // binary search
-JobArray *JobArray::binarySearchByPosition(const string &position)
+JobArray *JobArray::binarySearchByPosition(const string &position, SortAlgorithm sortAlgo)
 {
-    quickSortByPosition();
+    if (sortAlgo == MERGE) {
+        mergeSort(JobArray::compareByPosition);
+    } else {
+        quickSortByPosition();
+    }
+    
     JobArray *result = new JobArray();
 
     string target = normalizeString(position); // normalize input
@@ -387,15 +472,18 @@ JobArray *JobArray::binarySearchByPosition(const string &position)
     return result;
 }
 
-JobArray *JobArray::binarySearchBySkills(const string *skillSet, int skillCount, bool matchAll)
+JobArray *JobArray::binarySearchBySkills(const string *skillSet, int skillCount, bool matchAll, SortAlgorithm sortAlgo)
 {
     JobArray *result = new JobArray();
 
     for (int i = 0; i < size; i++)
     {
-        sort(jobs[i].skills, jobs[i].skills + jobs[i].skillCount,
-             [](const string &a, const string &b)
-             { return normalizeString(a) < normalizeString(b); });
+        // Sort each job's skills array using the specified algorithm
+        if (sortAlgo == MERGE) {
+            mergeSortSkills(jobs[i].skills, 0, jobs[i].skillCount - 1);
+        } else {
+            quickSortSkills(jobs[i].skills, 0, jobs[i].skillCount - 1);
+        }
 
         int matches = 0;
 
@@ -405,6 +493,7 @@ JobArray *JobArray::binarySearchBySkills(const string *skillSet, int skillCount,
             int left = 0, right = jobs[i].skillCount - 1;
             bool found = false;
 
+            // Binary search within the sorted skills array
             while (left <= right)
             {
                 int mid = (left + right) / 2;

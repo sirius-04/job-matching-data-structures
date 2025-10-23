@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include "../../models/Job/Job.hpp"
+#include "../../models/ConfigEnum/ConfigEnum.hpp"
 using namespace std;
 
 class JobLinkedList
@@ -11,6 +12,11 @@ private:
     JobNode *head;
     JobNode *tail;
     int length;
+
+    static void mergeSortSkills(string *skills, int left, int right);
+    static void mergeSkills(string *skills, int left, int mid, int right);
+    static void quickSortSkills(string *skills, int low, int high);
+    static int partitionSkills(string *skills, int low, int high);
 
 public:
     // constructor & destructor
@@ -40,8 +46,8 @@ public:
 
     // binary search
     JobNode *getMiddle(JobNode *start, JobNode *end);
-    JobLinkedList *binarySearchJobByPosition(const string &position);
-    JobLinkedList *binarySearchJobBySkills(const string *skillSet, int skillCount, bool matchAll);
+    JobLinkedList *binarySearchJobByPosition(const string &position, SortAlgorithm sortAlgo);
+    JobLinkedList *binarySearchJobBySkills(const string *skillSet, int skillCount, bool matchAll, SortAlgorithm sortAlgo);
 
     // merge sort
     typedef bool (*CompareFn)(JobNode *, JobNode *);
