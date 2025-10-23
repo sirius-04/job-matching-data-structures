@@ -1,0 +1,11 @@
+ID,Job Title,Skill
+1,Data Analyst,"SQL, Excel, Power BI, Reporting, Data Cleaning, Tableau"
+2,Backend Developer,"Java, Spring Boot, REST API, MySQL, Git, Debugging"
+3,Frontend Developer,"HTML, CSS, JavaScript, React, UI Design, Git"
+4,Machine Learning Engineer,"Python, TensorFlow, Data Preprocessing, Model Training, NumPy, Pandas"
+5,Mobile App Developer,"Java, Kotlin, Android Studio, Firebase, REST API, UI Design"
+6,Data Scientist,"Python, R, Machine Learning, Statistics, Pandas, Data Visualization"
+7,DevOps Engineer,"Docker, Kubernetes, AWS, CI/CD, Linux, Bash Scripting"
+8,Full Stack Developer,"React, Node.js, MongoDB, Express, JavaScript, Git"
+9,Cybersecurity Analyst,"Networking, Penetration Testing, Linux, Firewall, Risk Assessment, Python"
+10,Software Tester,"Selenium, Test Cases, Manual Testing, Bug Reporting, QA Tools, Jira"

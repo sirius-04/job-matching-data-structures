@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include "../../models/Job/Job.hpp"
+#include "../../models/ConfigEnum/ConfigEnum.hpp"
 using namespace std;
 
 class JobCircularLinkedList
@@ -11,6 +12,11 @@ private:
     JobNode *head;
     JobNode *tail;
     int length;
+
+    static void mergeSortSkills(string *skills, int left, int right);
+    static void mergeSkills(string *skills, int left, int mid, int right);
+    static void quickSortSkills(string *skills, int low, int high);
+    static int partitionSkills(string *skills, int low, int high);
 
 public:
     // constructor & destructor
@@ -24,6 +30,7 @@ public:
     void deleteFirst();
     void deleteLast();
     JobNode *get(int index);
+    Job *findById(int id);
     bool set(int index, const string &position, const string *skills, int skillCount);
     bool insert(int index, Job data);
     void deleteNode(int index);
@@ -39,8 +46,8 @@ public:
 
     // binary search
     JobNode *getMiddle(JobNode *start, JobNode *end);
-    JobCircularLinkedList *binarySearchJobByPosition(const string &position);
-    JobCircularLinkedList *binarySearchJobBySkills(const string *skillSet, int skillCount, bool matchAll);
+    JobCircularLinkedList *binarySearchJobByPosition(const string &position, SortAlgorithm sortAlgo);
+    JobCircularLinkedList *binarySearchJobBySkills(const string *skillSet, int skillCount, bool matchAll, SortAlgorithm sortAlgo);
 
     // merge sort
     typedef bool (*CompareFn)(JobNode *, JobNode *);

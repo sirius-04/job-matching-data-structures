@@ -140,6 +140,22 @@ JobNode *JobCircularLinkedList::get(int index)
     return temp;
 }
 
+Job* JobCircularLinkedList::findById(int id)
+{
+    if (!head)
+        return nullptr;
+
+    JobNode* current = head;
+    do {
+        if (current->data.id == id)
+            return &current->data;
+        current = current->next;
+    } while (current != head);
+
+    return nullptr;
+}
+
+
 bool JobCircularLinkedList::set(int index, const string &position, const string *skills, int skillCount)
 {
     JobNode *temp = get(index);
@@ -616,7 +632,7 @@ JobNode *JobCircularLinkedList::getMiddle(JobNode *start, JobNode *end)
     return slow;
 }
 
-JobCircularLinkedList *JobCircularLinkedList::binarySearchJobByPosition(const string &positionKeyword)
+JobCircularLinkedList *JobCircularLinkedList::binarySearchJobByPosition(const string &positionKeyword, SortAlgorithm sortAlgo)
 {
     if (head == nullptr)
         return new JobCircularLinkedList();
@@ -625,7 +641,13 @@ JobCircularLinkedList *JobCircularLinkedList::binarySearchJobByPosition(const st
 
     // Break circular link and sort
     tail->next = nullptr;
-    quickSortByPosition();
+
+    if (sortAlgo == QUICK) {
+        quickSortByPosition(); 
+    } else {
+       mergeSortBy("position");
+    }
+    
     tail->next = head; // Restore circular link
 
     // Break again for binary search
@@ -679,7 +701,7 @@ JobCircularLinkedList *JobCircularLinkedList::binarySearchJobByPosition(const st
     return matches;
 }
 
-JobCircularLinkedList *JobCircularLinkedList::binarySearchJobBySkills(const string *skills, int skillCount, bool matchAll)
+JobCircularLinkedList *JobCircularLinkedList::binarySearchJobBySkills(const string *skills, int skillCount, bool matchAll, SortAlgorithm sortAlgo)
 {
     JobCircularLinkedList *matches = new JobCircularLinkedList();
 
@@ -689,18 +711,11 @@ JobCircularLinkedList *JobCircularLinkedList::binarySearchJobBySkills(const stri
     JobNode *p = head;
     for (int idx = 0; idx < length; idx++)
     {
-        // Sort this job's skills array for binary search
-        for (int i = 0; i < p->data.skillCount - 1; ++i)
-        {
-            for (int j = 0; j < p->data.skillCount - i - 1; ++j)
-            {
-                if (p->data.skills[j] > p->data.skills[j + 1])
-                {
-                    string temp = p->data.skills[j];
-                    p->data.skills[j] = p->data.skills[j + 1];
-                    p->data.skills[j + 1] = temp;
-                }
-            }
+        // Sort this job's skills array using the specified algorithm
+        if (sortAlgo == QUICK) {
+            quickSortSkills(p->data.skills, 0, p->data.skillCount - 1);
+        } else {
+            mergeSortSkills(p->data.skills, 0, p->data.skillCount - 1);
         }
 
         int matched = 0;
@@ -710,18 +725,20 @@ JobCircularLinkedList *JobCircularLinkedList::binarySearchJobBySkills(const stri
             bool found = false;
             int left = 0;
             int right = p->data.skillCount - 1;
+            
+            string target = skills[s];
 
             while (left <= right)
             {
                 int mid = left + (right - left) / 2;
                 string key = p->data.skills[mid];
 
-                if (key == skills[s])
+                if (key == target)
                 {
                     found = true;
                     break;
                 }
-                else if (key < skills[s])
+                else if (key < target)
                     left = mid + 1;
                 else
                     right = mid - 1;
@@ -729,6 +746,8 @@ JobCircularLinkedList *JobCircularLinkedList::binarySearchJobBySkills(const stri
 
             if (found)
                 matched++;
+            else if (matchAll)
+                break; // Early exit if matchAll and one skill not found
         }
 
         bool isMatch = matchAll ? (matched == skillCount) : (matched > 0);
@@ -740,4 +759,84 @@ JobCircularLinkedList *JobCircularLinkedList::binarySearchJobBySkills(const stri
     }
 
     return matches;
+}
+
+// Merge Sort for skills array
+void JobCircularLinkedList::mergeSortSkills(string *skills, int left, int right) {
+    if (left < right) {
+        int mid = left + (right - left) / 2;
+        mergeSortSkills(skills, left, mid);
+        mergeSortSkills(skills, mid + 1, right);
+        mergeSkills(skills, left, mid, right);
+    }
+}
+
+void JobCircularLinkedList::mergeSkills(string *skills, int left, int mid, int right) {
+    int n1 = mid - left + 1;
+    int n2 = right - mid;
+    
+    string *L = new string[n1];
+    string *R = new string[n2];
+    
+    for (int i = 0; i < n1; i++)
+        L[i] = skills[left + i];
+    for (int j = 0; j < n2; j++)
+        R[j] = skills[mid + 1 + j];
+    
+    int i = 0, j = 0, k = left;
+    
+    while (i < n1 && j < n2) {
+        if (L[i] <= R[j]) {
+            skills[k] = L[i];
+            i++;
+        } else {
+            skills[k] = R[j];
+            j++;
+        }
+        k++;
+    }
+    
+    while (i < n1) {
+        skills[k] = L[i];
+        i++;
+        k++;
+    }
+    
+    while (j < n2) {
+        skills[k] = R[j];
+        j++;
+        k++;
+    }
+    
+    delete[] L;
+    delete[] R;
+}
+
+// Quick Sort for skills array
+void JobCircularLinkedList::quickSortSkills(string *skills, int low, int high) {
+    if (low < high) {
+        int pi = partitionSkills(skills, low, high);
+        quickSortSkills(skills, low, pi - 1);
+        quickSortSkills(skills, pi + 1, high);
+    }
+}
+
+int JobCircularLinkedList::partitionSkills(string *skills, int low, int high) {
+    string pivot = skills[high];
+    int i = low - 1;
+    
+    for (int j = low; j < high; j++) {
+        if (skills[j] < pivot) {
+            i++;
+            string temp = skills[i];
+            skills[i] = skills[j];
+            skills[j] = temp;
+        }
+    }
+    
+    string temp = skills[i + 1];
+    skills[i + 1] = skills[high];
+    skills[high] = temp;
+    
+    return i + 1;
 }

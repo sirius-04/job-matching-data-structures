@@ -610,7 +610,7 @@ void ResumeCircularLinkedList::quickSortBySkill()
     tail->next = head;
 }
 
-ResumeCircularLinkedList *ResumeCircularLinkedList::binarySearchResumeBySkills(const string *skills, int skillCount, bool matchAll)
+ResumeCircularLinkedList *ResumeCircularLinkedList::binarySearchResumeBySkills(const string *skills, int skillCount, bool matchAll, SortAlgorithm sortAlgo)
 {
     ResumeCircularLinkedList *matches = new ResumeCircularLinkedList();
 
@@ -620,39 +620,34 @@ ResumeCircularLinkedList *ResumeCircularLinkedList::binarySearchResumeBySkills(c
     ResumeNode *p = head;
     for (int idx = 0; idx < length; idx++)
     {
-        for (int i = 0; i < p->data.skillCount - 1; ++i)
-        {
-            for (int j = 0; j < p->data.skillCount - i - 1; ++j)
-            {
-                if (p->data.skills[j] > p->data.skills[j + 1])
-                {
-                    string temp = p->data.skills[j];
-                    p->data.skills[j] = p->data.skills[j + 1];
-                    p->data.skills[j + 1] = temp;
-                }
-            }
+        // Sort this resume's skills array using the specified algorithm
+        if (sortAlgo == QUICK) {
+            quickSortSkills(p->data.skills, 0, p->data.skillCount - 1);
+        } else {
+            mergeSortSkills(p->data.skills, 0, p->data.skillCount - 1);
         }
 
         int matched = 0;
 
-        // For each skill in search criteria
         for (int s = 0; s < skillCount; ++s)
         {
             bool found = false;
             int left = 0;
             int right = p->data.skillCount - 1;
+            
+            string target = skills[s];
 
             while (left <= right)
             {
                 int mid = left + (right - left) / 2;
                 string key = p->data.skills[mid];
 
-                if (key == skills[s])
+                if (key == target)
                 {
                     found = true;
                     break;
                 }
-                else if (key < skills[s])
+                else if (key < target)
                     left = mid + 1;
                 else
                     right = mid - 1;
@@ -660,9 +655,10 @@ ResumeCircularLinkedList *ResumeCircularLinkedList::binarySearchResumeBySkills(c
 
             if (found)
                 matched++;
+            else if (matchAll)
+                break; // Early exit if matchAll and one skill not found
         }
 
-        // Determine if the resume matches based on matchAll flag
         bool isMatch = matchAll ? (matched == skillCount) : (matched > 0);
 
         if (isMatch)
@@ -672,4 +668,84 @@ ResumeCircularLinkedList *ResumeCircularLinkedList::binarySearchResumeBySkills(c
     }
 
     return matches;
+}
+
+// Merge Sort for skills array
+void ResumeCircularLinkedList::mergeSortSkills(string *skills, int left, int right) {
+    if (left < right) {
+        int mid = left + (right - left) / 2;
+        mergeSortSkills(skills, left, mid);
+        mergeSortSkills(skills, mid + 1, right);
+        mergeSkills(skills, left, mid, right);
+    }
+}
+
+void ResumeCircularLinkedList::mergeSkills(string *skills, int left, int mid, int right) {
+    int n1 = mid - left + 1;
+    int n2 = right - mid;
+    
+    string *L = new string[n1];
+    string *R = new string[n2];
+    
+    for (int i = 0; i < n1; i++)
+        L[i] = skills[left + i];
+    for (int j = 0; j < n2; j++)
+        R[j] = skills[mid + 1 + j];
+    
+    int i = 0, j = 0, k = left;
+    
+    while (i < n1 && j < n2) {
+        if (L[i] <= R[j]) {
+            skills[k] = L[i];
+            i++;
+        } else {
+            skills[k] = R[j];
+            j++;
+        }
+        k++;
+    }
+    
+    while (i < n1) {
+        skills[k] = L[i];
+        i++;
+        k++;
+    }
+    
+    while (j < n2) {
+        skills[k] = R[j];
+        j++;
+        k++;
+    }
+    
+    delete[] L;
+    delete[] R;
+}
+
+// Quick Sort for skills array
+void ResumeCircularLinkedList::quickSortSkills(string *skills, int low, int high) {
+    if (low < high) {
+        int pi = partitionSkills(skills, low, high);
+        quickSortSkills(skills, low, pi - 1);
+        quickSortSkills(skills, pi + 1, high);
+    }
+}
+
+int ResumeCircularLinkedList::partitionSkills(string *skills, int low, int high) {
+    string pivot = skills[high];
+    int i = low - 1;
+    
+    for (int j = low; j < high; j++) {
+        if (skills[j] < pivot) {
+            i++;
+            string temp = skills[i];
+            skills[i] = skills[j];
+            skills[j] = temp;
+        }
+    }
+    
+    string temp = skills[i + 1];
+    skills[i + 1] = skills[high];
+    skills[high] = temp;
+    
+    return i + 1;
 }

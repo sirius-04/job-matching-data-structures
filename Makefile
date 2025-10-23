@@ -7,12 +7,12 @@ INC = -I. \
       -I./Menu \
 
 SRC = $(wildcard *.cpp) \
-	$(wildcard Array/**/*.cpp) \
+      $(wildcard Array/**/*.cpp) \
       $(wildcard LinkedList/**/*.cpp) \
       $(wildcard CircularLinkedList/**/*.cpp) \
       $(wildcard models/**/*.cpp) \
       $(wildcard Menu/*.cpp) \
-      $(wildcard utils/**/*.cpp)
+      $(wildcard utils/**/*.cpp) \
       $(wildcard JobMatching/*.cpp) \
 
 CXX = g++
@@ -20,10 +20,16 @@ CXXFLAGS = -std=c++17 -Wall $(INC)
 OBJ = $(SRC:.cpp=.o)
 TARGET = main
 
+ifeq ($(OS),Windows_NT)
+LIBS = -lpsapi
+else
+LIBS =
+endif
+
 all: $(TARGET)
 
 $(TARGET): $(OBJ)
-	$(CXX) $(CXXFLAGS) -o $@ $^
+	$(CXX) $(CXXFLAGS) -o $@ $^ $(LIBS)
 
 clean:
 ifeq ($(OS),Windows_NT)
@@ -31,4 +37,3 @@ ifeq ($(OS),Windows_NT)
 else
 	rm -f $(OBJ) $(TARGET)
 endif
-
