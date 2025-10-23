@@ -417,11 +417,13 @@ void JobCircularLinkedList::mergeSortBy(string criterion)
         head = mergeSort(head, length, compareBySkill);
     }
 
-    // Restore tail and circular link
-    tail = head;
-    while (tail->next != nullptr)
-        tail = tail->next;
-    tail->next = head;
+    // Find new tail efficiently during restoration
+    if (head) {
+        tail = head;
+        while (tail->next != nullptr)
+            tail = tail->next;
+        tail->next = head;
+    }
 }
 
 string JobCircularLinkedList::cleanString(string s)
@@ -564,30 +566,15 @@ void JobCircularLinkedList::quickSort(JobNode *low, JobNode *high, const string 
         quickSort(pivot->next, high, type);
 }
 
-JobNode *JobCircularLinkedList::sortTail()
-{
-    if (length == 0)
-        return nullptr;
-
-    JobNode *temp = head;
-    for (int i = 0; i < length - 1; i++)
-        temp = temp->next;
-    return temp;
-}
-
 void JobCircularLinkedList::quickSortBySkillCount()
 {
     if (length <= 1)
         return;
 
     tail->next = nullptr; // Break circular link
-    JobNode *lastNode = sortTail();
-    quickSort(head, lastNode, "skillCount");
+    quickSort(head, tail, "skillCount");  // Use tail directly!
 
-    // Restore circular link
-    tail = head;
-    while (tail->next != nullptr)
-        tail = tail->next;
+    // Restore circular link - tail is still valid
     tail->next = head;
 }
 
@@ -597,13 +584,9 @@ void JobCircularLinkedList::quickSortBySkill()
         return;
 
     tail->next = nullptr; // Break circular link
-    JobNode *lastNode = sortTail();
-    quickSort(head, lastNode, "skill");
+    quickSort(head, tail, "skill");  // Use tail directly!
 
     // Restore circular link
-    tail = head;
-    while (tail->next != nullptr)
-        tail = tail->next;
     tail->next = head;
 }
 
@@ -613,13 +596,9 @@ void JobCircularLinkedList::quickSortByPosition()
         return;
 
     tail->next = nullptr; // Break circular link
-    JobNode *lastNode = sortTail();
-    quickSort(head, lastNode, "position");
+    quickSort(head, tail, "position");  // Use tail directly!
 
     // Restore circular link
-    tail = head;
-    while (tail->next != nullptr)
-        tail = tail->next;
     tail->next = head;
 }
 
@@ -644,26 +623,29 @@ JobNode *JobCircularLinkedList::getMiddle(JobNode *start, JobNode *end)
     return slow;
 }
 
-JobCircularLinkedList *JobCircularLinkedList::binarySearchJobByPosition(const string &positionKeyword, SortAlgorithm sortAlgo)
+JobCircularLinkedList *JobCircularLinkedList::binarySearchJobByPosition(
+    const string &positionKeyword, SortAlgorithm sortAlgo)
 {
     if (head == nullptr)
         return new JobCircularLinkedList();
 
     JobCircularLinkedList *matches = new JobCircularLinkedList();
 
-    // Break circular link and sort
+    // Break circular link ONCE
     tail->next = nullptr;
 
+    // Sort
     if (sortAlgo == QUICK) {
-        quickSortByPosition(); 
+        quickSort(head, tail, "position");
     } else {
-       mergeSortBy("position");
+        head = mergeSort(head, length, compareByPosition);
+        // Update tail after merge sort
+        tail = head;
+        while (tail->next != nullptr)
+            tail = tail->next;
     }
-    
-    tail->next = head; // Restore circular link
 
-    // Break again for binary search
-    tail->next = nullptr;
+    // Binary search (already broken, no need to break again)
     JobNode *start = head;
     JobNode *end = nullptr;
 
@@ -707,7 +689,7 @@ JobCircularLinkedList *JobCircularLinkedList::binarySearchJobByPosition(const st
         }
     }
 
-    // Restore circular link
+    // Restore circular link ONCE at the end
     tail->next = head;
 
     return matches;
