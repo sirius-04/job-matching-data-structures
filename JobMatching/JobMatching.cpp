@@ -660,7 +660,7 @@ MatchResultList* JobMatching::weightedScoringMatch(const string* skillSet, int s
             cout << "Processing job " << jobCount << " (ID: " << job.id << ")..." << endl;
             
             // Search resumes by THIS JOB'S skills (not user input skills!)
-            void* matchingResumes = searchBySkills(job.skills, job.skillCount, matchAll, nullptr, SEARCH_RESUME);
+            void* matchingResumes = searchBySkills(job.skills, job.skillCount, false, nullptr, SEARCH_RESUME);
             
             // Process matching resumes for this job with weighted scoring
             processResumes(matchingResumes, [&](const Resume& resume) {
