@@ -32,7 +32,9 @@ private:
     double matchTime;
     size_t memoryUsed;
 
-    void sortDataStructures();
+    void sortJobsByPosition();
+    void sortJobsBySkill();
+    void sortResumesBySkill();
 
     // unified search function
     void *searchBySkills(const string* skillSet, int skillCount, bool matchAll, void* dataSource, SearchTarget target);
