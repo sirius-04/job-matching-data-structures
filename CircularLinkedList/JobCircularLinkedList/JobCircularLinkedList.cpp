@@ -533,6 +533,18 @@ void JobCircularLinkedList::quickSort(JobNode *low, JobNode *high, const string 
     if (!low || !high || low == high)
         return;
 
+    JobNode *temp = low;
+    bool validRange = false;
+    while (temp != nullptr) {
+        if (temp == high) {
+            validRange = true;
+            break;
+        }
+        temp = temp->next;
+    }
+    if (!validRange)
+        return;
+
     JobNode *pivot = nullptr;
     if (type == "skillCount")
         pivot = partitionBySkillCount(low, high);

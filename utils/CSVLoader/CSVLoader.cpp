@@ -9,7 +9,7 @@ using namespace std;
 // Export functions with extern linkage
 void createJobLinkedList(JobLinkedList &jobLinkedList)
 {
-    ifstream file("dataset/cleaned_jobDescription_v2.csv");
+    ifstream file("dataset/cleaned_jobDescription_v2_test.csv");
     if (!file.is_open())
     {
         cerr << "Error: Could not open file.\n";
@@ -72,7 +72,7 @@ void createJobLinkedList(JobLinkedList &jobLinkedList)
 
 void createResumeLinkedList(ResumeLinkedList &resumeLinkedList)
 {
-    ifstream file("dataset/cleaned_resume_v2.csv");
+    ifstream file("dataset/cleaned_resume_v2_test.csv");
     if (!file.is_open())
     {
         cerr << "Error: Could not open file.\n";
@@ -131,7 +131,7 @@ void createResumeLinkedList(ResumeLinkedList &resumeLinkedList)
 
 void createJobCircularLinkedList(JobCircularLinkedList &jobCircularLinkedList)
 {
-    ifstream file("dataset/cleaned_jobDescription_v2.csv");
+    ifstream file("dataset/cleaned_jobDescription_v2_test.csv");
     if (!file.is_open())
     {
         cerr << "Error: Could not open file.\n";
@@ -194,7 +194,7 @@ void createJobCircularLinkedList(JobCircularLinkedList &jobCircularLinkedList)
 
 void createResumeCircularLinkedList(ResumeCircularLinkedList &resumeCircularLinkedList)
 {
-    ifstream file("dataset/cleaned_resume_v2.csv");
+    ifstream file("dataset/cleaned_resume_v2_test.csv");
     if (!file.is_open())
     {
         cerr << "Error: Could not open file.\n";
@@ -259,7 +259,7 @@ void createResumeCircularLinkedList(ResumeCircularLinkedList &resumeCircularLink
 
 void createJobArray(JobArray &jobArray)
 {
-    ifstream file("dataset/cleaned_jobDescription_v2.csv");
+    ifstream file("dataset/cleaned_jobDescription_v2_test.csv");
     if (!file.is_open())
     {
         cerr << "Failed to open file!" << endl;
@@ -345,7 +345,7 @@ void createJobArray(JobArray &jobArray)
 
 void createResumeArray(ResumeArray &resumeArray)
 {
-    ifstream file("dataset/cleaned_resume_v2.csv");
+    ifstream file("dataset/cleaned_resume_v2_test.csv");
     if (!file.is_open())
     {
         cerr << "Failed to open file!" << endl;
