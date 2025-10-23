@@ -383,16 +383,6 @@ void JobMatching::processResumes(void* resumeData, Func callback) {
     }
 }
 
-// Get all resumes without conversion
-void* JobMatching::getAllResumes() {
-    switch (dataStruct) {
-        case ARRAY: return (void*)resumeArray;
-        case SINGLY_LINKED_LIST: return (void*)resumeLinkedList;
-        case CIRCULAR_LINKED_LIST: return (void*)resumeCircular;
-        default: return nullptr;
-    }
-}
-
 // Clean up search results properly
 void JobMatching::cleanupJobSearchResult(void* searchResult) {
     if (!searchResult) return;
@@ -482,8 +472,10 @@ double JobMatching::calculateWeightedScore(
 void JobMatching::addUniqueMatch(int jobId, int resumeId, double score) {
     MatchResultNode* node = results->getHead();
     while (node) {
-        if (node->data.jobId == jobId && node->data.resumeId == resumeId)
+        if (node->data.jobId == jobId && node->data.resumeId == resumeId) {
             return;
+        }
+
         node = node->next;
     }
     results->append(MatchResult(jobId, resumeId, score));
@@ -663,7 +655,7 @@ MatchResultList* JobMatching::weightedScoringMatch(const string* skillSet, int s
         // Step 2: Filter jobs by resume's skills
         sortJobsBySkill();
         void* filteredJobs = searchBySkills(resumePtr->skills, resumePtr->skillCount, matchAll, jobsByPosition, SEARCH_JOB);
-        
+
         // Process filtered jobs
         processJobs(filteredJobs, [&](const Job& job) {
             double score = calculateWeightedScore(
@@ -757,7 +749,6 @@ MatchResultList* JobMatching::runMatching(const string* skillSet, int skillCount
 
     return matchResults;
 }
-
 
 void JobMatching::printPerformance() const {
     cout << "\n===== 🧩 Matching Configuration & Performance =====" << endl;
