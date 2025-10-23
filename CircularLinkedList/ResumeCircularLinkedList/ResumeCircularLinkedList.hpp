@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include "../../models/Resume/Resume.hpp"
+#include "../../models/ConfigEnum/ConfigEnum.hpp"
 using namespace std;
 
 class ResumeCircularLinkedList
@@ -11,6 +12,11 @@ private:
     ResumeNode *head;
     ResumeNode *tail;
     int length;
+
+    static void mergeSortSkills(string *skills, int left, int right);
+    static void mergeSkills(string *skills, int left, int mid, int right);
+    static void quickSortSkills(string *skills, int low, int high);
+    static int partitionSkills(string *skills, int low, int high);
 
 public:
     // constructor & destructor
@@ -37,7 +43,7 @@ public:
     ResumeCircularLinkedList *linearSearchResumeBySkills(const string *skillSet, int skillCount, bool matchAll);
 
     // binary search
-    ResumeCircularLinkedList *binarySearchResumeBySkills(const string *skillSet, int skillCount, bool matchAll);
+    ResumeCircularLinkedList *binarySearchResumeBySkills(const string *skillSet, int skillCount, bool matchAll, SortAlgorithm sortAlgo);
 
     // merge sort
     typedef bool (*CompareFn)(ResumeNode *, ResumeNode *);

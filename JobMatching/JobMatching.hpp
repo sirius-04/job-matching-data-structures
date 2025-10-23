@@ -9,38 +9,7 @@
 #include "../Array/ResumeArray/ResumeArray.hpp"
 #include "../models/MatchResult/MatchResult.hpp"
 #include "../models/SkillWeight/SkillWeight.hpp"
-#include <iostream>
-#include <windows.h>
-#include <psapi.h>
-#include <chrono>
-#include <cstdlib>
-using namespace std;
-using namespace std::chrono;
-
-enum MatchMode
-{
-    FIND_JOB,
-    FIND_RESUME
-};
-
-enum DataStruct
-{
-    ARRAY,
-    SINGLY_LINKED_LIST,
-    CIRCULAR_LINKED_LIST
-};
-
-enum MatchStrategy
-{
-    RULE_BASED,
-    WEIGHTED_SCORING
-};
-
-enum SearchAlgorithm
-{
-    LINEAR,
-    BINARY
-};
+#include "../models/ConfigEnum/ConfigEnum.hpp"
 
 class JobMatching
 {
@@ -57,12 +26,34 @@ private:
     DataStruct dataStruct;
     MatchStrategy matchStrategy;
     SearchAlgorithm searchAlgo;
+    SortAlgorithm sortAlgo;
 
     MatchResultList *results;
     double matchTime;
     size_t memoryUsed;
 
-    size_t getCurrentMemoryUsage();
+    void sortDataStructures();
+
+    // unified search function
+    void *searchBySkills(const string* skillSet, int skillCount, bool matchAll, void* dataSource, SearchTarget target);
+    void *searchJobsByPosition(string position);
+
+    template<typename Func>
+    void processJobs(void* jobData, Func callback);
+    template<typename Func>
+    void processResumes(void* resumeData, Func callback);
+
+    void* getAllResumes();
+    void cleanupJobSearchResult(void* searchResult);
+    void cleanupResumeSearchResult(void* searchResult);
+
+    SkillWeightList *promptSkillWeights(const string *skillSet, int skillCount);
+    double calculateWeightedScore(const string *inputSkills, int inputCount, const string *targetSkills, int targetCount, const SkillWeightList &weightList);
+    void addUniqueMatch(int jobId, int resumeId, double score);
+
+    // algorithms
+    MatchResultList *keywordBasedMatch(const string *skillSet, int skillCount, bool matchAll);
+    MatchResultList *weightedScoringMatch(const string *skillSet, int skillCount, bool matchAll);
 
 public:
     JobMatching(JobArray *jobArray, ResumeArray *resumeArray);
@@ -74,18 +65,9 @@ public:
     void setDataStruct(DataStruct dataStruct);
     void setMatchStrategy(MatchStrategy strategy);
     void setSearchAlgorithm(SearchAlgorithm searchAlgo);
+    void setSortAlgorithm(SortAlgorithm sortAlgo);
 
-    // unified search function
-    void *search(const string *skillSet, int skillCount, bool matchAll);
-
-    // algorithms
-    MatchResultList* ruleBasedMatch(const string *skillSet, int skillCount, bool matchAll);
-
-    SkillWeightList* promptSkillWeights(const string* skillSet, int skillCount);
-    double calculateWeightedScore(const string* inputSkills, int inputCount, const string* targetSkills, int targetCount, const SkillWeightList& weightList);
-    MatchResultList* weightedScoringMatch(const string *skillSet, int skillCount, bool matchAll);
-
-    MatchResultList* runMatching(const string* skillSet, int skillCount, bool matchAll);
+    MatchResultList *runMatching(const string *skillSet, int skillCount, bool matchAll);
     void printPerformance() const;
 };
 

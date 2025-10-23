@@ -294,11 +294,31 @@ void createJobArray(JobArray &jobArray)
             continue;
         }
 
+        // Handle empty skills string
+        if (skillsStr.empty())
+        {
+            jobArray.addJob(id, position, nullptr, 0);
+            continue;
+        }
+
+        // Remove quotes if present
         if (!skillsStr.empty() && skillsStr.front() == '"')
             skillsStr.erase(0, 1);
         if (!skillsStr.empty() && skillsStr.back() == '"')
             skillsStr.pop_back();
 
+        // Trim whitespace
+        skillsStr.erase(0, skillsStr.find_first_not_of(" \t\n\r"));
+        skillsStr.erase(skillsStr.find_last_not_of(" \t\n\r") + 1);
+
+        // Check again after cleaning
+        if (skillsStr.empty())
+        {
+            jobArray.addJob(id, position, nullptr, 0);
+            continue;
+        }
+
+        // Now count skills
         int skillCount = 1;
         for (char ch : skillsStr)
             if (ch == ',')
@@ -359,11 +379,31 @@ void createResumeArray(ResumeArray &resumeArray)
             continue;
         }
 
+        // Handle empty skills string
+        if (skillsStr.empty())
+        {
+            resumeArray.addResume(id, nullptr, 0);
+            continue;
+        }
+
+        // Remove quotes if present
         if (!skillsStr.empty() && skillsStr.front() == '"')
             skillsStr.erase(0, 1);
         if (!skillsStr.empty() && skillsStr.back() == '"')
             skillsStr.pop_back();
 
+        // Trim whitespace
+        skillsStr.erase(0, skillsStr.find_first_not_of(" \t\n\r"));
+        skillsStr.erase(skillsStr.find_last_not_of(" \t\n\r") + 1);
+
+        // Check again after cleaning
+        if (skillsStr.empty())
+        {
+            resumeArray.addResume(id, nullptr, 0);
+            continue;
+        }
+
+        // Now count skills
         int skillCount = 1;
         for (char ch : skillsStr)
             if (ch == ',')

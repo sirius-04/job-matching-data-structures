@@ -2,7 +2,9 @@
 
 Job::Job()
 {
-    skills = new string[50];
+    id = 0;
+    position = "";
+    skills = nullptr;
     skillCount = 0;
 }
 
@@ -16,29 +18,38 @@ Job::Job(int id, string position, string *skills, int skillCount)
         this->skills[i] = skills[i];
 }
 
-// Copy constructor
 Job::Job(const Job &other)
 {
     id = other.id;
     position = other.position;
     skillCount = other.skillCount;
-    skills = new string[skillCount];
-    for (int i = 0; i < skillCount; i++)
-        skills[i] = other.skills[i];
+    
+    if (other.skills && other.skillCount > 0) {
+        skills = new string[skillCount];
+        for (int i = 0; i < skillCount; i++)
+            skills[i] = other.skills[i];
+    } else {
+        skills = nullptr;
+    }
 }
 
-// Copy assignment
 Job &Job::operator=(const Job &other)
 {
     if (this != &other)
     {
         delete[] skills;
+        
         id = other.id;
         position = other.position;
         skillCount = other.skillCount;
-        skills = new string[skillCount];
-        for (int i = 0; i < skillCount; i++)
-            skills[i] = other.skills[i];
+        
+        if (other.skills && other.skillCount > 0) {
+            skills = new string[skillCount];
+            for (int i = 0; i < skillCount; i++)
+                skills[i] = other.skills[i];
+        } else {
+            skills = nullptr;
+        }
     }
     return *this;
 }

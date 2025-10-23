@@ -32,6 +32,7 @@ public:
     MatchResultList();
     ~MatchResultList();
 
+    MatchResultNode* getHead();
     void printSlice();
     void append(MatchResult data);
     int getLength();

@@ -42,7 +42,4 @@ void handleCircularLinkedListSort(JobCircularLinkedList &jobCircularLinkedList, 
 void handleCircularLinkedListMatch(JobCircularLinkedList &jobCircularLinkedList, ResumeCircularLinkedList &resumeCircularLinkedList);
 void runCircularLinkedList(JobCircularLinkedList &jobCircularLinkedList, ResumeCircularLinkedList &resumeCircularLinkedList);
 
-// summary report
-void summary();
-
 #endif
