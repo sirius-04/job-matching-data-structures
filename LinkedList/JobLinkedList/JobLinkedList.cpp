@@ -139,11 +139,11 @@ Job* JobLinkedList::findById(int id)
         return nullptr;
 
     JobNode* current = head;
-    do {
+    while (current != nullptr) {
         if (current->data.id == id)
             return &current->data;
         current = current->next;
-    } while (current != head);
+    }
 
     return nullptr;
 }
@@ -508,6 +508,18 @@ JobNode *JobLinkedList::partitionByPosition(JobNode *low, JobNode *high)
 void JobLinkedList::quickSort(JobNode *low, JobNode *high, const string &type)
 {
     if (!low || !high || low == high)
+        return;
+
+    JobNode *temp = low;
+    bool validRange = false;
+    while (temp != nullptr) {
+        if (temp == high) {
+            validRange = true;
+            break;
+        }
+        temp = temp->next;
+    }
+    if (!validRange)
         return;
 
     JobNode *pivot = nullptr;

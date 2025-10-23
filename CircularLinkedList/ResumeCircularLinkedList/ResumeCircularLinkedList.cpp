@@ -123,6 +123,22 @@ void ResumeCircularLinkedList::deleteLast()
     length--;
 }
 
+Resume* ResumeCircularLinkedList::findById(int id) {
+    if (!head) {
+        return nullptr;
+    }
+    
+    ResumeNode* current = head;
+    do {
+        if (current->data.id == id) {
+            return &(current->data);
+        }
+        current = current->next;
+    } while (current != head);  // Stop when we circle back to head
+    
+    return nullptr;  // Not found
+}
+
 ResumeNode *ResumeCircularLinkedList::get(int index)
 {
     if (index < 0 || index >= length || length == 0)
@@ -377,12 +393,15 @@ void ResumeCircularLinkedList::mergeSortBy(const string &criterion)
         head = mergeSort(head, length, compareBySkill);
     }
 
-    // Restore tail and circular link
-    tail = head;
-    while (tail->next != nullptr)
-        tail = tail->next;
-    tail->next = head;
+    // Find new tail efficiently - only needed after merge sort
+    if (head) {
+        tail = head;
+        while (tail->next != nullptr)
+            tail = tail->next;
+        tail->next = head;
+    }
 }
+
 
 // ======= Clean String =======
 string ResumeCircularLinkedList::cleanString(string s)
@@ -584,13 +603,9 @@ void ResumeCircularLinkedList::quickSortBySkillCount()
         return;
 
     tail->next = nullptr; // Break circular link
-    ResumeNode *lastNode = sortTail();
-    quickSort(head, lastNode, "skillCount");
+    quickSort(head, tail, "skillCount");  // Use tail directly!
 
-    // Restore circular link
-    tail = head;
-    while (tail->next != nullptr)
-        tail = tail->next;
+    // Restore circular link - tail is still valid
     tail->next = head;
 }
 
@@ -600,13 +615,9 @@ void ResumeCircularLinkedList::quickSortBySkill()
         return;
 
     tail->next = nullptr; // Break circular link
-    ResumeNode *lastNode = sortTail();
-    quickSort(head, lastNode, "skill");
+    quickSort(head, tail, "skill");  // Use tail directly!
 
     // Restore circular link
-    tail = head;
-    while (tail->next != nullptr)
-        tail = tail->next;
     tail->next = head;
 }
 

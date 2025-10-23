@@ -29,6 +29,7 @@ public:
     void prepend(Resume data);
     void deleteFirst();
     void deleteLast();
+    Resume* findById(int id);
     ResumeNode *get(int index);
     bool set(int index, const string *skills, int skillCount);
     bool insert(int index, Resume data);

@@ -85,53 +85,106 @@ void JobMatching::setSortAlgorithm(SortAlgorithm sortAlgo) {
     this->sortAlgo = sortAlgo;
 }
 
-void JobMatching::sortDataStructures() {
-    // Only sort if using LINEAR search algorithm
+void JobMatching::sortJobsByPosition() {
     if (searchAlgo != LINEAR) {
         return;
     }
     
-    cout << "Sorting data structures for optimized linear search..." << endl;
+    cout << "Sorting jobs by position..." << endl;
     
     switch (dataStruct) {
         case ARRAY:
             if (sortAlgo == QUICK) {
                 jobArray->quickSortByPosition();
-                jobArray->quickSortBySkill();
-                resumeArray->quickSortBySkill();
             } else if (sortAlgo == MERGE) {
                 jobArray->mergeSort(JobArray::compareByPosition);
-                jobArray->mergeSort(JobArray::compareByFirstSkill);
-                resumeArray->mergeSort(ResumeArray::compareByFirstSkill);
             }
             break;
             
         case SINGLY_LINKED_LIST:
             if (sortAlgo == QUICK) {
                 jobLinkedList->quickSortByPosition();
-                jobLinkedList->quickSortBySkill();
-                resumeLinkedList->quickSortBySkill();
             } else if (sortAlgo == MERGE) {
                 jobLinkedList->mergeSortBy("position");
-                jobLinkedList->mergeSortBy("skill");
-                resumeLinkedList->mergeSortBy("skill");
             }
             break;
             
         case CIRCULAR_LINKED_LIST:
             if (sortAlgo == QUICK) {
                 jobCircular->quickSortByPosition();
-                jobCircular->quickSortBySkill();
-                resumeCircular->quickSortBySkill();
             } else if (sortAlgo == MERGE) {
                 jobCircular->mergeSortBy("position");
+            }
+            break;
+    }
+}
+
+void JobMatching::sortJobsBySkill() {
+    if (searchAlgo != LINEAR) {
+        return;
+    }
+    
+    cout << "Sorting jobs by skill..." << endl;
+    
+    switch (dataStruct) {
+        case ARRAY:
+            if (sortAlgo == QUICK) {
+                jobArray->quickSortBySkill();
+            } else if (sortAlgo == MERGE) {
+                jobArray->mergeSort(JobArray::compareByFirstSkill);
+            }
+            break;
+            
+        case SINGLY_LINKED_LIST:
+            if (sortAlgo == QUICK) {
+                jobLinkedList->quickSortBySkill();
+            } else if (sortAlgo == MERGE) {
+                jobLinkedList->mergeSortBy("skill");
+            }
+            break;
+            
+        case CIRCULAR_LINKED_LIST:
+            if (sortAlgo == QUICK) {
+                jobCircular->quickSortBySkill();
+            } else if (sortAlgo == MERGE) {
                 jobCircular->mergeSortBy("skill");
+            }
+            break;
+    }
+}
+
+void JobMatching::sortResumesBySkill() {
+    if (searchAlgo != LINEAR) {
+        return;
+    }
+    
+    cout << "Sorting resumes by skill..." << endl;
+    
+    switch (dataStruct) {
+        case ARRAY:
+            if (sortAlgo == QUICK) {
+                resumeArray->quickSortBySkill();
+            } else if (sortAlgo == MERGE) {
+                resumeArray->mergeSort(ResumeArray::compareByFirstSkill);
+            }
+            break;
+            
+        case SINGLY_LINKED_LIST:
+            if (sortAlgo == QUICK) {
+                resumeLinkedList->quickSortBySkill();
+            } else if (sortAlgo == MERGE) {
+                resumeLinkedList->mergeSortBy("skill");
+            }
+            break;
+            
+        case CIRCULAR_LINKED_LIST:
+            if (sortAlgo == QUICK) {
+                resumeCircular->quickSortBySkill();
+            } else if (sortAlgo == MERGE) {
                 resumeCircular->mergeSortBy("skill");
             }
             break;
     }
-    
-    cout << "Sorting complete." << endl;
 }
 
 void* JobMatching::searchBySkills(const string* skillSet, int skillCount, bool matchAll, void* dataSource, SearchTarget target) {
@@ -330,16 +383,6 @@ void JobMatching::processResumes(void* resumeData, Func callback) {
     }
 }
 
-// Get all resumes without conversion
-void* JobMatching::getAllResumes() {
-    switch (dataStruct) {
-        case ARRAY: return (void*)resumeArray;
-        case SINGLY_LINKED_LIST: return (void*)resumeLinkedList;
-        case CIRCULAR_LINKED_LIST: return (void*)resumeCircular;
-        default: return nullptr;
-    }
-}
-
 // Clean up search results properly
 void JobMatching::cleanupJobSearchResult(void* searchResult) {
     if (!searchResult) return;
@@ -402,20 +445,30 @@ double JobMatching::calculateWeightedScore(
     int matchedWeight = 0;
     const int DEFAULT_WEIGHT = 1;
 
-    // Total possible weight (sum of all job skills)
+    // Helper function to normalize
+    auto normalize = [](const string& s) {
+        string result = s;
+        result.erase(remove_if(result.begin(), result.end(), ::isspace), result.end());
+        transform(result.begin(), result.end(), result.begin(), ::tolower);
+        return result;
+    };
+
     for (int i = 0; i < jobSkillCount; i++) {
         int w = weightList.getWeight(jobSkills[i]);
         totalPossibleWeight += (w == 0) ? DEFAULT_WEIGHT : w;
     }
     if (totalPossibleWeight == 0) return 0.0;
 
-    // Calculate matched weight
     for (int i = 0; i < jobSkillCount; i++) {
         int w = weightList.getWeight(jobSkills[i]);
         if (w == 0) w = DEFAULT_WEIGHT;
 
+        string normalizedJobSkill = normalize(jobSkills[i]);
+
         for (int j = 0; j < resumeSkillCount; j++) {
-            if (jobSkills[i] == resumeSkills[j]) {
+            string normalizedResumeSkill = normalize(resumeSkills[j]);
+            
+            if (normalizedJobSkill == normalizedResumeSkill) {  // ← Normalized comparison
                 matchedWeight += w;
                 break;
             }
@@ -429,8 +482,10 @@ double JobMatching::calculateWeightedScore(
 void JobMatching::addUniqueMatch(int jobId, int resumeId, double score) {
     MatchResultNode* node = results->getHead();
     while (node) {
-        if (node->data.jobId == jobId && node->data.resumeId == resumeId)
+        if (node->data.jobId == jobId && node->data.resumeId == resumeId) {
             return;
+        }
+
         node = node->next;
     }
     results->append(MatchResult(jobId, resumeId, score));
@@ -444,66 +499,66 @@ MatchResultList* JobMatching::keywordBasedMatch(const string* skillSet, int skil
     bool findJobMode = (matchMode == FIND_JOB);
 
     string keyword;
-    int jobId;
+    int resumeId, jobId;
 
     if (findJobMode) {
-        cout << "Enter position keyword to filter jobs: ";
-        cin >> ws;
-        getline(cin, keyword);
+        cout << "Enter Resume ID to find matching jobs: ";
+        cin >> resumeId;
     } else {
         cout << "Enter Job ID to find matching resumes: ";
         cin >> jobId;
     }
 
     if (findJobMode) {
-        // FIND_JOB mode: Filter jobs by position and skills, then for each job search its matching resumes
+        // FIND_JOB mode: Find one resume, then search matching jobs
+        Resume* resumePtr = nullptr;
+        switch (dataStruct) {
+            case ARRAY: resumePtr = resumeArray->findById(resumeId); break;
+            case SINGLY_LINKED_LIST: resumePtr = resumeLinkedList->findById(resumeId); break;
+            case CIRCULAR_LINKED_LIST: resumePtr = resumeCircular->findById(resumeId); break;
+        }
+        
+        if (!resumePtr) {
+            cout << "Resume not found.\n";
+            return results;
+        }
+        
+        cout << "Enter position keyword to filter jobs: ";
+        cin >> ws;
+        getline(cin, keyword);
+        
+        cout << "Processing jobs for Resume ID " << resumeId << "..." << endl;
         
         // Step 1: Search jobs by position keyword
+        sortJobsByPosition();
         void* jobsByPosition = searchJobsByPosition(keyword);
         if (!jobsByPosition) {
             cout << "No jobs found matching keyword: " << keyword << endl;
             return results;
         }
         
-        // Step 2: Filter those jobs by user's input skills
-        void* filteredJobs = searchBySkills(skillSet, skillCount, matchAll, jobsByPosition, SEARCH_JOB);
+        // Step 2: Filter jobs by resume's skills
+        sortJobsBySkill();
+        void* jobSearchResult = searchBySkills(resumePtr->skills, resumePtr->skillCount, matchAll, jobsByPosition, SEARCH_JOB);
         
-        // Step 3: For EACH filtered job, search resumes matching THAT JOB'S skills
-        int jobCount = 0;
-        processJobs(filteredJobs, [&](const Job& job) {
-            jobCount++;
-            cout << "Processing job " << jobCount << " (ID: " << job.id << ")..." << endl;
-            
-            // Search resumes by THIS JOB'S skills (not user input skills!)
-            void* matchingResumes = searchBySkills(job.skills, job.skillCount, matchAll, nullptr, SEARCH_RESUME);
-            
-            int resumeCount = 0;
-            processResumes(matchingResumes, [&](const Resume& resume) {
-                resumeCount++;
-                if (resumeCount % 100 == 0) {  // Print every 100 resumes
-                    cout << "  Checked " << resumeCount << " resumes..." << endl;
-                }
-                // Calculate matched skills between job and resume
-                int matchedSkills = 0;
-                for (int a = 0; a < job.skillCount; a++) {
-                    for (int b = 0; b < resume.skillCount; b++) {
-                        if (job.skills[a] == resume.skills[b]) {
-                            matchedSkills++;
-                            break;
-                        }
+        // Process jobs directly
+        processJobs(jobSearchResult, [&](const Job& job) {
+            int matchedSkills = 0;
+            for (int a = 0; a < job.skillCount; a++) {
+                for (int b = 0; b < resumePtr->skillCount; b++) {
+                    if (job.skills[a] == resumePtr->skills[b]) {
+                        matchedSkills++;
+                        break;
                     }
                 }
-                
-                double score = (static_cast<double>(matchedSkills) / job.skillCount) * 100.0;
-                addUniqueMatch(job.id, resume.id, score);
-            });
+            }
             
-            cleanupResumeSearchResult(matchingResumes);
+            double score = (static_cast<double>(matchedSkills) / job.skillCount) * 100.0;
+            addUniqueMatch(job.id, resumePtr->id, score);
         });
         
-        // Cleanup
         cleanupJobSearchResult(jobsByPosition);
-        cleanupJobSearchResult(filteredJobs);
+        cleanupJobSearchResult(jobSearchResult);
         
     } else {
         // FIND_RESUME mode: Find one job, then search matching resumes
@@ -521,6 +576,7 @@ MatchResultList* JobMatching::keywordBasedMatch(const string* skillSet, int skil
         
         cout << "Processing resumes for Job ID " << jobId << "..." << endl;
         
+        sortResumesBySkill();
         void* resumeSearchResult = searchBySkills(jobPtr->skills, jobPtr->skillCount, matchAll, nullptr, SEARCH_RESUME);
         
         // Process resumes directly
@@ -554,13 +610,12 @@ MatchResultList* JobMatching::weightedScoringMatch(const string* skillSet, int s
     bool findJobMode = (matchMode == FIND_JOB);
 
     string keyword;
-    int jobId;
+    int resumeId, jobId;
     double minScore = 30.0;
 
     if (findJobMode) {
-        cout << "Enter position keyword to filter jobs: ";
-        cin >> ws;
-        getline(cin, keyword);
+        cout << "Enter Resume ID to find matching jobs: ";
+        cin >> resumeId;
     } else {
         cout << "Enter Job ID to find matching resumes: ";
         cin >> jobId;
@@ -578,9 +633,28 @@ MatchResultList* JobMatching::weightedScoringMatch(const string* skillSet, int s
     SkillWeightList* weightList = promptSkillWeights(skillSet, skillCount);
 
     if (findJobMode) {
-        // FIND_JOB mode: Filter jobs by position and skills, then for each job search its matching resumes
+        // FIND_JOB mode: Find one resume, then search matching jobs
+        Resume* resumePtr = nullptr;
+        switch (dataStruct) {
+            case ARRAY: resumePtr = resumeArray->findById(resumeId); break;
+            case SINGLY_LINKED_LIST: resumePtr = resumeLinkedList->findById(resumeId); break;
+            case CIRCULAR_LINKED_LIST: resumePtr = resumeCircular->findById(resumeId); break;
+        }
+        
+        if (!resumePtr) {
+            cout << "Resume not found.\n";
+            delete weightList;
+            return results;
+        }
+        
+        cout << "Enter position keyword to filter jobs: ";
+        cin >> ws;
+        getline(cin, keyword);
+        
+        cout << "Processing jobs for Resume ID " << resumeId << "..." << endl;
         
         // Step 1: Search jobs by position keyword
+        sortJobsByPosition();
         void* jobsByPosition = searchJobsByPosition(keyword);
         if (!jobsByPosition) {
             cout << "No jobs found matching keyword: " << keyword << endl;
@@ -588,40 +662,28 @@ MatchResultList* JobMatching::weightedScoringMatch(const string* skillSet, int s
             return results;
         }
         
-        // Step 2: Filter those jobs by user's input skills
-        void* filteredJobs = searchBySkills(skillSet, skillCount, matchAll, jobsByPosition, SEARCH_JOB);
-        
-        // Step 3: For EACH filtered job, search resumes matching THAT JOB'S skills
-        int jobCount = 0;
+        // Step 2: Filter jobs by resume's skills
+        sortJobsBySkill();
+        void* filteredJobs = searchBySkills(resumePtr->skills, resumePtr->skillCount, matchAll, jobsByPosition, SEARCH_JOB);
+
+        // Process filtered jobs
         processJobs(filteredJobs, [&](const Job& job) {
-            jobCount++;
-            cout << "Processing job " << jobCount << " (ID: " << job.id << ")..." << endl;
+            double score = calculateWeightedScore(
+                job.skills, job.skillCount,
+                resumePtr->skills, resumePtr->skillCount,
+                *weightList
+            );
             
-            // Search resumes by THIS JOB'S skills (not user input skills!)
-            void* matchingResumes = searchBySkills(job.skills, job.skillCount, matchAll, nullptr, SEARCH_RESUME);
-            
-            // Process matching resumes for this job with weighted scoring
-            processResumes(matchingResumes, [&](const Resume& resume) {
-                double score = calculateWeightedScore(
-                    job.skills, job.skillCount,
-                    resume.skills, resume.skillCount,
-                    *weightList
-                );
-                
-                if (score >= minScore) {
-                    addUniqueMatch(job.id, resume.id, score);
-                }
-            });
-            
-            cleanupResumeSearchResult(matchingResumes);
+            if (score >= minScore) {
+                addUniqueMatch(job.id, resumePtr->id, score);
+            }
         });
         
-        // Cleanup
         cleanupJobSearchResult(jobsByPosition);
         cleanupJobSearchResult(filteredJobs);
         
     } else {
-        // FIND_RESUME mode
+        // FIND_RESUME mode: Find one job, then search matching resumes
         Job* jobPtr = nullptr;
         switch (dataStruct) {
             case ARRAY: jobPtr = jobArray->findById(jobId); break;
@@ -637,6 +699,7 @@ MatchResultList* JobMatching::weightedScoringMatch(const string* skillSet, int s
         
         cout << "Processing resumes for Job ID " << jobId << "..." << endl;
         
+        sortResumesBySkill();
         // Search resumes by job's skills
         void* filteredResumes = searchBySkills(jobPtr->skills, jobPtr->skillCount, matchAll, nullptr, SEARCH_RESUME);
         
@@ -667,8 +730,6 @@ MatchResultList* JobMatching::runMatching(const string* skillSet, int skillCount
 {
     cout << "===== Running Match =====" << endl;
 
-    sortDataStructures();
-
     MatchResultList* matchResults = nullptr;
 
     // Use PerformanceTracker to measure
@@ -698,7 +759,6 @@ MatchResultList* JobMatching::runMatching(const string* skillSet, int skillCount
 
     return matchResults;
 }
-
 
 void JobMatching::printPerformance() const {
     cout << "\n===== 🧩 Matching Configuration & Performance =====" << endl;
