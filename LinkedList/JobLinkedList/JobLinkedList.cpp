@@ -139,11 +139,11 @@ Job* JobLinkedList::findById(int id)
         return nullptr;
 
     JobNode* current = head;
-    do {
+    while (current != nullptr) {
         if (current->data.id == id)
             return &current->data;
         current = current->next;
-    } while (current != head);
+    }
 
     return nullptr;
 }

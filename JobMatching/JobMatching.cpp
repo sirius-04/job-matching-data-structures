@@ -445,20 +445,30 @@ double JobMatching::calculateWeightedScore(
     int matchedWeight = 0;
     const int DEFAULT_WEIGHT = 1;
 
-    // Total possible weight (sum of all job skills)
+    // Helper function to normalize
+    auto normalize = [](const string& s) {
+        string result = s;
+        result.erase(remove_if(result.begin(), result.end(), ::isspace), result.end());
+        transform(result.begin(), result.end(), result.begin(), ::tolower);
+        return result;
+    };
+
     for (int i = 0; i < jobSkillCount; i++) {
         int w = weightList.getWeight(jobSkills[i]);
         totalPossibleWeight += (w == 0) ? DEFAULT_WEIGHT : w;
     }
     if (totalPossibleWeight == 0) return 0.0;
 
-    // Calculate matched weight
     for (int i = 0; i < jobSkillCount; i++) {
         int w = weightList.getWeight(jobSkills[i]);
         if (w == 0) w = DEFAULT_WEIGHT;
 
+        string normalizedJobSkill = normalize(jobSkills[i]);
+
         for (int j = 0; j < resumeSkillCount; j++) {
-            if (jobSkills[i] == resumeSkills[j]) {
+            string normalizedResumeSkill = normalize(resumeSkills[j]);
+            
+            if (normalizedJobSkill == normalizedResumeSkill) {  // ← Normalized comparison
                 matchedWeight += w;
                 break;
             }
