@@ -661,8 +661,7 @@ JobLinkedList *JobLinkedList::binarySearchJobByPosition(const string &positionKe
 
     return matches;
 }
-
-JJobLinkedList *JobLinkedList::binarySearchJobBySkills_NodeBased(const string *skills, int skillCount, bool matchAll, SortAlgorithm sortAlgo)
+JobLinkedList *JobLinkedList::binarySearchJobBySkills(const string *skills, int skillCount, bool matchAll, SortAlgorithm sortAlgo)
 {
     JobLinkedList *matches = new JobLinkedList();
 
