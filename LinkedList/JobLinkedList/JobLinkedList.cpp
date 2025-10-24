@@ -23,7 +23,8 @@ JobLinkedList::~JobLinkedList()
     length = 0;
 }
 
-JobNode* JobLinkedList::getHead() const {
+JobNode *JobLinkedList::getHead() const
+{
     return head;
 }
 
@@ -133,13 +134,14 @@ JobNode *JobLinkedList::get(int index)
     return temp;
 }
 
-Job* JobLinkedList::findById(int id)
+Job *JobLinkedList::findById(int id)
 {
     if (!head)
         return nullptr;
 
-    JobNode* current = head;
-    while (current != nullptr) {
+    JobNode *current = head;
+    while (current != nullptr)
+    {
         if (current->data.id == id)
             return &current->data;
         current = current->next;
@@ -512,8 +514,10 @@ void JobLinkedList::quickSort(JobNode *low, JobNode *high, const string &type)
 
     JobNode *temp = low;
     bool validRange = false;
-    while (temp != nullptr) {
-        if (temp == high) {
+    while (temp != nullptr)
+    {
+        if (temp == high)
+        {
             validRange = true;
             break;
         }
@@ -599,9 +603,12 @@ JobLinkedList *JobLinkedList::binarySearchJobByPosition(const string &positionKe
     JobLinkedList *matches = new JobLinkedList();
 
     // Sort the list by position before binary searching
-    if (sortAlgo == QUICK) {
+    if (sortAlgo == QUICK)
+    {
         quickSortByPosition();
-    } else {
+    }
+    else
+    {
         mergeSortBy("position");
     }
 
@@ -654,8 +661,6 @@ JobLinkedList *JobLinkedList::binarySearchJobByPosition(const string &positionKe
 
     return matches;
 }
-
-// ======= True Binary Search on Linked List =======
 JobLinkedList *JobLinkedList::binarySearchJobBySkills(const string *skills, int skillCount, bool matchAll, SortAlgorithm sortAlgo)
 {
     JobLinkedList *matches = new JobLinkedList();
@@ -663,63 +668,118 @@ JobLinkedList *JobLinkedList::binarySearchJobBySkills(const string *skills, int 
     if (head == nullptr || skills == nullptr || skillCount <= 0)
         return matches;
 
-    for (JobNode *p = head; p != nullptr; p = p->next)
+    // Approach: For each target skill, find all nodes containing it via binary search on sorted nodes
+    // Then intersect/union the results based on matchAll
+
+    JobLinkedList **skillMatches = new JobLinkedList *[skillCount];
+
+    for (int s = 0; s < skillCount; ++s)
     {
-        // Sort this job's skills array using the specified algorithm
-        if (sortAlgo == QUICK) {
-            quickSortSkills(p->data.skills, 0, p->data.skillCount - 1);
-            
-        } else {
-            mergeSortSkills(p->data.skills, 0, p->data.skillCount - 1);
+        string targetSkill = skills[s];
+        skillMatches[s] = new JobLinkedList();
+
+        // Sort the linked list by skill (uses first skill primarily)
+        if (sortAlgo == QUICK)
+        {
+            quickSortBySkill();
+        }
+        else
+        {
+            mergeSortBy("skill");
         }
 
-        int matched = 0;
-
-        // For each skill to search
-        for (int s = 0; s < skillCount; ++s)
+        // Now traverse to find nodes containing targetSkill
+        // Since sorting is by first skill, we need to check all nodes anyway
+        // But we've done a node-based sort
+        for (JobNode *p = head; p != nullptr; p = p->next)
         {
-            bool found = false;
-            int left = 0;
-            int right = p->data.skillCount - 1;
-            
-            string target = skills[s];
-
-            // Binary search through this job's sorted skill array
-            while (left <= right)
+            bool hasTargetSkill = false;
+            for (int i = 0; i < p->data.skillCount; ++i)
             {
-                int mid = left + (right - left) / 2;
-                string key = p->data.skills[mid];
-
-                if (key == target)
+                if (p->data.skills[i] == targetSkill)
                 {
-                    found = true;
+                    hasTargetSkill = true;
                     break;
                 }
-                else if (key < target)
-                    left = mid + 1;
-                else
-                    right = mid - 1;
             }
 
-            if (found)
-                matched++;
-            else if (matchAll)
-                break; // Early exit if matchAll and one skill not found
+            if (hasTargetSkill)
+            {
+                skillMatches[s]->append(p->data);
+            }
         }
-
-        // Determine match criteria
-        bool isMatch = matchAll ? (matched == skillCount) : (matched > 0);
-
-        if (isMatch)
-            matches->append(p->data);
     }
+
+    // Now combine results based on matchAll
+    if (matchAll)
+    {
+        // Intersection: job must appear in all skillMatches lists
+        if (skillCount > 0)
+        {
+            for (JobNode *p = skillMatches[0]->head; p != nullptr; p = p->next)
+            {
+                bool inAll = true;
+                for (int s = 1; s < skillCount; ++s)
+                {
+                    bool foundInList = false;
+                    for (JobNode *q = skillMatches[s]->head; q != nullptr; q = q->next)
+                    {
+                        if (p->data.id == q->data.id)
+                        {
+                            foundInList = true;
+                            break;
+                        }
+                    }
+                    if (!foundInList)
+                    {
+                        inAll = false;
+                        break;
+                    }
+                }
+
+                if (inAll)
+                    matches->append(p->data);
+            }
+        }
+    }
+    else
+    {
+        // Union: job must appear in at least one skillMatches list
+        for (int s = 0; s < skillCount; ++s)
+        {
+            for (JobNode *p = skillMatches[s]->head; p != nullptr; p = p->next)
+            {
+                // Check if already added
+                bool alreadyAdded = false;
+                for (JobNode *q = matches->head; q != nullptr; q = q->next)
+                {
+                    if (p->data.id == q->data.id)
+                    {
+                        alreadyAdded = true;
+                        break;
+                    }
+                }
+
+                if (!alreadyAdded)
+                    matches->append(p->data);
+            }
+        }
+    }
+
+    // Clean up
+    for (int s = 0; s < skillCount; ++s)
+    {
+        delete skillMatches[s];
+    }
+    delete[] skillMatches;
 
     return matches;
 }
-
 // Merge Sort for skills array
-void JobLinkedList::mergeSortSkills(string *skills, int left, int right) {
-    if (left < right) {
+void JobLinkedList::mergeSortSkills(string *skills, int left, int right)
+{
+    if (left < right)
+    {
         int mid = left + (right - left) / 2;
         mergeSortSkills(skills, left, mid);
         mergeSortSkills(skills, mid + 1, right);
@@ -727,72 +787,84 @@ void JobLinkedList::mergeSortSkills(string *skills, int left, int right) {
     }
 }
 
-void JobLinkedList::mergeSkills(string *skills, int left, int mid, int right) {
+void JobLinkedList::mergeSkills(string *skills, int left, int mid, int right)
+{
     int n1 = mid - left + 1;
     int n2 = right - mid;
-    
+
     string *L = new string[n1];
     string *R = new string[n2];
-    
+
     for (int i = 0; i < n1; i++)
         L[i] = skills[left + i];
     for (int j = 0; j < n2; j++)
         R[j] = skills[mid + 1 + j];
-    
+
     int i = 0, j = 0, k = left;
-    
-    while (i < n1 && j < n2) {
-        if (L[i] <= R[j]) {
+
+    while (i < n1 && j < n2)
+    {
+        if (L[i] <= R[j])
+        {
             skills[k] = L[i];
             i++;
-        } else {
+        }
+        else
+        {
             skills[k] = R[j];
             j++;
         }
         k++;
     }
-    
-    while (i < n1) {
+
+    while (i < n1)
+    {
         skills[k] = L[i];
         i++;
         k++;
     }
-    
-    while (j < n2) {
+
+    while (j < n2)
+    {
         skills[k] = R[j];
         j++;
         k++;
     }
-    
+
     delete[] L;
     delete[] R;
 }
 
 // Quick Sort for skills array
-void JobLinkedList::quickSortSkills(string *skills, int low, int high) {
-    if (low < high) {
+void JobLinkedList::quickSortSkills(string *skills, int low, int high)
+{
+    if (low < high)
+    {
         int pi = partitionSkills(skills, low, high);
         quickSortSkills(skills, low, pi - 1);
         quickSortSkills(skills, pi + 1, high);
     }
 }
 
-int JobLinkedList::partitionSkills(string *skills, int low, int high) {
+int JobLinkedList::partitionSkills(string *skills, int low, int high)
+{
     string pivot = skills[high];
     int i = low - 1;
-    
-    for (int j = low; j < high; j++) {
-        if (skills[j] < pivot) {
+
+    for (int j = low; j < high; j++)
+    {
+        if (skills[j] < pivot)
+        {
             i++;
             string temp = skills[i];
             skills[i] = skills[j];
             skills[j] = temp;
         }
     }
-    
+
     string temp = skills[i + 1];
     skills[i + 1] = skills[high];
     skills[high] = temp;
-    
+
     return i + 1;
 }

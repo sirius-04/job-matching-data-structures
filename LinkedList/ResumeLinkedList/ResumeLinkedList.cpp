@@ -23,7 +23,8 @@ ResumeLinkedList::~ResumeLinkedList()
     length = 0;
 }
 
-ResumeNode* ResumeLinkedList::getHead() const {
+ResumeNode *ResumeLinkedList::getHead() const
+{
     return head;
 }
 
@@ -116,19 +117,23 @@ void ResumeLinkedList::deleteLast()
     length--;
 }
 
-Resume* ResumeLinkedList::findById(int id) {
-    if (!head) {
+Resume *ResumeLinkedList::findById(int id)
+{
+    if (!head)
+    {
         return nullptr;
     }
-    
-    ResumeNode* current = head;
-    while (current) {
-        if (current->data.id == id) {
+
+    ResumeNode *current = head;
+    while (current)
+    {
+        if (current->data.id == id)
+        {
             return &(current->data);
         }
         current = current->next;
     }
-    return nullptr;  // Not found
+    return nullptr; // Not found
 }
 
 ResumeNode *ResumeLinkedList::get(int index)
@@ -597,62 +602,119 @@ ResumeLinkedList *ResumeLinkedList::binarySearchResumeBySkills(const string *ski
     if (head == nullptr || skills == nullptr || skillCount <= 0)
         return matches;
 
-    for (ResumeNode *p = head; p != nullptr; p = p->next)
+    // For each target skill, find all nodes containing it
+    // Then combine results based on matchAll criteria
+
+    ResumeLinkedList **skillMatches = new ResumeLinkedList *[skillCount];
+
+    for (int s = 0; s < skillCount; ++s)
     {
-        // Sort this resume's skills array using the specified algorithm
-        if (sortAlgo == QUICK) {
-            quickSortSkills(p->data.skills, 0, p->data.skillCount - 1);
-            
-        } else {
-            mergeSortSkills(p->data.skills, 0, p->data.skillCount - 1);
+        string targetSkill = skills[s];
+        skillMatches[s] = new ResumeLinkedList();
+
+        // Sort the linked list NODES by skill (node-based sorting)
+        if (sortAlgo == QUICK)
+        {
+            quickSortBySkill();
+        }
+        else
+        {
+            mergeSortBy("skill");
         }
 
-        int matched = 0;
-
-        // For each skill in search criteria
-        for (int s = 0; s < skillCount; ++s)
+        // Traverse all nodes to find those containing targetSkill
+        // This is node-based traversal after node-based sorting
+        for (ResumeNode *p = head; p != nullptr; p = p->next)
         {
-            bool found = false;
-            int left = 0;
-            int right = p->data.skillCount - 1;
-            
-            string target = skills[s];
-
-            while (left <= right)
+            bool hasTargetSkill = false;
+            // Check if this node contains the target skill
+            for (int i = 0; i < p->data.skillCount; ++i)
             {
-                int mid = left + (right - left) / 2;
-                string key = p->data.skills[mid];
-
-                if (key == target)
+                if (p->data.skills[i] == targetSkill)
                 {
-                    found = true;
+                    hasTargetSkill = true;
                     break;
                 }
-                else if (key < target)
-                    left = mid + 1;
-                else
-                    right = mid - 1;
             }
 
-            if (found)
-                matched++;
-            else if (matchAll)
-                break; // Early exit if matchAll and one skill not found
+            if (hasTargetSkill)
+            {
+                skillMatches[s]->append(p->data);
+            }
         }
-
-        // Determine if the resume matches based on matchAll flag
-        bool isMatch = matchAll ? (matched == skillCount) : (matched > 0);
-
-        if (isMatch)
-            matches->append(p->data);
     }
+
+    // Now combine results based on matchAll
+    if (matchAll)
+    {
+        // Intersection: resume must appear in all skillMatches lists
+        if (skillCount > 0)
+        {
+            for (ResumeNode *p = skillMatches[0]->head; p != nullptr; p = p->next)
+            {
+                bool inAll = true;
+                for (int s = 1; s < skillCount; ++s)
+                {
+                    bool foundInList = false;
+                    for (ResumeNode *q = skillMatches[s]->head; q != nullptr; q = q->next)
+                    {
+                        if (p->data.id == q->data.id)
+                        {
+                            foundInList = true;
+                            break;
+                        }
+                    }
+                    if (!foundInList)
+                    {
+                        inAll = false;
+                        break;
+                    }
+                }
+
+                if (inAll)
+                    matches->append(p->data);
+            }
+        }
+    }
+    else
+    {
+        // Union: resume must appear in at least one skillMatches list
+        for (int s = 0; s < skillCount; ++s)
+        {
+            for (ResumeNode *p = skillMatches[s]->head; p != nullptr; p = p->next)
+            {
+                // Check if already added (avoid duplicates)
+                bool alreadyAdded = false;
+                for (ResumeNode *q = matches->head; q != nullptr; q = q->next)
+                {
+                    if (p->data.id == q->data.id)
+                    {
+                        alreadyAdded = true;
+                        break;
+                    }
+                }
+
+                if (!alreadyAdded)
+                    matches->append(p->data);
+            }
+        }
+    }
+
+    // Clean up temporary lists
+    for (int s = 0; s < skillCount; ++s)
+    {
+        delete skillMatches[s];
+    }
+    delete[] skillMatches;
 
     return matches;
 }
 
 // Merge Sort for skills array
-void ResumeLinkedList::mergeSortSkills(string *skills, int left, int right) {
-    if (left < right) {
+void ResumeLinkedList::mergeSortSkills(string *skills, int left, int right)
+{
+    if (left < right)
+    {
         int mid = left + (right - left) / 2;
         mergeSortSkills(skills, left, mid);
         mergeSortSkills(skills, mid + 1, right);
@@ -660,72 +722,84 @@ void ResumeLinkedList::mergeSortSkills(string *skills, int left, int right) {
     }
 }
 
-void ResumeLinkedList::mergeSkills(string *skills, int left, int mid, int right) {
+void ResumeLinkedList::mergeSkills(string *skills, int left, int mid, int right)
+{
     int n1 = mid - left + 1;
     int n2 = right - mid;
-    
+
     string *L = new string[n1];
     string *R = new string[n2];
-    
+
     for (int i = 0; i < n1; i++)
         L[i] = skills[left + i];
     for (int j = 0; j < n2; j++)
         R[j] = skills[mid + 1 + j];
-    
+
     int i = 0, j = 0, k = left;
-    
-    while (i < n1 && j < n2) {
-        if (L[i] <= R[j]) {
+
+    while (i < n1 && j < n2)
+    {
+        if (L[i] <= R[j])
+        {
             skills[k] = L[i];
             i++;
-        } else {
+        }
+        else
+        {
             skills[k] = R[j];
             j++;
         }
         k++;
     }
-    
-    while (i < n1) {
+
+    while (i < n1)
+    {
         skills[k] = L[i];
         i++;
         k++;
     }
-    
-    while (j < n2) {
+
+    while (j < n2)
+    {
         skills[k] = R[j];
         j++;
         k++;
     }
-    
+
     delete[] L;
     delete[] R;
 }
 
 // Quick Sort for skills array
-void ResumeLinkedList::quickSortSkills(string *skills, int low, int high) {
-    if (low < high) {
+void ResumeLinkedList::quickSortSkills(string *skills, int low, int high)
+{
+    if (low < high)
+    {
         int pi = partitionSkills(skills, low, high);
         quickSortSkills(skills, low, pi - 1);
         quickSortSkills(skills, pi + 1, high);
     }
 }
 
-int ResumeLinkedList::partitionSkills(string *skills, int low, int high) {
+int ResumeLinkedList::partitionSkills(string *skills, int low, int high)
+{
     string pivot = skills[high];
     int i = low - 1;
-    
-    for (int j = low; j < high; j++) {
-        if (skills[j] < pivot) {
+
+    for (int j = low; j < high; j++)
+    {
+        if (skills[j] < pivot)
+        {
             i++;
             string temp = skills[i];
             skills[i] = skills[j];
             skills[j] = temp;
         }
     }
-    
+
     string temp = skills[i + 1];
     skills[i + 1] = skills[high];
     skills[high] = temp;
-    
+
     return i + 1;
 }

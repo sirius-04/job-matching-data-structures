@@ -247,14 +247,12 @@ void handleSearchArray(JobArray &jobArray, ResumeArray &resumeArray)
                     break;
 
                 string keyword1, keyword2;
-                cout << "Enter first position keyword: ";
-                cin.ignore();
-                getline(cin, keyword1);
-                cout << "Enter second position keyword: ";
-                getline(cin, keyword2);
 
                 if (jobSearch == 1)
                 {
+                    cout << "Enter position keyword: ";
+                    cin.ignore();
+                    getline(cin, keyword1);
                     cout << ((algo == 1) ? "Linear" : "Binary") << " Search by position\n";
 
                     // 🕒 Measure performance
@@ -275,6 +273,12 @@ void handleSearchArray(JobArray &jobArray, ResumeArray &resumeArray)
                 }
                 else if (jobSearch == 2)
                 {
+                    cout << "Enter first skill: ";
+                    cin.ignore();
+                    getline(cin, keyword1);
+                    cout << "Enter second skill: ";
+                    getline(cin, keyword2);
+
                     const string skills[] = {keyword1, keyword2};
 
                     cout << ((algo == 1) ? "Linear" : "Binary") << " Search by skills\n";
